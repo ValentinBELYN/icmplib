@@ -1,0 +1,121 @@
+'''
+    icmplib
+    ~~~~~~~
+
+        https://github.com/ValentinBELYN/icmplib
+
+    :copyright: Copyright 2017-2019 Valentin BELYN.
+    :license: GNU GPLv3, see LICENSE for details.
+
+    ~~~~~~~
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+'''
+
+import socket
+
+
+# Fix for Windows
+if not hasattr(socket, 'IPPROTO_IPV6'):
+    socket.IPPROTO_IPV6 = 41
+
+
+class IPSocket:
+    def __init__(self, family, protocol):
+        self._socket = socket.socket(
+            family=family,
+            type=socket.SOCK_RAW,
+            proto=protocol)
+
+        self.timeout = 5
+        self.ttl = 64
+
+    def send(self, packet, address, port):
+        return self._socket.sendto(packet, (address, port))
+
+    def receive(self, buffer_size=1024):
+        result = self._socket.recvfrom(buffer_size)
+
+        packet = result[0]
+        address = result[1][0]
+        port = result[1][1]
+
+        return packet, address, port
+
+    def close(self):
+        self._socket.close()
+
+    @property
+    def timeout(self):
+        return self._timeout
+
+    @timeout.setter
+    def timeout(self, timeout):
+        self._socket.settimeout(timeout)
+        self._timeout = timeout
+
+    @property
+    def ttl(self):
+        return self._ttl
+
+    @ttl.setter
+    def ttl(self, ttl):
+        self._ttl = ttl
+
+
+class IPv4Socket(IPSocket):
+    def __init__(self, protocol):
+        super().__init__(
+            family=socket.AF_INET,
+            protocol=protocol)
+
+        self._broadcast = False
+
+    @IPSocket.ttl.setter
+    def ttl(self, ttl):
+        self._ttl = ttl
+
+        self._socket.setsockopt(
+            socket.SOL_IP,
+            socket.IP_TTL,
+            ttl)
+
+    @property
+    def broadcast(self):
+        return self._broadcast
+
+    @broadcast.setter
+    def broadcast(self, allow):
+        self._broadcast = allow
+
+        self._socket.setsockopt(
+            socket.SOL_SOCKET,
+            socket.SO_BROADCAST,
+            allow)
+
+
+class IPv6Socket(IPSocket):
+    def __init__(self, protocol):
+        super().__init__(
+            family=socket.AF_INET6,
+            protocol=protocol)
+
+    @IPSocket.ttl.setter
+    def ttl(self, ttl):
+        self._ttl = ttl
+
+        self._socket.setsockopt(
+            socket.IPPROTO_IPV6,
+            socket.IPV6_MULTICAST_HOPS,
+            ttl)

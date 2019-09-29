@@ -1,0 +1,172 @@
+'''
+    icmplib
+    ~~~~~~~
+
+        https://github.com/ValentinBELYN/icmplib
+
+    :copyright: Copyright 2017-2019 Valentin BELYN.
+    :license: GNU GPLv3, see LICENSE for details.
+
+    ~~~~~~~
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+'''
+
+from .sockets import ICMPv4Socket, ICMPv6Socket
+from .model import ICMPRequest, Hop
+from .utils import PID, is_ipv6_address
+from .exceptions import *
+
+from time import sleep
+
+
+def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
+        max_hops=30, fast_mode=False):
+    '''
+    Determine the route to a destination host.
+
+    The Internet is a large and complex aggregation of network hardware,
+    connected together by gateways. Tracking the route one's packets
+    follow can be difficult. This function utilizes the IP protocol
+    time to live field and attempts to elicit an ICMP TIME_EXCEEDED
+    response from each gateway along the path to some host.
+
+    :type address: str
+    :param address: The destination IP address.
+
+    :type count: int
+    :param count: (Optional) The number of ping to perform per hop.
+
+    :type interval: int or float
+    :param interval: (Optional) The interval in seconds between sending
+        each packet.
+
+    :type timeout: int or float
+    :param timeout: (Optional) The maximum waiting time for receiving
+        a reply in seconds.
+
+    :type id: int
+    :param id: (Optional) The identifier of the request. Used to match
+        the reply with the request. In practice, a unique identifier is
+        used for every ping process.
+
+    :type max_hops: int
+    :param max_hops: (Optional) The maximum time to live (max number of
+        hops) used in outgoing probe packets.
+
+    :type fast_mode: bool
+    :param fast_mode: (Optional) When this option is enabled and an
+        intermediate router has been reached, skip to the next hop
+        rather than perform additional requests. The count option then
+        becomes the maximum number of requests in case of no responses.
+
+    :rtype: list of Hop
+    :returns: A list of Hop objects representing the route to the
+        desired host. The list is sorted in ascending order according
+        to the distance (in terms of hops) that separates the remote
+        host from the current machine.
+
+    :raises SocketPermissionError: If the permissions are insufficient
+        to create a socket.
+
+    Usage::
+
+        >>> from icmplib import traceroute
+        >>> hops = traceroute('1.1.1.1')
+        >>> last_distance = 0
+
+        >>> for hop in hops:
+        ...     if last_distance + 1 != hop.distance:
+        ...         print('Some routers does not respond')
+        ...
+        ...     print(f'{hop.distance} {hop.address} {hop.avg_rtt} ms')
+        ...
+        ...     last_distance = hop.distance
+        ...
+        1       10.0.0.1             5.19 ms
+        2       194.149.169.49       7.55 ms
+        3       194.149.166.54       12.2 ms
+        !       Some routers does not respond
+        5       212.73.205.22        22.1 ms
+        6       1.1.1.1              13.5 ms
+
+    See the Hop class for details.
+
+    '''
+    if is_ipv6_address(address):
+        socket = ICMPv6Socket()
+
+    else:
+        socket = ICMPv4Socket()
+
+    ttl = 1
+    host_reached = False
+    hops = []
+
+    while not host_reached and ttl <= max_hops:
+        reply = None
+        transmitted_packets = 0
+        received_packets = 0
+
+        min_rtt = float('inf')
+        avg_rtt = 0.0
+        max_rtt = 0.0
+
+        for sequence in range(count):
+            request = ICMPRequest(
+                destination=address,
+                id=id,
+                sequence=sequence,
+                timeout=timeout,
+                ttl=ttl)
+
+            try:
+                socket.send(request)
+                transmitted_packets += 1
+
+                reply = socket.receive()
+                reply.raise_for_status()
+                host_reached = True
+
+            except TimeExceeded:
+                sleep(interval)
+
+            except ICMPLibError:
+                continue
+
+            received_packets += 1
+
+            round_trip_time = (reply.time - request.time) * 1000
+            avg_rtt += round_trip_time
+            min_rtt  = min(round_trip_time, min_rtt)
+            max_rtt  = max(round_trip_time, max_rtt)
+
+            if fast_mode:
+                break
+
+        if reply:
+            hop = Hop(
+                address=reply.source,
+                min_rtt=min_rtt,
+                avg_rtt=avg_rtt,
+                max_rtt=max_rtt,
+                transmitted_packets=transmitted_packets,
+                received_packets=received_packets,
+                distance=ttl)
+
+            hops.append(hop)
+
+        ttl += 1
+
+    return hops
