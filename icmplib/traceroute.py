@@ -24,7 +24,7 @@
 '''
 
 from .sockets import ICMPv4Socket, ICMPv6Socket
-from .model import ICMPRequest, Hop
+from .models import ICMPRequest, Hop
 from .utils import PID, is_ipv6_address
 from .exceptions import *
 

@@ -24,7 +24,7 @@
 '''
 
 from .ip import IPv4Socket, IPv6Socket
-from .model import ICMPRequest, ICMPReply
+from .models import ICMPRequest, ICMPReply
 from .utils import random_byte_message
 from .exceptions import *
 

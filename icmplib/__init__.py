@@ -24,7 +24,7 @@
 '''
 
 from .sockets import ICMPv4Socket, ICMPv6Socket
-from .model import ICMPRequest, ICMPReply, Host, Hop
+from .models import ICMPRequest, ICMPReply, Host, Hop
 from .ping import ping, multiping
 from .traceroute import traceroute
 from .utils import PID, is_ipv6_address
@@ -36,4 +36,4 @@ __copyright__ = 'Copyright 2017-2019 Valentin BELYN'
 __license__   = 'GNU General Public License v3.0'
 
 __version__   = '1.0'
-__build__     = '190929'
+__build__     = '191006'
