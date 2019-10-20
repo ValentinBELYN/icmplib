@@ -724,4 +724,4 @@ icmplib is completely free and open source. It has been fully developed on my fr
 
 Copyright 2017-2019 Valentin BELYN.
 
-Code released under the GNU GPLv3 license. See the [LICENSE](LICENSE) for details.
+Code released under the GNU LGPLv3 license. See the [LICENSE](LICENSE) for details.

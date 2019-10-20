@@ -5,7 +5,7 @@
         https://github.com/ValentinBELYN/icmplib
 
     :copyright: Copyright 2017-2019 Valentin BELYN.
-    :license: GNU GPLv3, see LICENSE for details.
+    :license: GNU LGPLv3, see the LICENSE for details.
 '''
 
 from icmplib import ping
