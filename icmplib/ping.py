@@ -104,6 +104,8 @@ def ping(address, count=4, interval=1, timeout=2, id=PID):
     avg_rtt = 0.0
     max_rtt = 0.0
 
+    ttl = None
+
     for sequence in range(count):
         request = ICMPRequest(
             destination=address,
@@ -124,6 +126,9 @@ def ping(address, count=4, interval=1, timeout=2, id=PID):
             min_rtt  = min(round_trip_time, min_rtt)
             max_rtt  = max(round_trip_time, max_rtt)
 
+            if reply.ttl is not None:
+                ttl = reply.ttl
+
             if sequence < count - 1:
                 sleep(interval)
 
@@ -142,7 +147,8 @@ def ping(address, count=4, interval=1, timeout=2, id=PID):
         avg_rtt=avg_rtt,
         max_rtt=max_rtt,
         transmitted_packets=transmitted_packets,
-        received_packets=received_packets)
+        received_packets=received_packets,
+        ttl=ttl)
 
     return host
 

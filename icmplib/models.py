@@ -169,9 +169,12 @@ class ICMPReply:
     :type time: float
     :param time: The timestamp of the ICMP reply.
 
+    :type ttl: int
+    :param ttl: The TTL in the IPv4 header of the ICMP reply.
+
     '''
     def __init__(self, source, id, sequence, type, code,
-            received_bytes, time):
+            received_bytes, time, ttl):
 
         self._source = source
         self._id = id
@@ -180,6 +183,7 @@ class ICMPReply:
         self._code = code
         self._received_bytes = received_bytes
         self._time = time
+        self._ttl = ttl
 
     def __repr__(self):
         return f'<ICMPReply [{self._source}]>'
@@ -284,6 +288,14 @@ class ICMPReply:
 
         '''
         return self._time
+    
+    @property
+    def ttl(self):
+        '''
+        The TTL in the IPv4 header of the ICMP reply.
+        Should be None for IPv6.
+        '''
+        return self._ttl
 
 
 class Host:
@@ -312,9 +324,11 @@ class Host:
     :param received_packets: The number of packets sent by the remote
         host and received by the current host.
 
+    :type ttl: Optional[int]
+    :param ttl: the TTL in the IP header of the reply when the host is alive.
     '''
     def __init__(self, address, min_rtt, avg_rtt, max_rtt,
-            transmitted_packets, received_packets):
+            transmitted_packets, received_packets, ttl):
 
         self._address = address
         self._min_rtt = min_rtt
@@ -322,6 +336,7 @@ class Host:
         self._max_rtt = max_rtt
         self._transmitted_packets = transmitted_packets
         self._received_packets = received_packets
+        self._ttl = ttl
 
     def __repr__(self):
         return f'<Host [{self._address}]>'
@@ -396,6 +411,13 @@ class Host:
 
         '''
         return self.packet_loss < 1
+
+    @property
+    def ttl(self):
+        '''
+        Return the TTL if the host is reachable, None otherwise.
+        '''
+        return self._ttl
 
 
 class Hop(Host):

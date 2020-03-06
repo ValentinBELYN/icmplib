@@ -89,6 +89,7 @@ class ICMPConfig:
 class ICMPv4Config(ICMPConfig):
     IP_PROTOCOL          = 1
     IP_SOCKET            = IPv4Socket
+    IP_TTL_OFFSET        = 8
 
     ICMP_HEADER_OFFSET   = 20
     ICMP_CODE_OFFSET     = ICMP_HEADER_OFFSET + 1
@@ -104,6 +105,7 @@ class ICMPv4Config(ICMPConfig):
 class ICMPv6Config(ICMPConfig):
     IP_PROTOCOL          = 58
     IP_SOCKET            = IPv6Socket
+    IP_TTL_OFFSET        = -1
 
     ICMP_HEADER_OFFSET   = 0
     ICMP_CODE_OFFSET     = ICMP_HEADER_OFFSET + 1
@@ -199,6 +201,11 @@ class ICMPSocket:
             len(packet)
             - self._config.ICMP_HEADER_OFFSET)
 
+        if self._config.IP_TTL_OFFSET > 0:
+            ttl = packet[self._config.IP_TTL_OFFSET]
+        else:
+            ttl = None
+
         type, code = unpack('!BB', packet[
             self._config.ICMP_HEADER_OFFSET:
             self._config.ICMP_CHECKSUM_OFFSET])
@@ -218,7 +225,8 @@ class ICMPSocket:
             type=type,
             code=code,
             received_bytes=received_bytes,
-            time=reply_time)
+            time=reply_time,
+            ttl=ttl)
 
         return reply
 
