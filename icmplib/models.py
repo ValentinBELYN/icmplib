@@ -47,7 +47,8 @@ class ICMPRequest:
         each packet sent during the process.
 
     :type payload_size: int
-    :param payload_size: (Optional) The payload size in bytes.
+    :param payload_size: (Optional) The random payload size in bytes
+        when payload is None.
 
     :type timeout: int or float
     :param timeout: (Optional) The maximum waiting time for receiving
@@ -56,9 +57,12 @@ class ICMPRequest:
     :type ttl: int
     :param ttl: (Optional) The time to live of the packet in seconds.
 
+    :type payload: bytes
+    :param payload: (Optional) The ICMP ping payload.
+
     '''
     def __init__(self, destination, id, sequence, payload_size=56,
-            timeout=2, ttl=64):
+            timeout=2, ttl=64, payload=None):
 
         id &= 0xffff
         sequence &= 0xffff
@@ -66,10 +70,11 @@ class ICMPRequest:
         self._destination = destination
         self._id = id
         self._sequence = sequence
-        self._payload_size = payload_size
+        self._payload_size = len(payload) if payload is not None else payload_size
         self._timeout = timeout
         self._ttl = ttl
         self._time = 0
+        self._payload = payload
 
     def __repr__(self):
         return f'<ICMPRequest [{self._destination}]>'
@@ -104,7 +109,7 @@ class ICMPRequest:
     @property
     def payload_size(self):
         '''
-        The payload size.
+        The random payload size when payload is None.
 
         '''
         return self._payload_size
@@ -138,6 +143,14 @@ class ICMPRequest:
     @time.setter
     def time(self, time):
         self._time = time
+    
+    @property
+    def payload(self):
+        '''
+        The payload of the ICMP request.
+        None for random payload.
+        '''
+        return self._payload
 
 
 class ICMPReply:
@@ -399,7 +412,7 @@ class Host:
 
         '''
         if not self._transmitted_packets:
-            return 0.0
+            return float('nan')
 
         return (1 - self._received_packets
                   / self._transmitted_packets)
@@ -410,7 +423,7 @@ class Host:
         Return True if the host is reachable, False otherwise.
 
         '''
-        return self.packet_loss < 1
+        return self._transmitted_packets and self.packet_loss < 1
 
     @property
     def ttl(self):

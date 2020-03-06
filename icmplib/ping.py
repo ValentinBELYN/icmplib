@@ -48,7 +48,7 @@ class PingThread(Thread):
         return self._host
 
 
-def ping(address, count=4, interval=1, timeout=2, id=PID):
+def ping(address, count=4, interval=1, id=PID, **kwargs):
     '''
     Send ICMP ECHO_REQUEST packets to a network host.
 
@@ -63,14 +63,12 @@ def ping(address, count=4, interval=1, timeout=2, id=PID):
     :param interval: (Optional) The interval in seconds between sending
         each packet.
 
-    :type timeout: int or float
-    :param timeout: (Optional) The maximum waiting time for receiving
-        a reply in seconds.
-
     :type id: int
     :param id: (Optional) The identifier of the request. Used to match
         the reply with the request. In practice, a unique identifier is
         used for every ping process.
+    
+    :param kwargs: Pass to ICMPRequest
 
     :rtype: Host
     :returns: A Host object containing statistics about the desired
@@ -104,14 +102,12 @@ def ping(address, count=4, interval=1, timeout=2, id=PID):
     avg_rtt = 0.0
     max_rtt = 0.0
 
-    ttl = None
-
     for sequence in range(count):
         request = ICMPRequest(
             destination=address,
             id=id,
             sequence=sequence,
-            timeout=timeout)
+            **kwargs)
 
         try:
             socket.send(request)
@@ -153,8 +149,8 @@ def ping(address, count=4, interval=1, timeout=2, id=PID):
     return host
 
 
-def multiping(addresses, count=2, interval=1, timeout=2, id=PID,
-        max_threads=10):
+def multiping(addresses, count=2, interval=1, id=PID, max_threads=10,
+              **kwargs):
     '''
     Send ICMP ECHO_REQUEST packets to multiple network hosts.
 
@@ -169,10 +165,6 @@ def multiping(addresses, count=2, interval=1, timeout=2, id=PID,
     :param interval: (Optional) The interval in seconds between sending
         each packet.
 
-    :type timeout: int or float
-    :param timeout: (Optional) The maximum waiting time for receiving
-        a reply in seconds.
-
     :type id: int
     :param id: (Optional) The identifier of the requests. This
         identifier will be incremented by one for each destination.
@@ -180,6 +172,8 @@ def multiping(addresses, count=2, interval=1, timeout=2, id=PID,
     :type max_threads: int
     :param max_threads: (Optional) The number of threads allowed to
         speed up processing.
+
+    :param kwargs: Pass to ICMPRequest
 
     :rtype: list of Host
     :returns: A list of Host objects containing statistics about the
@@ -217,8 +211,8 @@ def multiping(addresses, count=2, interval=1, timeout=2, id=PID,
             address=address,
             count=count,
             interval=interval,
-            timeout=timeout,
-            id=PID + i)
+            id=PID + i,
+            **kwargs)
 
         inactive_threads.append(thread)
 

@@ -246,8 +246,10 @@ class ICMPSocket:
         :raises ICMPSocketError: If another error occurs while sending.
 
         '''
-        payload = random_byte_message(
-            size=request.payload_size)
+        if request.payload is None:
+            payload = random_byte_message(request.payload_size)
+        else:
+            payload = request.payload
 
         packet = self._create_packet(
             id=request.id,
