@@ -102,6 +102,8 @@ def ping(address, count=4, interval=1, id=PID, **kwargs):
     avg_rtt = 0.0
     max_rtt = 0.0
 
+    ttl = None
+
     for sequence in range(count):
         request = ICMPRequest(
             destination=address,
