@@ -1,11 +1,15 @@
 '''
-    multiping example - icmplib
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    icmplib
+    ~~~~~~~
 
         https://github.com/ValentinBELYN/icmplib
 
-    :copyright: Copyright 2017-2019 Valentin BELYN.
+    :copyright: Copyright 2017-2020 Valentin BELYN.
     :license: GNU LGPLv3, see the LICENSE for details.
+
+    ~~~~~~~
+
+    Example: multiping
 '''
 
 from icmplib import multiping
