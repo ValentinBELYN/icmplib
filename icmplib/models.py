@@ -4,7 +4,7 @@
 
         https://github.com/ValentinBELYN/icmplib
 
-    :copyright: Copyright 2017-2019 Valentin BELYN.
+    :copyright: Copyright 2017-2020 Valentin BELYN.
     :license: GNU LGPLv3, see the LICENSE for details.
 
     ~~~~~~~
@@ -30,7 +30,7 @@ from .utils import is_ipv6_address
 
 class ICMPRequest:
     '''
-    A user-created class that represents an ICMP ECHO_REQUEST.
+    A user-created object that represents an ICMP ECHO_REQUEST.
 
     :type destination: str
     :param destination: The IP address of the gateway or host to which
@@ -46,8 +46,13 @@ class ICMPRequest:
         the request. Typically, the sequence number is incremented for
         each packet sent during the process.
 
+    :type payload: bytes
+    :param payload: (Optional) The payload content in bytes. Its size
+        must be even. A random payload is used by default.
+
     :type payload_size: int
-    :param payload_size: (Optional) The payload size in bytes.
+    :param payload_size: (Optional) The payload size (even number).
+        Ignored when the 'payload' parameter is set.
 
     :type timeout: int or float
     :param timeout: (Optional) The maximum waiting time for receiving
@@ -57,15 +62,19 @@ class ICMPRequest:
     :param ttl: (Optional) The time to live of the packet in seconds.
 
     '''
-    def __init__(self, destination, id, sequence, payload_size=56,
-            timeout=2, ttl=64):
+    def __init__(self, destination, id, sequence, payload=None,
+            payload_size=56, timeout=2, ttl=64):
 
         id &= 0xffff
         sequence &= 0xffff
 
+        if payload:
+            payload_size = len(payload)
+
         self._destination = destination
         self._id = id
         self._sequence = sequence
+        self._payload = payload
         self._payload_size = payload_size
         self._timeout = timeout
         self._ttl = ttl
@@ -102,6 +111,15 @@ class ICMPRequest:
         return self._sequence
 
     @property
+    def payload(self):
+        '''
+        The payload content in bytes.
+        Return None if the payload is random.
+
+        '''
+        return self._payload
+
+    @property
     def payload_size(self):
         '''
         The payload size.
@@ -134,10 +152,6 @@ class ICMPRequest:
 
         '''
         return self._time
-
-    @time.setter
-    def time(self, time):
-        self._time = time
 
 
 class ICMPReply:

@@ -4,7 +4,7 @@
 
         https://github.com/ValentinBELYN/icmplib
 
-    :copyright: Copyright 2017-2019 Valentin BELYN.
+    :copyright: Copyright 2017-2020 Valentin BELYN.
     :license: GNU LGPLv3, see the LICENSE for details.
 
     ~~~~~~~
@@ -34,21 +34,20 @@ from time import sleep
 
 
 class PingThread(Thread):
-    def __init__(self, **options):
+    def __init__(self, **kwargs):
         super().__init__()
-
-        self._options = options
+        self._kwargs = kwargs
         self._host = None
 
     def run(self):
-        self._host = ping(**self._options)
+        self._host = ping(**self._kwargs)
 
     @property
     def host(self):
         return self._host
 
 
-def ping(address, count=4, interval=1, timeout=2, id=PID):
+def ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs):
     '''
     Send ICMP ECHO_REQUEST packets to a network host.
 
@@ -71,6 +70,9 @@ def ping(address, count=4, interval=1, timeout=2, id=PID):
     :param id: (Optional) The identifier of the request. Used to match
         the reply with the request. In practice, a unique identifier is
         used for every ping process.
+
+    :param **kwargs: (Optional) Advanced use: arguments passed to the
+        ICMPRequest object.
 
     :rtype: Host
     :returns: A Host object containing statistics about the desired
@@ -109,7 +111,8 @@ def ping(address, count=4, interval=1, timeout=2, id=PID):
             destination=address,
             id=id,
             sequence=sequence,
-            timeout=timeout)
+            timeout=timeout,
+            **kwargs)
 
         try:
             socket.send(request)
@@ -121,8 +124,8 @@ def ping(address, count=4, interval=1, timeout=2, id=PID):
 
             round_trip_time = (reply.time - request.time) * 1000
             avg_rtt += round_trip_time
-            min_rtt  = min(round_trip_time, min_rtt)
-            max_rtt  = max(round_trip_time, max_rtt)
+            min_rtt = min(round_trip_time, min_rtt)
+            max_rtt = max(round_trip_time, max_rtt)
 
             if sequence < count - 1:
                 sleep(interval)
@@ -148,7 +151,7 @@ def ping(address, count=4, interval=1, timeout=2, id=PID):
 
 
 def multiping(addresses, count=2, interval=1, timeout=2, id=PID,
-        max_threads=10):
+        max_threads=10, **kwargs):
     '''
     Send ICMP ECHO_REQUEST packets to multiple network hosts.
 
@@ -174,6 +177,9 @@ def multiping(addresses, count=2, interval=1, timeout=2, id=PID,
     :type max_threads: int
     :param max_threads: (Optional) The number of threads allowed to
         speed up processing.
+
+    :param **kwargs: (Optional) Advanced use: arguments passed to the
+        ICMPRequest object.
 
     :rtype: list of Host
     :returns: A list of Host objects containing statistics about the
@@ -212,7 +218,8 @@ def multiping(addresses, count=2, interval=1, timeout=2, id=PID,
             count=count,
             interval=interval,
             timeout=timeout,
-            id=PID + i)
+            id=PID + i,
+            **kwargs)
 
         inactive_threads.append(thread)
 

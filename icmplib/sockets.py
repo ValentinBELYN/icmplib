@@ -4,7 +4,7 @@
 
         https://github.com/ValentinBELYN/icmplib
 
-    :copyright: Copyright 2017-2019 Valentin BELYN.
+    :copyright: Copyright 2017-2020 Valentin BELYN.
     :license: GNU LGPLv3, see the LICENSE for details.
 
     ~~~~~~~
@@ -238,8 +238,11 @@ class ICMPSocket:
         :raises ICMPSocketError: If another error occurs while sending.
 
         '''
-        payload = random_byte_message(
-            size=request.payload_size)
+        payload = request.payload
+
+        if not payload:
+            payload = random_byte_message(
+                size=request.payload_size)
 
         packet = self._create_packet(
             id=request.id,
@@ -248,7 +251,7 @@ class ICMPSocket:
 
         self._socket.ttl = request.ttl
 
-        request.time = time()
+        request._time = time()
 
         try:
             self._socket.send(

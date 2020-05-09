@@ -4,7 +4,7 @@
 
         https://github.com/ValentinBELYN/icmplib
 
-    :copyright: Copyright 2017-2019 Valentin BELYN.
+    :copyright: Copyright 2017-2020 Valentin BELYN.
     :license: GNU LGPLv3, see the LICENSE for details.
 
     ~~~~~~~
@@ -89,7 +89,7 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
 
         >>> for hop in hops:
         ...     if last_distance + 1 != hop.distance:
-        ...         print('Some routers does not respond')
+        ...         print('Some routers are not responding')
         ...
         ...     print(f'{hop.distance} {hop.address} {hop.avg_rtt} ms')
         ...
@@ -98,7 +98,7 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
         1       10.0.0.1             5.19 ms
         2       194.149.169.49       7.55 ms
         3       194.149.166.54       12.2 ms
-        !       Some routers does not respond
+        *       Some routers are not responding
         5       212.73.205.22        22.1 ms
         6       1.1.1.1              13.5 ms
 
@@ -150,8 +150,8 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
 
             round_trip_time = (reply.time - request.time) * 1000
             avg_rtt += round_trip_time
-            min_rtt  = min(round_trip_time, min_rtt)
-            max_rtt  = max(round_trip_time, max_rtt)
+            min_rtt = min(round_trip_time, min_rtt)
+            max_rtt = max(round_trip_time, max_rtt)
 
             if fast_mode:
                 break
