@@ -77,7 +77,7 @@ Send *ICMP ECHO_REQUEST* packets to a network host.
 
 #### Definition
 ```python
-ping(address, count=4, interval=1, timeout=2, id=PID)
+ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs)
 ```
 
 #### Parameters
@@ -92,21 +92,21 @@ ping(address, count=4, interval=1, timeout=2, id=PID)
   The number of ping to perform.
 
   - Type: `int`
-  - Default: 4
+  - Default: `4`
 
 - `interval`
 
   The interval in seconds between sending each packet.
 
   - Type: `int` or `float`
-  - Default: 1
+  - Default: `1`
 
 - `timeout`
 
   The maximum waiting time for receiving a reply in seconds.
 
   - Type: `int` or `float`
-  - Default: 2
+  - Default: `2`
 
 - `id`
 
@@ -115,6 +115,10 @@ ping(address, count=4, interval=1, timeout=2, id=PID)
 
   - Type: `int`
   - Default: `PID`
+
+- `**kwargs`
+
+  `Optional` Advanced use: arguments passed to the ICMPRequest object.
 
 #### Return value
 - `Host` object
@@ -164,7 +168,7 @@ Send *ICMP ECHO_REQUEST* packets to multiple network hosts.
 
 #### Definition
 ```python
-multiping(addresses, count=2, interval=1, timeout=2, id=PID, max_threads=10)
+multiping(addresses, count=2, interval=1, timeout=2, id=PID, max_threads=10, **kwargs)
 ```
 
 #### Parameters
@@ -179,21 +183,21 @@ multiping(addresses, count=2, interval=1, timeout=2, id=PID, max_threads=10)
   The number of ping to perform per address.
 
   - Type: `int`
-  - Default: 2
+  - Default: `2`
 
 - `interval`
 
   The interval in seconds between sending each packet.
 
   - Type: `int` or `float`
-  - Default: 1
+  - Default: `1`
 
 - `timeout`
 
   The maximum waiting time for receiving a reply in seconds.
 
   - Type: `int` or `float`
-  - Default: 2
+  - Default: `2`
 
 - `id`
 
@@ -207,7 +211,11 @@ multiping(addresses, count=2, interval=1, timeout=2, id=PID, max_threads=10)
   The number of threads allowed to speed up processing.
 
   - Type: `int`
-  - Default: 10
+  - Default: `10`
+
+- `**kwargs`
+
+  `Optional` Advanced use: arguments passed to the ICMPRequest object.
 
 #### Return value
 - `List of Host`
@@ -264,21 +272,21 @@ traceroute(address, count=3, interval=0.05, timeout=2, id=PID, max_hops=30, fast
   The number of ping to perform per hop.
 
   - Type: `int`
-  - Default: 3
+  - Default: `3`
 
 - `interval`
 
   The interval in seconds between sending each packet.
 
   - Type: `int` or `float`
-  - Default: 0.05
+  - Default: `0.05`
 
 - `timeout`
 
   The maximum waiting time for receiving a reply in seconds.
 
   - Type: `int` or `float`
-  - Default: 2
+  - Default: `2`
 
 - `id`
 
@@ -293,14 +301,14 @@ traceroute(address, count=3, interval=0.05, timeout=2, id=PID, max_hops=30, fast
   The maximum time to live (max number of hops) used in outgoing probe packets.
 
   - Type: `int`
-  - Default: 30
+  - Default: `30`
 
 - `fast_mode`
 
   When this option is enabled and an intermediate router has been reached, skip to the next hop rather than perform additional requests. The `count` option then becomes the maximum number of requests in case of no responses.
 
   - Type: `bool`
-  - Default: False
+  - Default: `False`
 
 #### Return value
 - `List of Hop`
@@ -321,7 +329,7 @@ traceroute(address, count=3, interval=0.05, timeout=2, id=PID, max_hops=30, fast
 
 >>> for hop in hops:
 ...     if last_distance + 1 != hop.distance:
-...         print('*** Some routers does not respond')
+...         print('Some routers are not responding')
 ...
 ...     # See the Hop class for details
 ...     print(f'{hop.distance}    {hop.address}    {hop.avg_rtt} ms')
@@ -333,7 +341,7 @@ traceroute(address, count=3, interval=0.05, timeout=2, id=PID, max_hops=30, fast
 # 1                 10.0.0.1                5.19 ms
 # 2                 194.149.169.49          7.55 ms
 # 3                 194.149.166.54          12.2 ms
-# ***               Some routers does not respond
+# *                 Some routers are not responding
 # 5                 212.73.205.22           22.1 ms
 # 6                 1.1.1.1                 13.5 ms
 ```
@@ -353,7 +361,7 @@ If you want to create your own functions and classes using the ICMP protocol, yo
 ```
 
 ### ICMPRequest
-A user-created class that represents an *ICMP ECHO_REQUEST*.
+A user-created object that represents an *ICMP ECHO_REQUEST*.
 
 #### Definition
 ```python
@@ -381,26 +389,35 @@ ICMPRequest(destination, id, sequence, payload_size=56, timeout=2, ttl=64)
 
   - Type: `int`
 
+- `payload`
+
+  The payload content in bytes. Its size must be even.<br>
+  A random payload is used by default.
+
+  - Type: `bytes`
+  - Default: `None`
+
 - `payload_size`
 
-  The payload size in bytes.
+  The payload size (even number).<br>
+  Ignored when the `payload` parameter is set.
 
   - Type: `int`
-  - Default: 56
+  - Default: `56`
 
 - `timeout`
 
   The maximum waiting time for receiving a reply in seconds.
 
   - Type: `int` or `float`
-  - Default: 2
+  - Default: `2`
 
 - `ttl`
 
   The time to live of the packet in seconds.
 
   - Type: `int`
-  - Default: 64
+  - Default: `64`
 
 #### Getters only
 - `time`
@@ -527,7 +544,7 @@ ICMPv4Socket()
   Enable or disable the broadcast support on the socket.
 
   - Type: `bool`
-  - Default: False
+  - Default: `False`
 
 <br>
 
@@ -604,7 +621,7 @@ def single_ping(address, timeout=2, id=PID):
         # If the program arrives in this section,
         # it means that a packet has been received
         # The reply has the same identifier and sequence number that
-        # the query but it can come from an intermediate gateway
+        # the request but it can come from an intermediate gateway
 
         reply.raise_for_status()
 
@@ -644,7 +661,7 @@ def single_ping(address, timeout=2, id=PID):
 ```python
 def verbose_ping(address, count=4, interval=1, timeout=2, id=PID):
     # ICMPRequest uses a payload of 56 bytes by default
-    # You can modify it with the payload_size parameter
+    # You can modify it using the payload_size parameter
     print(f'PING {address}: 56 data bytes')
 
     # Automatic detection of the socket to use
@@ -718,10 +735,10 @@ All development is done on [GitHub](https://github.com/ValentinBELYN/icmplib). U
 
 icmplib is completely free and open source. It has been fully developed on my free time. If you enjoy it, please consider donating to support the development.
 
-- [:beer: Donate via PayPal](https://paypal.me/ValentinBELYN)
+- [:tada: Donate via PayPal](https://paypal.me/ValentinBELYN)
 
 ## License
 
-Copyright 2017-2019 Valentin BELYN.
+Copyright 2017-2020 Valentin BELYN.
 
 Code released under the GNU LGPLv3 license. See the [LICENSE](LICENSE) for details.
