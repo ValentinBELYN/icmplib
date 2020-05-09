@@ -118,7 +118,7 @@ ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs)
 
 - `**kwargs`
 
-  `Optional` Advanced use: arguments passed to the ICMPRequest object.
+  `Optional` Advanced use: arguments passed to the `ICMPRequest` object.
 
 #### Return value
 - `Host` object
@@ -215,7 +215,7 @@ multiping(addresses, count=2, interval=1, timeout=2, id=PID, max_threads=10, **k
 
 - `**kwargs`
 
-  `Optional` Advanced use: arguments passed to the ICMPRequest object.
+  `Optional` Advanced use: arguments passed to the `ICMPRequest` object.
 
 #### Return value
 - `List of Host`
@@ -365,7 +365,7 @@ A user-created object that represents an *ICMP ECHO_REQUEST*.
 
 #### Definition
 ```python
-ICMPRequest(destination, id, sequence, payload_size=56, timeout=2, ttl=64)
+ICMPRequest(destination, id, sequence, payload=None, payload_size=56, timeout=2, ttl=64)
 ```
 
 #### Parameters / Getters
