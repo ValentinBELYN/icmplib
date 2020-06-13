@@ -327,6 +327,14 @@ class ICMPSocket:
             self._socket.close()
             self._socket = None
 
+    @property
+    def is_closed(self):
+        '''
+        Indicate whether the socket is closed.
+
+        '''
+        return self._socket is None
+
 
 class ICMPv4Socket(ICMPSocket):
     '''
