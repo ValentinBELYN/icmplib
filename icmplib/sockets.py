@@ -129,6 +129,7 @@ class ICMPSocket:
 
     '''
     def __init__(self, config):
+        self._socket = None
         self._config = config
         self._last_request = None
 
@@ -151,12 +152,9 @@ class ICMPSocket:
         Create the ICMP header of a packet.
 
         '''
-        # ICMP type:   8 bits (B)
-        # ICMP code:   8 bits (B)
-        # Checksum:   16 bits (H)
-        # Identifier: 16 bits (H)
-        # Sequence:   16 bits (H)
-        return pack('!BBHHH', type, code, checksum, id, sequence)
+        #  8 bits: B
+        # 16 bits: H
+        return pack('!2B3H', type, code, checksum, id, sequence)
 
     def _checksum(self, data):
         '''
@@ -199,14 +197,14 @@ class ICMPSocket:
             len(packet)
             - self._config.ICMP_HEADER_OFFSET)
 
-        type, code = unpack('!BB', packet[
+        type, code = unpack('!2B', packet[
             self._config.ICMP_HEADER_OFFSET:
             self._config.ICMP_CHECKSUM_OFFSET])
 
         if type != self._config.ICMP_ECHO_REPLY:
             packet = packet[self._config.ICMP_PAYLOAD_OFFSET:]
 
-        id, sequence = unpack('!HH', packet[
+        id, sequence = unpack('!2H', packet[
             self._config.ICMP_ID_OFFSET:
             self._config.ICMP_PAYLOAD_OFFSET
         ])
@@ -325,7 +323,9 @@ class ICMPSocket:
         Close the socket. It cannot be used after this call.
 
         '''
-        self._socket.close()
+        if self._socket:
+            self._socket.close()
+            self._socket = None
 
 
 class ICMPv4Socket(ICMPSocket):
