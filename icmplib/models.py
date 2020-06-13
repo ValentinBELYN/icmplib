@@ -331,9 +331,9 @@ class Host:
             transmitted_packets, received_packets):
 
         self._address = address
-        self._min_rtt = min_rtt
-        self._avg_rtt = avg_rtt
-        self._max_rtt = max_rtt
+        self._min_rtt = round(min_rtt, 3)
+        self._avg_rtt = round(avg_rtt, 3)
+        self._max_rtt = round(max_rtt, 3)
         self._transmitted_packets = transmitted_packets
         self._received_packets = received_packets
 
