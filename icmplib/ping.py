@@ -218,7 +218,7 @@ def multiping(addresses, count=2, interval=1, timeout=2, id=PID,
             count=count,
             interval=interval,
             timeout=timeout,
-            id=PID + i,
+            id=id + i,
             **kwargs)
 
         inactive_threads.append(thread)
