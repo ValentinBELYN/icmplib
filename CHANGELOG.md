@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.0.4](https://github.com/ValentinBELYN/icmplib/releases/tag/v1.0.4) - 2020-06-14
+- Add the `is_closed` property to the `ICMPSocket` class.
+- Round round-trip time values by default.
+- Fix a bug in the `multiping` function: the `id` parameter was ignored.
+- Fix a bug in the `ICMPSocket` class when instantiated without root privileges.
+- Add an index for examples.
+
 ## [v1.0.3](https://github.com/ValentinBELYN/icmplib/releases/tag/v1.0.3) - 2020-05-09
 - Add the ability to customize the payload.
 - Improvements of `ping` and `multiping` functions. It is now possible to pass arguments to the `ICMPRequest` object using keywords arguments `**kwargs`.
