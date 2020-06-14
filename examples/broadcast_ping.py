@@ -13,21 +13,21 @@
 
     PING 255.255.255.255: 56 data bytes
 
-        64 bytes from 10.0.0.17: icmp_seq=0 time=1.06 ms
-        64 bytes from 10.0.0.40: icmp_seq=0 time=1.59 ms
-        64 bytes from 10.0.0.41: icmp_seq=0 time=9.47 ms
+        64 bytes from 10.0.0.17: icmp_seq=0 time=1.065 ms
+        64 bytes from 10.0.0.40: icmp_seq=0 time=1.595 ms
+        64 bytes from 10.0.0.41: icmp_seq=0 time=9.471 ms
 
-        64 bytes from 10.0.0.17: icmp_seq=1 time=0.98 ms
-        64 bytes from 10.0.0.40: icmp_seq=1 time=1.57 ms
-        64 bytes from 10.0.0.41: icmp_seq=1 time=9.34 ms
+        64 bytes from 10.0.0.17: icmp_seq=1 time=0.983 ms
+        64 bytes from 10.0.0.40: icmp_seq=1 time=1.579 ms
+        64 bytes from 10.0.0.41: icmp_seq=1 time=9.345 ms
 
-        64 bytes from 10.0.0.17: icmp_seq=2 time=0.91 ms
-        64 bytes from 10.0.0.40: icmp_seq=2 time=2.03 ms
-        64 bytes from 10.0.0.41: icmp_seq=2 time=9.55 ms
+        64 bytes from 10.0.0.17: icmp_seq=2 time=0.916 ms
+        64 bytes from 10.0.0.40: icmp_seq=2 time=2.031 ms
+        64 bytes from 10.0.0.41: icmp_seq=2 time=9.554 ms
 
-        64 bytes from 10.0.0.17: icmp_seq=3 time=1.11 ms
-        64 bytes from 10.0.0.40: icmp_seq=3 time=1.38 ms
-        64 bytes from 10.0.0.41: icmp_seq=3 time=9.56 ms
+        64 bytes from 10.0.0.17: icmp_seq=3 time=1.112 ms
+        64 bytes from 10.0.0.40: icmp_seq=3 time=1.384 ms
+        64 bytes from 10.0.0.41: icmp_seq=3 time=9.565 ms
 '''
 
 from icmplib import (
@@ -75,7 +75,7 @@ def broadcast_ping(address, count=4, timeout=1, id=PID):
                 # We display some information
                 print(f'  {reply.received_bytes} bytes from '
                       f'{reply.source}: icmp_seq={sequence} '
-                      f'time={round(round_trip_time, 2)} ms')
+                      f'time={round(round_trip_time, 3)} ms')
 
         except TimeoutExceeded:
             # The timeout has been reached

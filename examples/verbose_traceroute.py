@@ -13,13 +13,13 @@
 
     Traceroute to ovh.com (198.27.92.1): 56 data bytes, 30 hops max
 
-       1    192.168.0.254      192.168.0.254                9.86 ms
-       2    194.149.164.56     194.149.164.56               4.6 ms
-       3    213.186.32.181     be100-159.th2-1-a9.fr.eu     11.99 ms
-       4    94.23.122.146      be102.rbx-g1-nc5.fr.eu       7.81 ms
-       5    * * *
-       6    37.187.231.75      be5.rbx-iplb1-a70.fr.eu      17.1 ms
-       7    198.27.92.1        www.ovh.com                  10.87 ms
+        1    192.168.0.254      192.168.0.254                9.86 ms
+        2    194.149.164.56     194.149.164.56               4.6 ms
+        3    213.186.32.181     be100-159.th2-1-a9.fr.eu     11.99 ms
+        4    94.23.122.146      be102.rbx-g1-nc5.fr.eu       7.81 ms
+        5    * * *
+        6    37.187.231.75      be5.rbx-iplb1-a70.fr.eu      17.1 ms
+        7    198.27.92.1        www.ovh.com                  10.87 ms
 '''
 
 from icmplib import (
@@ -74,7 +74,7 @@ def verbose_traceroute(address, count=3, interval=0.05, timeout=2,
                 # We display some information
                 source_name = getfqdn(reply.source)
 
-                print(f'{ttl:4}    {reply.source:15}    '
+                print(f'{ttl:3}    {reply.source:15}    '
                       f'{source_name:40}    ', end='')
 
                 # We throw an exception if it is an ICMP error message

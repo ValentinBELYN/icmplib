@@ -31,15 +31,15 @@ for hop in hops:
         print('   *    Some routers are not responding')
 
     print(f'{hop.distance:4}    {hop.address:15}    '
-          f'{round(hop.avg_rtt, 2)} ms')
+          f'{hop.avg_rtt} ms')
 
     last_distance = hop.distance
 
-#   1    192.168.0.254      8.88 ms
-#   2    194.149.169.81     11.95 ms
+#   1    192.168.0.254      11.327 ms
+#   2    194.149.169.162    16.354 ms
 #   *    Some routers are not responding
-#   4    149.11.115.13      16.66 ms
-#   5    154.54.61.21       4.67 ms
-#   6    154.54.60.126      4.38 ms
-#   7    149.11.0.126       5.38 ms
-#   8    1.1.1.1            4.24 ms
+#   4    149.11.115.13      11.498 ms
+#   5    154.54.61.21       4.335 ms
+#   6    154.54.60.126      5.645 ms
+#   7    149.11.0.126       5.873 ms
+#   8    1.1.1.1            4.561 ms
