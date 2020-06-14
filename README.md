@@ -542,6 +542,13 @@ ICMPv4Socket()
 
   Close the socket. It cannot be used after this call.
 
+#### Getters only
+- `is_closed`
+
+  Indicate whether the socket is closed.
+
+  - Type: `bool`
+
 #### Getters / Setters
 - `broadcast`
 
@@ -555,6 +562,7 @@ ICMPv4Socket()
 ### ICMPv6Socket
 Socket for sending and receiving ICMPv6 packets.
 
+#### Definition
 ```python
 ICMPv6Socket()
 ```
