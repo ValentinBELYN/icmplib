@@ -106,7 +106,7 @@ def verbose_traceroute(address, count=3, interval=0.05, timeout=2,
                 # The timeout has been reached and no host or gateway
                 # has responded after multiple attemps
                 if sequence >= count - 1:
-                    print(f'{ttl:4}    * * *')
+                    print(f'{ttl:3}    * * *')
 
             except ICMPLibError:
                 # Other errors are ignored
