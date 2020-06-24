@@ -213,28 +213,24 @@ class ICMPReply:
             an ICMP ECHO_REPLY.
 
         '''
-        ipv4_errors = {
-            3:  ICMPv4DestinationUnreachable,
-            11: ICMPv4TimeExceeded
-        }
-
-        ipv6_errors = {
-            1:  ICMPv6DestinationUnreachable,
-            3:  ICMPv6TimeExceeded
-        }
-
         if is_ipv6_address(self._source):
-            expected_type = 129
-            errors = ipv6_errors
+            echo_reply_type = 129
+            errors = {
+                1: ICMPv6DestinationUnreachable,
+                3: ICMPv6TimeExceeded
+            }
 
         else:
-            expected_type = 0
-            errors = ipv4_errors
+            echo_reply_type = 0
+            errors = {
+                3: ICMPv4DestinationUnreachable,
+               11: ICMPv4TimeExceeded
+            }
 
         if self._type in errors:
             raise errors[self._type](self)
 
-        if self._type != expected_type:
+        if self._type != echo_reply_type:
             message = f'Error type: {self._type}, ' \
                       f'code: {self._code}'
 
