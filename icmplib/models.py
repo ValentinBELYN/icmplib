@@ -52,7 +52,7 @@ class ICMPRequest:
 
     :type payload_size: int
     :param payload_size: (Optional) The payload size. Ignored when the
-        'payload' parameter is set.
+        `payload` parameter is set.
 
     :type timeout: int or float
     :param timeout: (Optional) The maximum waiting time for receiving
@@ -114,7 +114,7 @@ class ICMPRequest:
     def payload(self):
         '''
         The payload content in bytes.
-        Return None if the payload is random.
+        Return `None` if the payload is random.
 
         '''
         return self._payload
@@ -148,7 +148,7 @@ class ICMPRequest:
         '''
         The timestamp of the ICMP request.
         Initialized to zero when creating the request and replaced by
-        ICMPv4Socket or ICMPv6Socket with the time of sending.
+        `ICMPv4Socket` or `ICMPv6Socket` with the time of sending.
 
         '''
         return self._time
@@ -156,8 +156,8 @@ class ICMPRequest:
 
 class ICMPReply:
     '''
-    A class that represents an ICMP reply. Generated from an ICMPSocket
-    object (ICMPv4Socket or ICMPv6Socket).
+    A class that represents an ICMP reply. Generated from an
+    `ICMPSocket` object (`ICMPv4Socket` or `ICMPv6Socket`).
 
     :type source: str
     :param source: The IP address of the gateway or host that composes
@@ -290,7 +290,7 @@ class ICMPReply:
     @property
     def received_bytes(self):
         '''
-        Deprecated: use the 'bytes_received' property instead.
+        Deprecated: use the `bytes_received` property instead.
 
         '''
         # Warning in v1.2
@@ -309,7 +309,7 @@ class ICMPReply:
 class Host:
     '''
     A class that represents a host. Simplifies the exploitation of
-    results from ping and traceroute functions.
+    results from `ping` and `traceroute` functions.
 
     :type address: str
     :param address: The IP address of the gateway or host that
@@ -390,7 +390,7 @@ class Host:
     @property
     def transmitted_packets(self):
         '''
-        Deprecated: use the 'packets_sent' property instead.
+        Deprecated: use the `packets_sent` property instead.
 
         '''
         # Warning in v1.2
@@ -409,7 +409,7 @@ class Host:
     @property
     def received_packets(self):
         '''
-        Deprecated: use the 'packets_received' property instead.
+        Deprecated: use the `packets_received` property instead.
 
         '''
         # Warning in v1.2
@@ -420,7 +420,7 @@ class Host:
     def packet_loss(self):
         '''
         Packet loss occurs when packets fail to reach their destination.
-        Return a float between 0 and 1 (all packets are lost).
+        Return a `float` between 0 and 1 (all packets are lost).
 
         '''
         if not self._packets_sent:
@@ -431,7 +431,7 @@ class Host:
     @property
     def is_alive(self):
         '''
-        Return True if the host is reachable, False otherwise.
+        Indicate whether the host is reachable. Return a `boolean`.
 
         '''
         return self.packet_loss < 1
@@ -439,8 +439,8 @@ class Host:
 
 class Hop(Host):
     '''
-    A class that represents a hop. It extends the Host class and adds
-    some features for traceroute.
+    A class that represents a hop. It extends the `Host` class and adds
+    some features for the `traceroute` function.
 
     :type address: str
     :param address: The IP address of the gateway or host that

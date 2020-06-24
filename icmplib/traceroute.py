@@ -69,11 +69,12 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
     :type fast_mode: bool
     :param fast_mode: (Optional) When this option is enabled and an
         intermediate router has been reached, skip to the next hop
-        rather than perform additional requests. The count option then
-        becomes the maximum number of requests in case of no responses.
+        rather than perform additional requests. The `count` parameter
+        then becomes the maximum number of requests in case of no
+        responses.
 
     :rtype: list of Hop
-    :returns: A list of Hop objects representing the route to the
+    :returns: A list of `Hop` objects representing the route to the
         desired host. The list is sorted in ascending order according
         to the distance (in terms of hops) that separates the remote
         host from the current machine.
@@ -95,14 +96,14 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
         ...
         ...     last_distance = hop.distance
         ...
-        1       10.0.0.1             5.19 ms
-        2       194.149.169.49       7.55 ms
-        3       194.149.166.54       12.2 ms
+        1       10.0.0.1             5.196 ms
+        2       194.149.169.49       7.552 ms
+        3       194.149.166.54       12.21 ms
         *       Some routers are not responding
-        5       212.73.205.22        22.1 ms
-        6       1.1.1.1              13.5 ms
+        5       212.73.205.22        22.15 ms
+        6       1.1.1.1              13.59 ms
 
-    See the Hop class for details.
+    See the `Hop` class for details.
 
     '''
     if is_ipv6_address(address):

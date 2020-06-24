@@ -53,7 +53,7 @@ def random_byte_message(size):
 def is_ipv6_address(address):
     '''
     Take an IP address and indicate whether it is an IPv6 address or
-    not. Return a boolean.
+    not. Return a `boolean`.
 
     '''
     return ':' in address

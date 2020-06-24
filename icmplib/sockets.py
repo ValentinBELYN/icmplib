@@ -142,7 +142,7 @@ class ICMPSocket:
 
     def __del__(self):
         '''
-        Call the close() method.
+        Call the `close` method.
 
         '''
         self.close()
@@ -193,7 +193,7 @@ class ICMPSocket:
 
     def _read_reply(self, packet, source, reply_time):
         '''
-        Read a reply from bytes and return an ICMPReply object.
+        Read a reply from bytes and return an `ICMPReply` object.
 
         '''
         bytes_received = (
@@ -227,7 +227,7 @@ class ICMPSocket:
         '''
         Send a request to a host.
 
-        This operation is non-blocking. Use the receive() method to get
+        This operation is non-blocking. Use the `receive` method to get
         the reply.
 
         :type request: ICMPRequest
@@ -286,10 +286,10 @@ class ICMPSocket:
             receiving.
 
         :rtype: ICMPReply
-        :returns: An ICMPReply object containing the reply of the
+        :returns: An `ICMPReply` object containing the reply of the
             desired destination.
 
-        See the ICMPReply class for details.
+        See the `ICMPReply` class for details.
 
         '''
         if not self._last_request:
@@ -336,7 +336,7 @@ class ICMPSocket:
     @property
     def is_closed(self):
         '''
-        Indicate whether the socket is closed.
+        Indicate whether the socket is closed. Return a `boolean`.
 
         '''
         return self._socket is None
@@ -357,7 +357,7 @@ class ICMPv4Socket(ICMPSocket):
     def broadcast(self):
         '''
         Indicate whether broadcast support is enabled on the socket.
-        Return a boolean.
+        Return a `boolean`.
 
         .. note::
            To enable broadcast support:

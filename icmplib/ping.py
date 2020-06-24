@@ -71,11 +71,11 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs):
         the reply with the request. In practice, a unique identifier is
         used for every ping process.
 
-    :param **kwargs: (Optional) Advanced use: arguments passed to the
-        ICMPRequest object.
+    :param **kwargs: (Optional) Advanced use: arguments passed to
+        `ICMPRequest` objects.
 
     :rtype: Host
-    :returns: A Host object containing statistics about the desired
+    :returns: A `Host` object containing statistics about the desired
         destination.
 
     :raises SocketPermissionError: If the permissions are insufficient
@@ -85,12 +85,14 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs):
 
         >>> from icmplib import ping
         >>> host = ping('1.1.1.1')
+
         >>> host.avg_rtt
         13.2
+
         >>> host.is_alive
         True
 
-    See the Host class for details.
+    See the `Host` class for details.
 
     '''
     if is_ipv6_address(address):
@@ -178,11 +180,11 @@ def multiping(addresses, count=2, interval=1, timeout=2, id=PID,
     :param max_threads: (Optional) The number of threads allowed to
         speed up processing.
 
-    :param **kwargs: (Optional) Advanced use: arguments passed to the
-        ICMPRequest object.
+    :param **kwargs: (Optional) Advanced use: arguments passed to
+        `ICMPRequest` objects.
 
     :rtype: list of Host
-    :returns: A list of Host objects containing statistics about the
+    :returns: A list of `Host` objects containing statistics about the
         desired destinations. The list is sorted in the same order as
         the addresses passed in parameters.
 
@@ -205,7 +207,7 @@ def multiping(addresses, count=2, interval=1, timeout=2, id=PID,
         127.0.0.1 is alive!
         ::1 is alive!
 
-    See the Host class for details.
+    See the `Host` class for details.
 
     '''
     hosts = []
