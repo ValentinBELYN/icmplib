@@ -47,12 +47,12 @@ class ICMPRequest:
         each packet sent during the process.
 
     :type payload: bytes
-    :param payload: (Optional) The payload content in bytes. Its size
-        must be even. A random payload is used by default.
+    :param payload: (Optional) The payload content in bytes. A random
+        payload is used by default.
 
     :type payload_size: int
-    :param payload_size: (Optional) The payload size (even number).
-        Ignored when the 'payload' parameter is set.
+    :param payload_size: (Optional) The payload size. Ignored when the
+        'payload' parameter is set.
 
     :type timeout: int or float
     :param timeout: (Optional) The maximum waiting time for receiving

@@ -161,6 +161,7 @@ class ICMPSocket:
         Calculate the checksum of a packet.
 
         '''
+        data += b'\x00'
         end = len(data) - 1
         sum = 0
 
