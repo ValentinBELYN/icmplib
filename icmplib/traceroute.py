@@ -117,8 +117,8 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
 
     while not host_reached and ttl <= max_hops:
         reply = None
-        transmitted_packets = 0
-        received_packets = 0
+        packets_sent = 0
+        packets_received = 0
 
         min_rtt = float('inf')
         avg_rtt = 0.0
@@ -134,7 +134,7 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
 
             try:
                 socket.send(request)
-                transmitted_packets += 1
+                packets_sent += 1
 
                 reply = socket.receive()
                 reply.raise_for_status()
@@ -146,7 +146,7 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
             except ICMPLibError:
                 continue
 
-            received_packets += 1
+            packets_received += 1
 
             round_trip_time = (reply.time - request.time) * 1000
             avg_rtt += round_trip_time
@@ -162,8 +162,8 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
                 min_rtt=min_rtt,
                 avg_rtt=avg_rtt,
                 max_rtt=max_rtt,
-                transmitted_packets=transmitted_packets,
-                received_packets=received_packets,
+                packets_sent=packets_sent,
+                packets_received=packets_received,
                 distance=ttl)
 
             hops.append(hop)

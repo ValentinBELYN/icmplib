@@ -152,8 +152,8 @@ class ICMPSocket:
         Create the ICMP header of a packet.
 
         '''
-        #  8 bits: B
-        # 16 bits: H
+        # B: 8 bits
+        # H: 16 bits
         return pack('!2B3H', type, code, checksum, id, sequence)
 
     def _checksum(self, data):
@@ -193,7 +193,7 @@ class ICMPSocket:
         Read a reply from bytes and return an ICMPReply object.
 
         '''
-        received_bytes = (
+        bytes_received = (
             len(packet)
             - self._config.ICMP_HEADER_OFFSET)
 
@@ -215,7 +215,7 @@ class ICMPSocket:
             sequence=sequence,
             type=type,
             code=code,
-            received_bytes=received_bytes,
+            bytes_received=bytes_received,
             time=reply_time)
 
         return reply
@@ -252,8 +252,11 @@ class ICMPSocket:
         request._time = time()
 
         try:
+            # The packet is actually the Ethernet payload (without the
+            # IP header): the variable name will be changed in future
+            # versions
             self._socket.send(
-                packet=packet,
+                payload=packet,
                 address=request.destination,
                 port=0)
 

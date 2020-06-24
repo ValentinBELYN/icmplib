@@ -36,14 +36,14 @@ def random_byte_message(size):
     Generate a random byte sequence of the specified size.
 
     '''
-    available_bytes = (
+    bytes_available = (
         b'abcdefghijklmnopqrstuvwxyz'
         b'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         b'1234567890'
     )
 
     sequence = [
-        choice(available_bytes)
+        choice(bytes_available)
         for _ in range(size)
     ]
 

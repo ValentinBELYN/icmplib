@@ -42,17 +42,17 @@ class IPSocket:
         self.timeout = 5
         self.ttl = 64
 
-    def send(self, packet, address, port):
-        return self._socket.sendto(packet, (address, port))
+    def send(self, payload, address, port):
+        return self._socket.sendto(payload, (address, port))
 
     def receive(self, buffer_size=1024):
-        result = self._socket.recvfrom(buffer_size)
+        packet = self._socket.recvfrom(buffer_size)
 
-        packet = result[0]
-        address = result[1][0]
-        port = result[1][1]
+        payload = packet[0]
+        address = packet[1][0]
+        port = packet[1][1]
 
-        return packet, address, port
+        return payload, address, port
 
     def close(self):
         self._socket.close()

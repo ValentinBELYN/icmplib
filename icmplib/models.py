@@ -177,22 +177,22 @@ class ICMPReply:
     :type code: int
     :param code: The error code.
 
-    :type received_bytes: int
-    :param received_bytes: The number of bytes received.
+    :type bytes_received: int
+    :param bytes_received: The number of bytes received.
 
     :type time: float
     :param time: The timestamp of the ICMP reply.
 
     '''
     def __init__(self, source, id, sequence, type, code,
-            received_bytes, time):
+            bytes_received, time):
 
         self._source = source
         self._id = id
         self._sequence = sequence
         self._type = type
         self._code = code
-        self._received_bytes = received_bytes
+        self._bytes_received = bytes_received
         self._time = time
 
     def __repr__(self):
@@ -284,12 +284,22 @@ class ICMPReply:
         return self._code
 
     @property
-    def received_bytes(self):
+    def bytes_received(self):
         '''
         The number of bytes received.
 
         '''
-        return self._received_bytes
+        return self._bytes_received
+
+    @property
+    def received_bytes(self):
+        '''
+        Deprecated: use the 'bytes_received' property instead.
+
+        '''
+        # Warning in v1.2
+        # Deletion in v2.0
+        return self._bytes_received
 
     @property
     def time(self):
@@ -318,24 +328,24 @@ class Host:
     :type max_rtt: float
     :param max_rtt: The maximum round-trip time.
 
-    :type transmitted_packets: int
-    :param transmitted_packets: The number of packets transmitted to
-        the destination host.
+    :type packets_sent: int
+    :param packets_sent: The number of packets transmitted to the
+        destination host.
 
-    :type received_packets: int
-    :param received_packets: The number of packets sent by the remote
+    :type packets_received: int
+    :param packets_received: The number of packets sent by the remote
         host and received by the current host.
 
     '''
     def __init__(self, address, min_rtt, avg_rtt, max_rtt,
-            transmitted_packets, received_packets):
+            packets_sent, packets_received):
 
         self._address = address
         self._min_rtt = round(min_rtt, 3)
         self._avg_rtt = round(avg_rtt, 3)
         self._max_rtt = round(max_rtt, 3)
-        self._transmitted_packets = transmitted_packets
-        self._received_packets = received_packets
+        self._packets_sent = packets_sent
+        self._packets_received = packets_received
 
     def __repr__(self):
         return f'<Host [{self._address}]>'
@@ -374,21 +384,41 @@ class Host:
         return self._max_rtt
 
     @property
-    def transmitted_packets(self):
+    def packets_sent(self):
         '''
         The number of packets transmitted to the destination host.
 
         '''
-        return self._transmitted_packets
+        return self._packets_sent
 
     @property
-    def received_packets(self):
+    def transmitted_packets(self):
+        '''
+        Deprecated: use the 'packets_sent' property instead.
+
+        '''
+        # Warning in v1.2
+        # Deletion in v2.0
+        return self._packets_sent
+
+    @property
+    def packets_received(self):
         '''
         The number of packets sent by the remote host and received by
         the current host.
 
         '''
-        return self._received_packets
+        return self._packets_received
+
+    @property
+    def received_packets(self):
+        '''
+        Deprecated: use the 'packets_received' property instead.
+
+        '''
+        # Warning in v1.2
+        # Deletion in v2.0
+        return self._packets_received
 
     @property
     def packet_loss(self):
@@ -397,11 +427,10 @@ class Host:
         Return a float between 0 and 1 (all packets are lost).
 
         '''
-        if not self._transmitted_packets:
+        if not self._packets_sent:
             return 0.0
 
-        return (1 - self._received_packets
-                  / self._transmitted_packets)
+        return 1 - self._packets_received / self._packets_sent
 
     @property
     def is_alive(self):
@@ -430,12 +459,12 @@ class Hop(Host):
     :type max_rtt: float
     :param max_rtt: The maximum round-trip time.
 
-    :type transmitted_packets: int
-    :param transmitted_packets: The number of packets transmitted to
-        the destination host.
+    :type packets_sent: int
+    :param packets_sent: The number of packets transmitted to the
+        destination host.
 
-    :type received_packets: int
-    :param received_packets: The number of packets sent by the remote
+    :type packets_received: int
+    :param packets_received: The number of packets sent by the remote
         host and received by the current host.
 
     :type distance: int
@@ -444,10 +473,10 @@ class Hop(Host):
 
     '''
     def __init__(self, address, min_rtt, avg_rtt, max_rtt,
-            transmitted_packets, received_packets, distance):
+            packets_sent, packets_received, distance):
 
         super().__init__(address, min_rtt, avg_rtt, max_rtt,
-            transmitted_packets, received_packets)
+            packets_sent, packets_received)
 
         self._distance = distance
 
