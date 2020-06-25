@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.0](https://github.com/ValentinBELYN/icmplib/releases/tag/v1.1.0) - 2020-06-25
+- Normalize the names of variables and properties:
+  - `ICMPReply` class: the `received_bytes` property is deprecated. Use `bytes_received` instead.
+  - `Host` and `Hop` classes: the `transmitted_packets` property is deprecated. Use `packets_sent` instead.
+  - `Host` and `Hop` classes: the `received_packets` property is deprecated. Use `packets_received` instead.
+- Normalize docstrings.
+- Add support for odd size payloads.
+- Optimizations.
+
 ## [v1.0.4](https://github.com/ValentinBELYN/icmplib/releases/tag/v1.0.4) - 2020-06-14
 - Add the `is_closed` property to the `ICMPSocket` class.
 - Round round-trip time values by default.
