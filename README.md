@@ -67,9 +67,9 @@ from icmplib import ping, multiping, traceroute, Host, Hop
 from icmplib import ICMPv4Socket, ICMPv6Socket, ICMPRequest, ICMPReply
 
 # Exceptions
-from icmplib import ICMPLibError, ICMPSocketError, \
-    SocketPermissionError, SocketBroadcastError, TimeoutExceeded, \
-    ICMPError, DestinationUnreachable, TimeExceeded
+from icmplib import ICMPLibError, ICMPSocketError
+from icmplib import SocketPermissionError, SocketBroadcastError, TimeoutExceeded
+from icmplib import ICMPError, DestinationUnreachable, TimeExceeded
 ```
 
 <br>
@@ -122,14 +122,14 @@ ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs)
 
 - `**kwargs`
 
-  `Optional` Advanced use: arguments passed to the `ICMPRequest` object.
+  `Optional` Advanced use: arguments passed to `ICMPRequest` objects.
 
 #### Return value
 - `Host` object
 
   A `Host` object containing statistics about the desired destination:<br>
-  `address`, `min_rtt`, `avg_rtt`, `max_rtt`, `transmitted_packets`,<br>
-  `received_packets`, `packet_loss`, `is_alive`.
+  `address`, `min_rtt`, `avg_rtt`, `max_rtt`, `packets_sent`,<br>
+  `packets_received`, `packet_loss`, `is_alive`.
 
 #### Exceptions
 - `SocketPermissionError`
@@ -140,28 +140,28 @@ ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs)
 ```python
 >>> host = ping('1.1.1.1', count=10, interval=0.2)
 
->>> host.address              # The IP address of the gateway or host that responded
-'1.1.1.1'                     # to the request
+>>> host.address            # The IP address of the gateway or host
+'1.1.1.1'                   # that responded to the request
 
->>> host.min_rtt              # The minimum round-trip time
+>>> host.min_rtt            # The minimum round-trip time
 12.2
 
->>> host.avg_rtt              # The average round-trip time
+>>> host.avg_rtt            # The average round-trip time
 13.2
 
->>> host.max_rtt              # The maximum round-trip time
+>>> host.max_rtt            # The maximum round-trip time
 17.6
 
->>> host.transmitted_packets  # The number of packets transmitted to the destination host
-10
+>>> host.packets_sent       # The number of packets transmitted to the
+10                          # destination host
 
->>> host.received_packets     # The number of packets sent by the remote host and received by
-9                             # the current host
+>>> host.packets_received   # The number of packets sent by the remote
+9                           # host and received by the current host
 
->>> host.packet_loss          # Packet loss occurs when packets fail to reach their destination
-0.1                           # Return a float between 0 and 1 (all packets are lost)
-
->>> host.is_alive             # Return True if the host is reachable, False otherwise
+>>> host.packet_loss        # Packet loss occurs when packets fail to
+0.1                         # reach their destination. Return a float
+                            # between 0 and 1 (all packets are lost)
+>>> host.is_alive           # Indicate whether the host is reachable
 True
 ```
 
@@ -219,14 +219,14 @@ multiping(addresses, count=2, interval=1, timeout=2, id=PID, max_threads=10, **k
 
 - `**kwargs`
 
-  `Optional` Advanced use: arguments passed to the `ICMPRequest` object.
+  `Optional` Advanced use: arguments passed to `ICMPRequest` objects.
 
 #### Return value
 - `List of Host`
 
   A `list of Host` objects containing statistics about the desired destinations:<br>
-  `address`, `min_rtt`, `avg_rtt`, `max_rtt`, `transmitted_packets`,<br>
-  `received_packets`, `packet_loss`, `is_alive`.<br>
+  `address`, `min_rtt`, `avg_rtt`, `max_rtt`, `packets_sent`,<br>
+  `packets_received`, `packet_loss`, `is_alive`.<br>
   The list is sorted in the same order as the addresses passed in parameters.
 
 #### Exceptions
@@ -309,7 +309,7 @@ traceroute(address, count=3, interval=0.05, timeout=2, id=PID, max_hops=30, fast
 
 - `fast_mode`
 
-  When this option is enabled and an intermediate router has been reached, skip to the next hop rather than perform additional requests. The `count` option then becomes the maximum number of requests in case of no responses.
+  When this option is enabled and an intermediate router has been reached, skip to the next hop rather than perform additional requests. The `count` parameter then becomes the maximum number of requests in case of no responses.
 
   - Type: `bool`
   - Default: `False`
@@ -342,12 +342,12 @@ traceroute(address, count=3, interval=0.05, timeout=2, id=PID, max_hops=30, fast
 ...
 
 # Distance (ttl)    Address                 Average round-trip time
-# 1                 10.0.0.1                5.19 ms
-# 2                 194.149.169.49          7.55 ms
-# 3                 194.149.166.54          12.2 ms
+# 1                 10.0.0.1                5.196 ms
+# 2                 194.149.169.49          7.552 ms
+# 3                 194.149.166.54          12.21 ms
 # *                 Some routers are not responding
-# 5                 212.73.205.22           22.1 ms
-# 6                 1.1.1.1                 13.5 ms
+# 5                 212.73.205.22           22.15 ms
+# 6                 1.1.1.1                 13.59 ms
 ```
 
 <br>
@@ -395,16 +395,14 @@ ICMPRequest(destination, id, sequence, payload=None, payload_size=56, timeout=2,
 
 - `payload`
 
-  The payload content in bytes. Its size must be even.<br>
-  A random payload is used by default.
+  The payload content in bytes. A random payload is used by default.
 
   - Type: `bytes`
   - Default: `None`
 
 - `payload_size`
 
-  The payload size (even number).<br>
-  Ignored when the `payload` parameter is set.
+  The payload size. Ignored when the `payload` parameter is set.
 
   - Type: `int`
   - Default: `56`
@@ -433,11 +431,11 @@ ICMPRequest(destination, id, sequence, payload=None, payload_size=56, timeout=2,
 <br>
 
 ### ICMPReply
-A class that represents an ICMP reply. Generated from an ICMPSocket object (`ICMPv4Socket` or `ICMPv6Socket`).
+A class that represents an ICMP reply. Generated from an `ICMPSocket` object (`ICMPv4Socket` or `ICMPv6Socket`).
 
 #### Definition
 ```python
-ICMPReply(source, id, sequence, type, code, received_bytes, time)
+ICMPReply(source, id, sequence, type, code, bytes_received, time)
 ```
 
 #### Parameters / Getters
@@ -471,7 +469,7 @@ ICMPReply(source, id, sequence, type, code, received_bytes, time)
 
   - Type: `int`
 
-- `received_bytes`
+- `bytes_received`
 
   The number of bytes received.
 
@@ -516,13 +514,13 @@ ICMPv4Socket()
 
   *Destructor. Automatically called: do not call it directly.*
 
-  - Call the `close()` method.
+  - Call the `close` method.
 
 - `send(request)`
 
   Send a request to a host.
 
-  This operation is non-blocking. Use the `receive()` method to get the reply.
+  This operation is non-blocking. Use the `receive` method to get the reply.
 
   - Parameter `ICMPRequest`: The ICMP request you have created.
   - Raises `SocketBroadcastError`: If a broadcast address is used and the corresponding option is not enabled on the socket (ICMPv4 only).
@@ -536,7 +534,7 @@ ICMPv4Socket()
 
   - Raises `TimeoutExceeded`: If no response is received before the timeout defined in the request. This exception is also useful for stopping a possible loop in case of multiple responses.
   - Raises `ICMPSocketError`: If another error occurs while receiving.
-  - Returns `ICMPReply`: An ICMPReply object containing the reply of the desired destination. See the ICMPReply class for details.
+  - Returns `ICMPReply`: An `ICMPReply` object containing the reply of the desired destination. See the `ICMPReply` class for details.
 
 - `close()`
 
@@ -676,7 +674,7 @@ def verbose_ping(address, count=4, interval=1, timeout=2, id=PID):
     # You can modify it using the payload_size parameter
     print(f'PING {address}: 56 data bytes')
 
-    # Automatic detection of the socket to use
+    # Detection of the socket to use
     if is_ipv6_address(address):
         socket = ICMPv6Socket()
 
@@ -684,6 +682,7 @@ def verbose_ping(address, count=4, interval=1, timeout=2, id=PID):
         socket = ICMPv4Socket()
 
     for sequence in range(count):
+        # We create an ICMP request
         request = ICMPRequest(
             destination=address,
             id=id,
@@ -691,38 +690,50 @@ def verbose_ping(address, count=4, interval=1, timeout=2, id=PID):
             timeout=timeout)
 
         try:
+            # We send the request
             socket.send(request)
+
+            # We are awaiting receipt of an ICMP reply
             reply = socket.receive()
 
-            print(f'{reply.received_bytes} bytes from '
+            # We received a reply
+            # We display some information
+            print(f'{reply.bytes_received} bytes from '
                   f'{reply.source}: ', end='')
 
+            # We throw an exception if it is an ICMP error message
             reply.raise_for_status()
+
+            # We calculate the round-trip time and we display it
             round_trip_time = (reply.time - request.time) * 1000
 
             print(f'icmp_seq={sequence} '
-                  f'time={round(round_trip_time, 2)} ms')
+                  f'time={round(round_trip_time, 3)} ms')
 
+            # We pause before continuing
             if sequence < count - 1:
                 sleep(interval)
 
         except TimeoutExceeded:
+            # The timeout has been reached
             print(f'Request timeout for icmp_seq {sequence}')
 
         except ICMPError as err:
+            # An ICMP error message has been received
             print(err)
 
         except ICMPLibError:
-            print('General failure...')
+            # All other errors
+            print('An error has occurred.')
 
 
 verbose_ping('1.1.1.1')
 
 # PING 1.1.1.1: 56 data bytes
-# 64 bytes from 1.1.1.1: icmp_seq=0 time=10.41 ms
-# 64 bytes from 1.1.1.1: icmp_seq=1 time=7.56 ms
-# 64 bytes from 1.1.1.1: icmp_seq=2 time=11.81 ms
-# 64 bytes from 1.1.1.1: icmp_seq=3 time=10.75 ms
+# 64 bytes from 1.1.1.1: icmp_seq=0 time=12.061 ms
+# 64 bytes from 1.1.1.1: icmp_seq=1 time=12.597 ms
+# 64 bytes from 1.1.1.1: icmp_seq=2 time=12.475 ms
+# 64 bytes from 1.1.1.1: icmp_seq=3 time=10.822 ms
 ```
 
 <br>
