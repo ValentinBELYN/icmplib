@@ -73,7 +73,7 @@ def broadcast_ping(address, count=4, timeout=1, id=PID):
                 round_trip_time = (reply.time - request.time) * 1000
 
                 # We display some information
-                print(f'  {reply.received_bytes} bytes from '
+                print(f'  {reply.bytes_received} bytes from '
                       f'{reply.source}: icmp_seq={sequence} '
                       f'time={round(round_trip_time, 3)} ms')
 

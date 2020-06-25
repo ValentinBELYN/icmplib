@@ -61,7 +61,7 @@ def verbose_ping(address, count=4, interval=1, timeout=2, id=PID):
 
             # We received a reply
             # We display some information
-            print(f'  {reply.received_bytes} bytes from '
+            print(f'  {reply.bytes_received} bytes from '
                   f'{reply.source}: ', end='')
 
             # We throw an exception if it is an ICMP error message

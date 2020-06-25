@@ -18,7 +18,7 @@ from icmplib import traceroute
 hops = traceroute('1.1.1.1', timeout=1, fast_mode=True)
 
 print(hops)
-# [<Hop 1 [192.168.0.254]>, <Hop 2 [194.149.169.81]>,
+# [<Hop 1 [192.168.0.254]>, <Hop 2 [194.149.169.162]>,
 #  <Hop 4 [149.11.115.13]>, <Hop 5 [154.54.61.21]>,
 #  <Hop 6 [154.54.60.126]>, <Hop 7 [149.11.0.126]>,
 #  <Hop 8 [1.1.1.1]>]

@@ -34,12 +34,12 @@ print(host.max_rtt)
 # 17.6
 
 # The number of packets transmitted to the destination host
-print(host.transmitted_packets)
+print(host.packets_sent)
 # 10
 
 # The number of packets sent by the remote host and received by the
 # current host
-print(host.received_packets)
+print(host.packets_received)
 # 9
 
 # Packet loss occurs when packets fail to reach their destination
@@ -47,6 +47,6 @@ print(host.received_packets)
 print(host.packet_loss)
 # 0.1
 
-# Return True if the host is reachable, False otherwise
+# Indicate whether the host is reachable
 print(host.is_alive)
 # True
