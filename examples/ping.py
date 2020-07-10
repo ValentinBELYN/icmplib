@@ -43,10 +43,10 @@ print(host.packets_received)
 # 9
 
 # Packet loss occurs when packets fail to reach their destination
-# Return a float between 0 and 1 (all packets are lost)
+# Returns a float between 0 and 1 (all packets are lost)
 print(host.packet_loss)
 # 0.1
 
-# Indicate whether the host is reachable
+# Indicates whether the host is reachable
 print(host.is_alive)
 # True

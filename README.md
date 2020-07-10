@@ -159,9 +159,9 @@ ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs)
 9                           # host and received by the current host
 
 >>> host.packet_loss        # Packet loss occurs when packets fail to
-0.1                         # reach their destination. Return a float
+0.1                         # reach their destination. Returns a float
                             # between 0 and 1 (all packets are lost)
->>> host.is_alive           # Indicate whether the host is reachable
+>>> host.is_alive           # Indicates whether the host is reachable
 True
 ```
 
