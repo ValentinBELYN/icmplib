@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.1](https://github.com/ValentinBELYN/icmplib/releases/tag/v1.1.1) - 2020-07-10
+- Fix a bug when the source host does not have an IP address.
+
 ## [v1.1.0](https://github.com/ValentinBELYN/icmplib/releases/tag/v1.1.0) - 2020-06-25
 - Normalize the names of variables and properties:
   - `ICMPReply` class: the `received_bytes` property is deprecated. Use `bytes_received` instead.

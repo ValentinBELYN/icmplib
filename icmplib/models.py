@@ -434,7 +434,7 @@ class Host:
         Indicate whether the host is reachable. Return a `boolean`.
 
         '''
-        return self.packet_loss < 1
+        return self._packets_received > 0
 
 
 class Hop(Host):
