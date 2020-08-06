@@ -5,10 +5,6 @@
   <br>
 
   <p><strong>Easily forge ICMP packets and make your own ping and traceroute.</strong></p>
-  <a href="https://pypi.org/project/icmplib">
-    <img src="https://img.shields.io/pypi/dm/icmplib.svg?style=flat-square&labelColor=0366d6&color=005cc5" alt="statistics">
-  </a>
-  <br>
   <br>
 
   <div>
