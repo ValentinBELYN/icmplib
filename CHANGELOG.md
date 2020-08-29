@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.2](https://github.com/ValentinBELYN/icmplib/releases/tag/v1.1.2) - 2020-08-29
+- Fix a compatibility issue.
+
 ## [v1.1.1](https://github.com/ValentinBELYN/icmplib/releases/tag/v1.1.1) - 2020-07-10
 - Fix a bug when the source host does not have an IP address.
 

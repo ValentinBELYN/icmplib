@@ -88,7 +88,7 @@ class IPv4Socket(IPSocket):
         self._ttl = ttl
 
         self._socket.setsockopt(
-            socket.SOL_IP,
+            socket.IPPROTO_IP,
             socket.IP_TTL,
             ttl)
 
