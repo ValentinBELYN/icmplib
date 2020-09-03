@@ -191,12 +191,16 @@ class ICMPSocket:
 
     def _read_reply(self, packet, source, reply_time):
         '''
-        Read a reply from bytes and return an `ICMPReply` object.
+        Read a reply from bytes. Return an `ICMPReply` object or `None`
+        if the reply cannot be parsed.
 
         '''
         bytes_received = (
             len(packet)
             - self._config.ICMP_HEADER_OFFSET)
+
+        if len(packet) < 2:
+            return None
 
         type, code = unpack('!2B', packet[
             self._config.ICMP_HEADER_OFFSET:
@@ -204,6 +208,9 @@ class ICMPSocket:
 
         if type != self._config.ICMP_ECHO_REPLY:
             packet = packet[self._config.ICMP_PAYLOAD_OFFSET:]
+
+        if len(packet) < 4:
+            return None
 
         id, sequence = unpack('!2H', packet[
             self._config.ICMP_ID_OFFSET:
@@ -312,7 +319,7 @@ class ICMPSocket:
                     source=address,
                     reply_time=reply_time)
 
-                if (request.id == reply.id and
+                if (reply and request.id == reply.id and
                     request.sequence == reply.sequence):
                     return reply
 

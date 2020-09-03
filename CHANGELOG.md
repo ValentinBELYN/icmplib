@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.3](https://github.com/ValentinBELYN/icmplib/releases/tag/v1.1.3) - 2020-09-03
+- Fix a bug when ICMP responses are not correctly formatted.
+
 ## [v1.1.2](https://github.com/ValentinBELYN/icmplib/releases/tag/v1.1.2) - 2020-08-29
 - Fix a compatibility issue.
 
