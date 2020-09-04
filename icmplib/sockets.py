@@ -199,7 +199,7 @@ class ICMPSocket:
             len(packet)
             - self._config.ICMP_HEADER_OFFSET)
 
-        if len(packet) < 2:
+        if len(packet) < self._config.ICMP_CHECKSUM_OFFSET:
             return None
 
         type, code = unpack('!2B', packet[
@@ -209,7 +209,7 @@ class ICMPSocket:
         if type != self._config.ICMP_ECHO_REPLY:
             packet = packet[self._config.ICMP_PAYLOAD_OFFSET:]
 
-        if len(packet) < 4:
+        if len(packet) < self._config.ICMP_PAYLOAD_OFFSET:
             return None
 
         id, sequence = unpack('!2H', packet[
