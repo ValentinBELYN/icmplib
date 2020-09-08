@@ -27,11 +27,10 @@
 from .sockets import ICMPv4Socket, ICMPv6Socket
 from .models import ICMPRequest, Host
 from .exceptions import *
-from .utils import PID, is_ipv6_address
+from .utils import PID, is_ipv6_address, resolv_host_ipv4
 
 from threading import Thread
 from time import sleep
-
 
 class PingThread(Thread):
     def __init__(self, **kwargs):
@@ -47,7 +46,7 @@ class PingThread(Thread):
         return self._host
 
 
-def ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs):
+def ping(address, count=4, interval=1, timeout=2, id=PID, verify_source=False, **kwargs):
     '''
     Send ICMP ECHO_REQUEST packets to a network host.
 
@@ -70,6 +69,11 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs):
     :param id: (Optional) The identifier of the request. Used to match
         the reply with the request. In practice, a unique identifier is
         used for every ping process.
+
+    :type verify_source: bool
+    :param verify_source: (Optional) Verify the source of the reply packet. If multiple
+        ping requests are sent at the same time and verify is not enabled,
+        a reply from another host may be counted unexpectedly.
 
     :param **kwargs: (Optional) Advanced use: arguments passed to
         `ICMPRequest` objects.
@@ -95,11 +99,16 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs):
     See the `Host` class for details.
 
     '''
+    host = address
     if is_ipv6_address(address):
         socket = ICMPv6Socket()
 
     else:
         socket = ICMPv4Socket()
+        try:
+            address = resolv_host_ipv4(address)
+        except OSError:
+            count = 0
 
     packets_sent = 0
     packets_received = 0
@@ -120,7 +129,10 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs):
             socket.send(request)
             packets_sent += 1
 
-            reply = socket.receive()
+            if verify_source:
+                reply = socket.receive(address)
+            else:
+                reply = socket.receive()
             reply.raise_for_status()
             packets_received += 1
 
@@ -142,7 +154,7 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs):
         min_rtt = 0.0
 
     host = Host(
-        address=address,
+        address=host,
         min_rtt=min_rtt,
         avg_rtt=avg_rtt,
         max_rtt=max_rtt,

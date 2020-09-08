@@ -24,6 +24,7 @@
     <https://www.gnu.org/licenses/>.
 '''
 
+import socket
 from os import getpid
 from random import choice
 
@@ -57,3 +58,11 @@ def is_ipv6_address(address):
 
     '''
     return ':' in address
+
+
+def resolv_host_ipv4(host_or_address):
+    '''
+    Take an host or ip address and returns the ip address.
+
+    '''
+    return socket.gethostbyname(host_or_address)

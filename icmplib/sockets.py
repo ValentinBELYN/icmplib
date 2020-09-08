@@ -276,12 +276,15 @@ class ICMPSocket:
         except OSError as err:
             raise ICMPSocketError(str(err))
 
-    def receive(self):
+    def receive(self, match_source_addr=None):
         '''
         Receive a reply from a host.
 
         This method can be called multiple times if you expect several
         responses (as with a broadcast address).
+
+        :type match_source_addr: str
+        :param match_source_addr: (Optional) The expected source address of the response.
 
         :raises TimeoutExceeded: If no response is received before the
             timeout defined in the request.
@@ -309,6 +312,9 @@ class ICMPSocket:
         try:
             while True:
                 packet, address, port = self._socket.receive()
+                if match_source_addr and address != match_source_addr:
+                    continue
+
                 reply_time = time()
 
                 if reply_time > timeout:
