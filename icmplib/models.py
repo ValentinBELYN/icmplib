@@ -27,6 +27,8 @@
 from .exceptions import *
 from .utils import is_ipv6_address
 
+from warnings import warn
+
 
 class ICMPRequest:
     '''
@@ -293,8 +295,10 @@ class ICMPReply:
         Deprecated: use the `bytes_received` property instead.
 
         '''
-        # Warning in v1.2
-        # Deletion in v2.0
+        warn('The `received_bytes` property will be removed from '
+             'icmplib 2.0. Use the `bytes_received` property instead.',
+             DeprecationWarning)
+
         return self._bytes_received
 
     @property
@@ -393,8 +397,10 @@ class Host:
         Deprecated: use the `packets_sent` property instead.
 
         '''
-        # Warning in v1.2
-        # Deletion in v2.0
+        warn('The `transmitted_packets` property will be removed from '
+             'icmplib 2.0. Use the `packets_sent` property instead.',
+             DeprecationWarning)
+
         return self._packets_sent
 
     @property
@@ -412,8 +418,10 @@ class Host:
         Deprecated: use the `packets_received` property instead.
 
         '''
-        # Warning in v1.2
-        # Deletion in v2.0
+        warn('The `received_packets` property will be removed from '
+             'icmplib 2.0. Use the `packets_received` property '
+             'instead.', DeprecationWarning)
+
         return self._packets_received
 
     @property
