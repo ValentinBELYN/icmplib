@@ -149,6 +149,8 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs):
         packets_sent=packets_sent,
         packets_received=packets_received)
 
+    socket.close()
+
     return host
 
 

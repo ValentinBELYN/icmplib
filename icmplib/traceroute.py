@@ -171,4 +171,6 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
 
         ttl += 1
 
+    socket.close()
+
     return hops
