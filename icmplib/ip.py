@@ -41,6 +41,7 @@ class IPSocket:
 
         self.timeout = 5
         self.ttl = 64
+        self.traffic_class = 0
 
     def send(self, payload, address, port):
         return self._socket.sendto(payload, (address, port))
@@ -74,6 +75,14 @@ class IPSocket:
     def ttl(self, ttl):
         self._ttl = ttl
 
+    @property
+    def traffic_class(self):
+        return self._traffic_class
+
+    @traffic_class.setter
+    def traffic_class(self, traffic_class):
+        self._traffic_class = traffic_class
+
 
 class IPv4Socket(IPSocket):
     def __init__(self, protocol):
@@ -91,6 +100,15 @@ class IPv4Socket(IPSocket):
             socket.IPPROTO_IP,
             socket.IP_TTL,
             ttl)
+
+    @IPSocket.traffic_class.setter
+    def traffic_class(self, traffic_class):
+        self._traffic_class = traffic_class
+
+        self._socket.setsockopt(
+            socket.IPPROTO_IP,
+            socket.IP_TOS,
+            traffic_class)
 
     @property
     def broadcast(self):
@@ -120,3 +138,12 @@ class IPv6Socket(IPSocket):
             socket.IPPROTO_IPV6,
             socket.IPV6_MULTICAST_HOPS,
             ttl)
+
+    @IPSocket.traffic_class.setter
+    def traffic_class(self, traffic_class):
+        self._traffic_class = traffic_class
+
+        self._socket.setsockopt(
+            socket.IPPROTO_IPV6,
+            socket.IPV6_TCLASS,
+            traffic_class)

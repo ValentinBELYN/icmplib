@@ -256,6 +256,7 @@ class ICMPSocket:
             payload=payload)
 
         self._socket.ttl = request.ttl
+        self._socket.traffic_class = request.traffic_class
 
         request._time = time()
 

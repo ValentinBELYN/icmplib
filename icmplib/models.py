@@ -63,9 +63,18 @@ class ICMPRequest:
     :type ttl: int
     :param ttl: (Optional) The time to live of the packet in seconds.
 
+    :type traffic_class: int
+    :param traffic_class: (Optional) The traffic class of the packet.
+        Provides a defined level of service to the packet by setting
+        the DS Field (formerly TOS) or the Traffic Class field of the
+        IP header. Packets are delivered with the minimum priority by
+        default (Best-effort delivery).
+        Intermediate routers must be able to support this feature.
+        Only available on Unix systems. Ignored on Windows.
+
     '''
     def __init__(self, destination, id, sequence, payload=None,
-            payload_size=56, timeout=2, ttl=64):
+            payload_size=56, timeout=2, ttl=64, traffic_class=0):
 
         id &= 0xffff
         sequence &= 0xffff
@@ -80,6 +89,7 @@ class ICMPRequest:
         self._payload_size = payload_size
         self._timeout = timeout
         self._ttl = ttl
+        self._traffic_class = traffic_class
         self._time = 0
 
     def __repr__(self):
@@ -144,6 +154,14 @@ class ICMPRequest:
 
         '''
         return self._ttl
+
+    @property
+    def traffic_class(self):
+        '''
+        The traffic class of the packet.
+
+        '''
+        return self._traffic_class
 
     @property
     def time(self):
