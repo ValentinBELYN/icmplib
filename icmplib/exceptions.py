@@ -58,6 +58,16 @@ class SocketPermissionError(ICMPSocketError):
         super().__init__(message)
 
 
+class SocketUnavailableError(ICMPSocketError):
+    '''
+    Raised when an action is performed while the socket is closed.
+
+    '''
+    def __init__(self):
+        message = 'The socket can no longer be used after its closure'
+        super().__init__(message)
+
+
 class SocketBroadcastError(ICMPSocketError):
     '''
     Raised when a broadcast address is used and the corresponding

@@ -241,9 +241,13 @@ class ICMPSocket:
         :raises SocketBroadcastError: If a broadcast address is used
             and the corresponding option is not enabled on the socket
             (ICMPv4 only).
+        :raises SocketUnavailableError: If the socket is closed.
         :raises ICMPSocketError: If another error occurs while sending.
 
         '''
+        if not self._socket:
+            raise SocketUnavailableError
+
         payload = request.payload
 
         if not payload:
@@ -288,6 +292,7 @@ class ICMPSocket:
             timeout defined in the request.
             This exception is also useful for stopping a possible loop
             in case of multiple responses.
+        :raises SocketUnavailableError: If the socket is closed.
         :raises ICMPSocketError: If another error occurs while
             receiving.
 
@@ -298,6 +303,9 @@ class ICMPSocket:
         See the `ICMPReply` class for details.
 
         '''
+        if not self._socket:
+            raise SocketUnavailableError
+
         if not self._last_request:
             raise TimeoutExceeded(0)
 

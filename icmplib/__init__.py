@@ -37,4 +37,4 @@ __copyright__ = 'Copyright 2017-2020 Valentin BELYN'
 __license__   = 'GNU Lesser General Public License v3.0'
 
 __version__   = '1.2-dev'
-__build__     = '200911'
+__build__     = '200912'
