@@ -33,7 +33,7 @@ from time import sleep
 
 
 def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
-        max_hops=30, fast_mode=False):
+        traffic_class=0, max_hops=30, fast_mode=False, **kwargs):
     '''
     Determine the route to a destination host.
 
@@ -62,6 +62,15 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
         the reply with the request. In practice, a unique identifier is
         used for every ping process.
 
+    :type traffic_class: int
+    :param traffic_class: (Optional) The traffic class of packets.
+        Provides a defined level of service to packets by setting the
+        DS Field (formerly TOS) or the Traffic Class field of IP
+        headers. Packets are delivered with the minimum priority by
+        default (Best-effort delivery).
+        Intermediate routers must be able to support this feature.
+        Only available on Unix systems. Ignored on Windows.
+
     :type max_hops: int
     :param max_hops: (Optional) The maximum time to live (max number of
         hops) used in outgoing probe packets.
@@ -72,6 +81,9 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
         rather than perform additional requests. The `count` parameter
         then becomes the maximum number of requests in case of no
         responses.
+
+    :param **kwargs: (Optional) Advanced use: arguments passed to
+        `ICMPRequest` objects.
 
     :rtype: list of Hop
     :returns: A list of `Hop` objects representing the route to the
@@ -131,7 +143,9 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
                 id=id,
                 sequence=sequence,
                 timeout=timeout,
-                ttl=ttl)
+                ttl=ttl,
+                traffic_class=traffic_class,
+                **kwargs)
 
             try:
                 socket.send(request)
