@@ -24,11 +24,13 @@
     <https://www.gnu.org/licenses/>.
 '''
 
+from .utils import IS_UNIX
+
 import socket
 
 
 # Fix for Windows
-if not hasattr(socket, 'IPPROTO_IPV6'):
+if not IS_UNIX:
     socket.IPPROTO_IPV6 = 41
 
 
@@ -105,10 +107,11 @@ class IPv4Socket(IPSocket):
     def traffic_class(self, traffic_class):
         self._traffic_class = traffic_class
 
-        self._socket.setsockopt(
-            socket.IPPROTO_IP,
-            socket.IP_TOS,
-            traffic_class)
+        if IS_UNIX:
+            self._socket.setsockopt(
+                socket.IPPROTO_IP,
+                socket.IP_TOS,
+                traffic_class)
 
     @property
     def broadcast(self):
@@ -143,7 +146,8 @@ class IPv6Socket(IPSocket):
     def traffic_class(self, traffic_class):
         self._traffic_class = traffic_class
 
-        self._socket.setsockopt(
-            socket.IPPROTO_IPV6,
-            socket.IPV6_TCLASS,
-            traffic_class)
+        if IS_UNIX:
+            self._socket.setsockopt(
+                socket.IPPROTO_IPV6,
+                socket.IPV6_TCLASS,
+                traffic_class)

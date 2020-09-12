@@ -24,11 +24,12 @@
     <https://www.gnu.org/licenses/>.
 '''
 
-from os import getpid
+from os import getpid, name as system
 from random import choice
 
 
 PID = getpid()
+IS_UNIX = system != 'nt'
 
 
 def random_byte_message(size):

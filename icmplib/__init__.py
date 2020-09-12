@@ -29,7 +29,7 @@ from .models import ICMPRequest, ICMPReply, Host, Hop
 from .ping import ping, multiping
 from .traceroute import traceroute
 from .exceptions import *
-from .utils import PID, is_ipv6_address
+from .utils import PID, IS_UNIX, is_ipv6_address
 
 
 __author__    = 'Valentin BELYN'
