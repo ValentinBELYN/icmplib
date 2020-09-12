@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.2.0](https://github.com/ValentinBELYN/icmplib/releases/tag/v1.2.0) - 2020-09-12
+- Add the ability to modify the traffic class of ICMP packets.
+- Add new optional parameters to the `traceroute` function.
+- Add a new exception `SocketUnavailableError` when an action is performed while a socket is closed.
+- Add a warning message on deprecated properties.
+- Explicit closure of sockets on built-in functions.
+- Fix a bug when ICMP responses are not correctly formatted (part 2).
+
 ## [v1.1.3](https://github.com/ValentinBELYN/icmplib/releases/tag/v1.1.3) - 2020-09-03
 - Fix a bug when ICMP responses are not correctly formatted.
 
