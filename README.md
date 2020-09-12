@@ -5,6 +5,10 @@
   <br>
 
   <p><strong>Easily forge ICMP packets and make your own ping and traceroute.</strong></p>
+  <a href="https://pypi.org/project/icmplib">
+    <img src="https://img.shields.io/pypi/dm/icmplib.svg?style=flat-square&labelColor=0366d6&color=005cc5" alt="statistics">
+  </a>
+  <br>
   <br>
 
   <div>
@@ -63,8 +67,8 @@ from icmplib import ping, multiping, traceroute, Host, Hop
 from icmplib import ICMPv4Socket, ICMPv6Socket, ICMPRequest, ICMPReply
 
 # Exceptions
-from icmplib import ICMPLibError, ICMPSocketError
-from icmplib import SocketPermissionError, SocketBroadcastError, TimeoutExceeded
+from icmplib import ICMPLibError, ICMPSocketError, SocketPermissionError
+from icmplib import SocketUnavailableError, SocketBroadcastError, TimeoutExceeded
 from icmplib import ICMPError, DestinationUnreachable, TimeExceeded
 ```
 
@@ -257,7 +261,7 @@ The Internet is a large and complex aggregation of network hardware, connected t
 
 #### Definition
 ```python
-traceroute(address, count=3, interval=0.05, timeout=2, id=PID, max_hops=30, fast_mode=False)
+traceroute(address, count=3, interval=0.05, timeout=2, id=PID, traffic_class=0, max_hops=30, fast_mode=False, **kwargs)
 ```
 
 #### Parameters
@@ -296,6 +300,16 @@ traceroute(address, count=3, interval=0.05, timeout=2, id=PID, max_hops=30, fast
   - Type: `int`
   - Default: `PID`
 
+- `traffic_class`
+
+  The traffic class of packets. Provides a defined level of service to packets by setting the DS Field (formerly TOS) or the Traffic Class field of IP headers. Packets are delivered with the minimum priority by default (Best-effort delivery).
+
+  Intermediate routers must be able to support this feature.<br>
+  *Only available on Unix systems. Ignored on Windows.*
+
+  - Type: `int`
+  - Default: `0`
+
 - `max_hops`
 
   The maximum time to live (max number of hops) used in outgoing probe packets.
@@ -309,6 +323,10 @@ traceroute(address, count=3, interval=0.05, timeout=2, id=PID, max_hops=30, fast
 
   - Type: `bool`
   - Default: `False`
+
+- `**kwargs`
+
+  `Optional` Advanced use: arguments passed to `ICMPRequest` objects.
 
 #### Return value
 - `List of Hop`
@@ -365,7 +383,7 @@ A user-created object that represents an *ICMP ECHO_REQUEST*.
 
 #### Definition
 ```python
-ICMPRequest(destination, id, sequence, payload=None, payload_size=56, timeout=2, ttl=64)
+ICMPRequest(destination, id, sequence, payload=None, payload_size=56, timeout=2, ttl=64, traffic_class=0)
 ```
 
 #### Parameters / Getters
@@ -416,6 +434,16 @@ ICMPRequest(destination, id, sequence, payload=None, payload_size=56, timeout=2,
 
   - Type: `int`
   - Default: `64`
+
+- `traffic_class`
+
+  The traffic class of the packet. Provides a defined level of service to the packet by setting the DS Field (formerly TOS) or the Traffic Class field of the IP header. Packets are delivered with the minimum priority by default (Best-effort delivery).
+
+  Intermediate routers must be able to support this feature.<br>
+  *Only available on Unix systems. Ignored on Windows.*
+
+  - Type: `int`
+  - Default: `0`
 
 #### Getters only
 - `time`
@@ -520,6 +548,7 @@ ICMPv4Socket()
 
   - Parameter `ICMPRequest`: The ICMP request you have created.
   - Raises `SocketBroadcastError`: If a broadcast address is used and the corresponding option is not enabled on the socket (ICMPv4 only).
+  - Raises `SocketUnavailableError`: If the socket is closed.
   - Raises `ICMPSocketError`: If another error occurs while sending.
 
 - `receive()`
@@ -529,6 +558,7 @@ ICMPv4Socket()
   This method can be called multiple times if you expect several responses (as with a broadcast address).
 
   - Raises `TimeoutExceeded`: If no response is received before the timeout defined in the request. This exception is also useful for stopping a possible loop in case of multiple responses.
+  - Raises `SocketUnavailableError`: If the socket is closed.
   - Raises `ICMPSocketError`: If another error occurs while receiving.
   - Returns `ICMPReply`: An `ICMPReply` object containing the reply of the desired destination. See the `ICMPReply` class for details.
 
@@ -573,6 +603,7 @@ The library contains many exceptions to adapt to your needs:
 ICMPLibError
  ├─ ICMPSocketError
  │  ├─ SocketPermissionError
+ │  ├─ SocketUnavailableError
  │  ├─ SocketBroadcastError
  │  └─ TimeoutExceeded
  │  
@@ -589,15 +620,16 @@ ICMPLibError
 - `ICMPLibError`: Exception class for the icmplib package.
 - `ICMPSocketError`: Base class for ICMP sockets exceptions.
 - `SocketPermissionError`: Raised when the permissions are insufficient to create a socket.
+- `SocketUnavailableError`: Raised when an action is performed while the socket is closed.
 - `SocketBroadcastError`: Raised when a broadcast address is used and the corresponding option is not enabled on the socket.
 - `TimeoutExceeded`: Raised when a timeout occurs on a socket.
 - `ICMPError`: Base class for ICMP error messages.
 - `DestinationUnreachable`: Destination Unreachable message is generated by the host or its inbound gateway to inform the client that the destination is unreachable for some reason.
 - `TimeExceeded`: Time Exceeded message is generated by a gateway to inform the source of a discarded datagram due to the time to live field reaching zero. A Time Exceeded message may also be sent by a host if it fails to reassemble a fragmented datagram within its time limit.
 
-Use the `message` method (getter) to retrieve the error message.
+Use the `message` property to retrieve the error message.
 
-`ICMPError` subclasses have methods to retrieve the response (`reply` method) and the specific message of the error (`message` method).
+`ICMPError` subclasses have properties to retrieve the response (`reply` property) and the specific message of the error (`message` property).
 
 <br>
 
