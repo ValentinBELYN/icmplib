@@ -170,6 +170,9 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
 
             if fast_mode:
                 break
+                
+        if packets_received:
+            avg_rtt /= packets_received
 
         if reply:
             hop = Hop(
