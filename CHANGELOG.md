@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.2.1](https://github.com/ValentinBELYN/icmplib/releases/tag/v1.2.1) - 2020-09-26
+- Fix an issue in the `traceroute` function which gave the wrong value for the `avg_rtt` property (@patrickfnielsen).
+- Some other tweaks to the `traceroute` function.
+
 ## [v1.2.0](https://github.com/ValentinBELYN/icmplib/releases/tag/v1.2.0) - 2020-09-12
 - Add the ability to modify the traffic class of ICMP packets.
 - Add new optional parameters to the `traceroute` function.
