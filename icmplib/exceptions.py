@@ -86,7 +86,7 @@ class TimeoutExceeded(ICMPSocketError):
 
     '''
     def __init__(self, timeout):
-        message = f'The timeout has been reached ({timeout}s)'
+        message = 'The timeout has been reached'
         super().__init__(message)
 
 
@@ -120,7 +120,7 @@ class DestinationUnreachable(ICMPError):
             message = self._CODES[reply.code]
 
         else:
-            message = f'Destination unreachable, bad code: {reply.code}'
+            message = 'Destination unreachable, bad code: {}'.format(reply.code)
 
         super().__init__(message, reply)
 
@@ -176,7 +176,7 @@ class TimeExceeded(ICMPError):
             message = self._CODES[reply.code]
 
         else:
-            message = f'Time exceeded, bad code: {reply.code}'
+            message = 'Time exceeded, bad code: {}'.format(reply.code)
 
         super().__init__(message, reply)
 

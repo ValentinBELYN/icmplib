@@ -35,7 +35,7 @@ Use the built-in functions or build your own, you have the choice!
 ## Features
 
 - :deciduous_tree: **Ready-to-use:** icmplib offers ready-to-use functions such as the most popular ones: `ping`, `multiping` and `traceroute`.
-- :gem: **Modern:** This library uses the latest technologies offered by Python 3.6+ and is fully object-oriented.
+- :gem: **Modern:** This library uses the latest technologies offered by Python 3.5+ and is fully object-oriented.
 - :rocket: **Fast:** Each class and function has been designed and optimized to deliver the best performance. Some functions are also multithreaded (like the `multiping` function). You can ping the world in seconds!
 - :nut_and_bolt: **Powerful and evolutive:** Easily build your own classes and functions with `ICMPv4` and `ICMPv6` sockets.
 - :fire: **Seamless integration of IPv6:** Use IPv6 the same way you use IPv4. Automatic detection is done without impacting performance.
@@ -55,7 +55,7 @@ $ pip3 install --upgrade icmplib
 $ pip3 uninstall icmplib
 ```
 
-icmplib requires Python 3.6 or later.
+icmplib requires Python 3.5 or later.
 
 Import icmplib into your project (only import what you need):
 

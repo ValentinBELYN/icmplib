@@ -91,7 +91,7 @@ class ICMPRequest:
         self._time = 0
 
     def __repr__(self):
-        return f'<ICMPRequest [{self._destination}]>'
+        return '<ICMPRequest {}>'.format(self._destination)
 
     @property
     def destination(self):
@@ -214,7 +214,7 @@ class ICMPReply:
         self._time = time
 
     def __repr__(self):
-        return f'<ICMPReply [{self._source}]>'
+        return '<ICMPReply {}>'.format(self._source)
 
     def raise_for_status(self):
         '''
@@ -249,8 +249,7 @@ class ICMPReply:
             raise errors[self._type](self)
 
         if self._type != echo_reply_type:
-            message = f'Error type: {self._type}, ' \
-                      f'code: {self._code}'
+            message = 'Error type: {}, code: {}'.format(self._type, self._code)
 
             raise ICMPError(message, self)
 
@@ -364,7 +363,7 @@ class Host:
         self._packets_received = packets_received
 
     def __repr__(self):
-        return f'<Host [{self._address}]>'
+        return '<Host {}>'.format(self._address)
 
     @property
     def address(self):
@@ -501,7 +500,7 @@ class Hop(Host):
         self._distance = distance
 
     def __repr__(self):
-        return f'<Hop {self._distance} [{self._address}]>'
+        return '<Hop {} {}>'.format(self._distance, self._address)
 
     @property
     def distance(self):
