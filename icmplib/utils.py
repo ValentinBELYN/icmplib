@@ -25,13 +25,14 @@
 '''
 
 import socket
-from os import getpid, name as system
+from sys import platform
+from os import getpid
 from re import match
-from random import choice
+from random import choices
 
 
 PID = getpid()
-IS_UNIX = system != 'nt'
+PLATFORM_WINDOWS = platform == 'win32'
 
 
 def random_byte_message(size):
@@ -45,12 +46,9 @@ def random_byte_message(size):
         b'1234567890'
     )
 
-    sequence = [
-        choice(bytes_available)
-        for _ in range(size)
-    ]
-
-    return bytes(sequence)
+    return bytes(
+        choices(bytes_available, k=size)
+    )
 
 
 def resolve(name):

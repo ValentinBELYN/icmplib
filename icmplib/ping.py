@@ -24,13 +24,13 @@
     <https://www.gnu.org/licenses/>.
 '''
 
+from threading import Thread
+from time import sleep
+
 from .sockets import ICMPv4Socket, ICMPv6Socket
 from .models import ICMPRequest, Host
 from .exceptions import *
 from .utils import PID, resolve, is_ipv6_address
-
-from threading import Thread
-from time import sleep
 
 
 class PingThread(Thread):

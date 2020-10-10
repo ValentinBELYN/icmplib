@@ -24,13 +24,12 @@
     <https://www.gnu.org/licenses/>.
 '''
 
-from .utils import IS_UNIX
-
 import socket
+from .utils import PLATFORM_WINDOWS
 
 
 # Fix for Windows
-if not IS_UNIX:
+if PLATFORM_WINDOWS:
     socket.IPPROTO_IPV6 = 41
 
 
@@ -107,7 +106,7 @@ class IPv4Socket(IPSocket):
     def traffic_class(self, traffic_class):
         self._traffic_class = traffic_class
 
-        if IS_UNIX:
+        if not PLATFORM_WINDOWS:
             self._socket.setsockopt(
                 socket.IPPROTO_IP,
                 socket.IP_TOS,
@@ -146,7 +145,7 @@ class IPv6Socket(IPSocket):
     def traffic_class(self, traffic_class):
         self._traffic_class = traffic_class
 
-        if IS_UNIX:
+        if not PLATFORM_WINDOWS:
             self._socket.setsockopt(
                 socket.IPPROTO_IPV6,
                 socket.IPV6_TCLASS,

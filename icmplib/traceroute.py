@@ -24,12 +24,12 @@
     <https://www.gnu.org/licenses/>.
 '''
 
+from time import sleep
+
 from .sockets import ICMPv4Socket, ICMPv6Socket
 from .models import ICMPRequest, Hop
 from .exceptions import *
 from .utils import PID, resolve, is_ipv6_address
-
-from time import sleep
 
 
 def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,

@@ -24,14 +24,14 @@
     <https://www.gnu.org/licenses/>.
 '''
 
+import socket
+from struct import pack, unpack
+from time import time
+
 from .ip import IPv4Socket, IPv6Socket
 from .models import ICMPRequest, ICMPReply
 from .exceptions import *
 from .utils import random_byte_message
-
-import socket
-from struct import pack, unpack
-from time import time
 
 
 #   Echo Request and Echo Reply messages -- RFC 792 / 4443
