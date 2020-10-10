@@ -2,8 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.2.2](https://github.com/ValentinBELYN/icmplib/releases/tag/v1.2.2) - 2020-10-10
+- Add support for hostnames and FQDN resolution to IPv6 addresses.
+- Performance improvement.
+
 ## [v1.2.1](https://github.com/ValentinBELYN/icmplib/releases/tag/v1.2.1) - 2020-09-26
-- Fix an issue in the `traceroute` function which gave the wrong value for the `avg_rtt` property (@patrickfnielsen).
+- Fix an issue in the `traceroute` function which gave the wrong value for the `avg_rtt` property.
 - Some other tweaks to the `traceroute` function.
 
 ## [v1.2.0](https://github.com/ValentinBELYN/icmplib/releases/tag/v1.2.0) - 2020-09-12
