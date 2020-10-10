@@ -27,7 +27,7 @@
 from .sockets import ICMPv4Socket, ICMPv6Socket
 from .models import ICMPRequest, Hop
 from .exceptions import *
-from .utils import PID, is_ipv6_address
+from .utils import PID, resolve, is_ipv6_address
 
 from time import sleep
 
@@ -118,6 +118,8 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
     See the `Hop` class for details.
 
     '''
+    address = resolve(address)
+
     if is_ipv6_address(address):
         socket = ICMPv6Socket()
 

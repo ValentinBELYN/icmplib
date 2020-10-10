@@ -27,7 +27,7 @@
 from .sockets import ICMPv4Socket, ICMPv6Socket
 from .models import ICMPRequest, Host
 from .exceptions import *
-from .utils import PID, is_ipv6_address
+from .utils import PID, resolve, is_ipv6_address
 
 from threading import Thread
 from time import sleep
@@ -95,6 +95,8 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs):
     See the `Host` class for details.
 
     '''
+    address = resolve(address)
+
     if is_ipv6_address(address):
         socket = ICMPv6Socket()
 

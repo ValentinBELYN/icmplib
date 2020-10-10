@@ -24,7 +24,9 @@
     <https://www.gnu.org/licenses/>.
 '''
 
+import socket
 from os import getpid, name as system
+from re import match
 from random import choice
 
 
@@ -51,10 +53,61 @@ def random_byte_message(size):
     return bytes(sequence)
 
 
+def resolve(name):
+    '''
+    Resolve a hostname or FQDN into an IP address. If several IP
+    addresses are available, only the first one is returned.
+
+    This function searches for IPv4 addresses first for compatibility
+    reasons before searching for IPv6 addresses.
+
+    If no address is found, the name specified in parameter is
+    returned so as not to impact the operation of other functions. This
+    behavior may change in future versions of icmplib.
+
+    '''
+    if is_ipv4_address(name) or is_ipv6_address(name):
+        return name
+
+    try:
+        return socket.getaddrinfo(
+            host=name,
+            port=None,
+            family=socket.AF_INET,
+            type=socket.SOCK_DGRAM
+        )[0][4][0]
+
+    except OSError:
+        pass
+
+    try:
+        return socket.getaddrinfo(
+            host=name,
+            port=None,
+            family=socket.AF_INET6,
+            type=socket.SOCK_DGRAM
+        )[0][4][0]
+
+    except OSError:
+        return name
+
+
+def is_ipv4_address(address):
+    '''
+    Indicate whether the specified address is an IPv4 address.
+    Return a `boolean`.
+
+    '''
+    return match(
+        r'^([0-9]{1,3}[.]){3}[0-9]{1,3}$',
+        address
+    ) is not None
+
+
 def is_ipv6_address(address):
     '''
-    Take an IP address and indicate whether it is an IPv6 address or
-    not. Return a `boolean`.
+    Indicate whether the specified address is an IPv6 address.
+    Return a `boolean`.
 
     '''
     return ':' in address

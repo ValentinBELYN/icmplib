@@ -29,7 +29,7 @@ from .models import ICMPRequest, ICMPReply, Host, Hop
 from .ping import ping, multiping
 from .traceroute import traceroute
 from .exceptions import *
-from .utils import PID, IS_UNIX, is_ipv6_address
+from .utils import PID, is_ipv4_address, is_ipv6_address
 
 
 __author__    = 'Valentin BELYN'
@@ -37,4 +37,4 @@ __copyright__ = 'Copyright 2017-2020 Valentin BELYN'
 __license__   = 'GNU Lesser General Public License v3.0'
 
 __version__   = '1.2.1'
-__build__     = '200926'
+__build__     = '201010'
