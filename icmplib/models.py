@@ -25,48 +25,49 @@
 '''
 
 from .exceptions import *
-from .utils import is_ipv6_address
 
 
 class ICMPRequest:
     '''
-    A user-created object that represents an ICMP ECHO_REQUEST.
+    A user-created object that represents an ICMP Echo Request.
 
     :type destination: str
-    :param destination: The IP address of the gateway or host to which
-        the message should be sent.
+    :param destination: The IP address of the host to which the message
+        should be sent.
 
     :type id: int
     :param id: The identifier of the request. Used to match the reply
         with the request. In practice, a unique identifier is used for
-        every ping process.
+        every ping process. On Linux, this identifier is automatically
+        replaced if the request is sent from an unprivileged socket.
 
     :type sequence: int
     :param sequence: The sequence number. Used to match the reply with
         the request. Typically, the sequence number is incremented for
         each packet sent during the process.
 
-    :type payload: bytes
-    :param payload: (Optional) The payload content in bytes. A random
-        payload is used by default.
+    :type payload: bytes, optional
+    :param payload: The payload content in bytes. A random payload is
+        used by default.
 
-    :type payload_size: int
-    :param payload_size: (Optional) The payload size. Ignored when the
-        `payload` parameter is set.
+    :type payload_size: int, optional
+    :param payload_size: The payload size. Ignored when the `payload`
+        parameter is set. Default to 56.
 
-    :type timeout: int or float
-    :param timeout: (Optional) The maximum waiting time for receiving
-        the reply in seconds.
+    :type timeout: int or float, optional
+    :param timeout: The maximum waiting time for receiving the reply in
+        seconds. Default to 2.
 
-    :type ttl: int
-    :param ttl: (Optional) The time to live of the packet in seconds.
+    :type ttl: int, optional
+    :param ttl: The time to live of the packet in terms of hops.
+        Default to 64.
 
-    :type traffic_class: int
-    :param traffic_class: (Optional) The traffic class of the packet.
-        Provides a defined level of service to the packet by setting
-        the DS Field (formerly TOS) or the Traffic Class field of the
-        IP header. Packets are delivered with the minimum priority by
-        default (Best-effort delivery).
+    :type traffic_class: int, optional
+    :param traffic_class: The traffic class of the packet. Provides a
+        defined level of service to the packet by setting the DS Field
+        (formerly TOS) or the Traffic Class field of the IP header.
+        Packets are delivered with the minimum priority by default
+        (Best-effort delivery).
         Intermediate routers must be able to support this feature.
         Only available on Unix systems. Ignored on Windows.
 
@@ -74,15 +75,12 @@ class ICMPRequest:
     def __init__(self, destination, id, sequence, payload=None,
             payload_size=56, timeout=2, ttl=64, traffic_class=0):
 
-        id &= 0xffff
-        sequence &= 0xffff
-
         if payload:
             payload_size = len(payload)
 
         self._destination = destination
-        self._id = id
-        self._sequence = sequence
+        self._id = id & 0xffff
+        self._sequence = sequence & 0xffff
         self._payload = payload
         self._payload_size = payload_size
         self._timeout = timeout
@@ -96,8 +94,7 @@ class ICMPRequest:
     @property
     def destination(self):
         '''
-        The IP address of the gateway or host to which the message
-        should be sent.
+        The IP address of the host to which the message should be sent.
 
         '''
         return self._destination
@@ -148,7 +145,7 @@ class ICMPRequest:
     @property
     def ttl(self):
         '''
-        The time to live of the packet in seconds.
+        The time to live of the packet in terms of hops.
 
         '''
         return self._ttl
@@ -165,8 +162,10 @@ class ICMPRequest:
     def time(self):
         '''
         The timestamp of the ICMP request.
+
         Initialized to zero when creating the request and replaced by
-        `ICMPv4Socket` or `ICMPv6Socket` with the time of sending.
+        the `send` method of `ICMPv4Socket` or `ICMPv6Socket` with the
+        time of sending.
 
         '''
         return self._time
@@ -174,15 +173,15 @@ class ICMPRequest:
 
 class ICMPReply:
     '''
-    A class that represents an ICMP reply. Generated from an
-    `ICMPSocket` object (`ICMPv4Socket` or `ICMPv6Socket`).
+    A class that represents an ICMP reply.
+    Generated from an `ICMPv4Socket` or `ICMPv6Socket` object.
 
     :type source: str
     :param source: The IP address of the gateway or host that composes
         the ICMP message.
 
     :type id: int
-    :param id: The identifier of the reply. Used to match the reply
+    :param id: The identifier of the request. Used to match the reply
         with the request.
 
     :type sequence: int
@@ -190,10 +189,10 @@ class ICMPReply:
         the request.
 
     :type type: int
-    :param type: The type of message.
+    :param type: The type of ICMP message.
 
     :type code: int
-    :param code: The error code.
+    :param code: The ICMP error code.
 
     :type bytes_received: int
     :param bytes_received: The number of bytes received.
@@ -218,21 +217,20 @@ class ICMPReply:
 
     def raise_for_status(self):
         '''
-        Throw an exception if the reply is not an ICMP ECHO_REPLY.
+        Throw an exception if the reply is not an ICMP Echo Reply.
         Otherwise, do nothing.
 
-        :raises ICMPv4DestinationUnreachable: If the ICMPv4 reply is
-            type 3.
-        :raises ICMPv4TimeExceeded: If the ICMPv4 reply is type 11.
-        :raises ICMPv6DestinationUnreachable: If the ICMPv6 reply is
-            type 1.
-        :raises ICMPv6TimeExceeded: If the ICMPv6 reply is type 3.
-        :raises ICMPError: If the reply is of another type and is not
-            an ICMP ECHO_REPLY.
+        :raises DestinationUnreachable: If the destination is
+            unreachable for some reason.
+        :raises TimeExceeded: If the time to live field of the ICMP
+            request has reached zero.
+        :raises ICMPError: Raised for any other type and ICMP error
+            code, except ICMP Echo Reply messages.
 
         '''
-        if is_ipv6_address(self._source):
+        if ':' in self._source:
             echo_reply_type = 129
+
             errors = {
                 1: ICMPv6DestinationUnreachable,
                 3: ICMPv6TimeExceeded
@@ -240,6 +238,7 @@ class ICMPReply:
 
         else:
             echo_reply_type = 0
+
             errors = {
                 3: ICMPv4DestinationUnreachable,
                11: ICMPv4TimeExceeded
@@ -284,7 +283,7 @@ class ICMPReply:
     @property
     def type(self):
         '''
-        The type of message.
+        The type of ICMP message.
 
         '''
         return self._type
@@ -292,7 +291,7 @@ class ICMPReply:
     @property
     def code(self):
         '''
-        The error code.
+        The ICMP error code.
 
         '''
         return self._code
@@ -316,21 +315,21 @@ class ICMPReply:
 
 class Host:
     '''
-    A class that represents a host. Simplifies the exploitation of
-    results from `ping` and `traceroute` functions.
+    A class that represents a host. It simplifies the use of the
+    results from the `ping`, `multiping` and `traceroute` functions.
 
     :type address: str
     :param address: The IP address of the gateway or host that
         responded to the request.
 
     :type min_rtt: float
-    :param min_rtt: The minimum round-trip time.
+    :param min_rtt: The minimum round-trip time in milliseconds.
 
     :type avg_rtt: float
-    :param avg_rtt: The average round-trip time.
+    :param avg_rtt: The average round-trip time in milliseconds.
 
     :type max_rtt: float
-    :param max_rtt: The maximum round-trip time.
+    :param max_rtt: The maximum round-trip time in milliseconds.
 
     :type packets_sent: int
     :param packets_sent: The number of packets transmitted to the
@@ -366,7 +365,7 @@ class Host:
     @property
     def min_rtt(self):
         '''
-        The minimum round-trip time.
+        The minimum round-trip time in milliseconds.
 
         '''
         return self._min_rtt
@@ -374,7 +373,7 @@ class Host:
     @property
     def avg_rtt(self):
         '''
-        The average round-trip time.
+        The average round-trip time in milliseconds.
 
         '''
         return self._avg_rtt
@@ -382,7 +381,7 @@ class Host:
     @property
     def max_rtt(self):
         '''
-        The maximum round-trip time.
+        The maximum round-trip time in milliseconds.
 
         '''
         return self._max_rtt
@@ -414,12 +413,15 @@ class Host:
         if not self._packets_sent:
             return 0.0
 
-        return 1 - self._packets_received / self._packets_sent
+        packet_loss = 1 - self._packets_received / self._packets_sent
+
+        return round(packet_loss, 3)
 
     @property
     def is_alive(self):
         '''
-        Indicate whether the host is reachable. Return a `boolean`.
+        Indicate whether the host is reachable.
+        Return a `boolean`.
 
         '''
         return self._packets_received > 0
@@ -435,13 +437,13 @@ class Hop(Host):
         responded to the request.
 
     :type min_rtt: float
-    :param min_rtt: The minimum round-trip time.
+    :param min_rtt: The minimum round-trip time in milliseconds.
 
     :type avg_rtt: float
-    :param avg_rtt: The average round-trip time.
+    :param avg_rtt: The average round-trip time in milliseconds.
 
     :type max_rtt: float
-    :param max_rtt: The maximum round-trip time.
+    :param max_rtt: The maximum round-trip time in milliseconds.
 
     :type packets_sent: int
     :param packets_sent: The number of packets transmitted to the
@@ -452,7 +454,7 @@ class Hop(Host):
         host and received by the current host.
 
     :type distance: int
-    :param distance: The distance (in terms of hops) that separates the
+    :param distance: The distance, in terms of hops, that separates the
         remote host from the current machine.
 
     '''
@@ -470,7 +472,7 @@ class Hop(Host):
     @property
     def distance(self):
         '''
-        The distance (in terms of hops) that separates the remote host
+        The distance, in terms of hops, that separates the remote host
         from the current machine.
 
         '''
