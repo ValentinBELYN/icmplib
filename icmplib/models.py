@@ -306,18 +306,6 @@ class ICMPReply:
         return self._bytes_received
 
     @property
-    def received_bytes(self):
-        '''
-        Deprecated: use the `bytes_received` property instead.
-
-        '''
-        print('[icmplib] Deprecation Warning: The `received_bytes` '
-              'property will be removed from icmplib 2.0. Use the '
-              '`bytes_received` property instead.')
-
-        return self._bytes_received
-
-    @property
     def time(self):
         '''
         The timestamp of the ICMP reply.
@@ -408,36 +396,12 @@ class Host:
         return self._packets_sent
 
     @property
-    def transmitted_packets(self):
-        '''
-        Deprecated: use the `packets_sent` property instead.
-
-        '''
-        print('[icmplib] Deprecation Warning: The '
-              '`transmitted_packets` property will be removed from '
-              'icmplib 2.0. Use the `packets_sent` property instead.')
-
-        return self._packets_sent
-
-    @property
     def packets_received(self):
         '''
         The number of packets sent by the remote host and received by
         the current host.
 
         '''
-        return self._packets_received
-
-    @property
-    def received_packets(self):
-        '''
-        Deprecated: use the `packets_received` property instead.
-
-        '''
-        print('[icmplib] Deprecation Warning: The `received_packets` '
-              'property will be removed from icmplib 2.0. Use the '
-              '`packets_received` property instead.')
-
         return self._packets_received
 
     @property
