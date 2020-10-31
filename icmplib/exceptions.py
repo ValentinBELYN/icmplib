@@ -41,6 +41,18 @@ class ICMPLibError(Exception):
         return self._message
 
 
+class NameLookupError(ICMPLibError):
+    '''
+    Raised when the requested name does not exist or cannot be
+    resolved. This concerns both Fully Qualified Domain Names and
+    hostnames.
+
+    '''
+    def __init__(self, name):
+        message = f'The name \'{name}\' cannot be resolved'
+        super().__init__(message)
+
+
 class ICMPSocketError(ICMPLibError):
     '''
     Base class for ICMP sockets exceptions.
@@ -48,9 +60,20 @@ class ICMPSocketError(ICMPLibError):
     '''
 
 
+class SocketAddressError(ICMPSocketError):
+    '''
+    Raised when the requested address cannot be assigned to the socket.
+
+    '''
+    def __init__(self, address):
+        message = f'The requested address ({address}) cannot be ' \
+                   'assigned to the socket'
+        super().__init__(message)
+
+
 class SocketPermissionError(ICMPSocketError):
     '''
-    Raised when the permissions are insufficient to create a socket.
+    Raised when the privileges are insufficient to create the socket.
 
     '''
     def __init__(self):
@@ -76,7 +99,7 @@ class SocketBroadcastError(ICMPSocketError):
     '''
     def __init__(self):
         message = 'Broadcast is not allowed: ' \
-                  'please use broadcast method (setter) to allow it'
+                  'please use the \'broadcast\' property to allow it'
         super().__init__(message)
 
 
