@@ -25,13 +25,18 @@
 '''
 
 import socket
+
 from sys import platform
 from os import getpid
 from re import match
 from random import choices
 
+from .exceptions import NameLookupError
+
 
 PID = getpid()
+PLATFORM_LINUX   = platform == 'linux'
+PLATFORM_MACOS   = platform == 'darwin'
 PLATFORM_WINDOWS = platform == 'win32'
 
 
@@ -40,15 +45,12 @@ def random_byte_message(size):
     Generate a random byte sequence of the specified size.
 
     '''
-    bytes_available = (
+    sequence = choices(
         b'abcdefghijklmnopqrstuvwxyz'
         b'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-        b'1234567890'
-    )
+        b'1234567890', k=size)
 
-    return bytes(
-        choices(bytes_available, k=size)
-    )
+    return bytes(sequence)
 
 
 def resolve(name):
@@ -59,9 +61,11 @@ def resolve(name):
     This function searches for IPv4 addresses first for compatibility
     reasons before searching for IPv6 addresses.
 
-    If no address is found, the name specified in parameter is
-    returned so as not to impact the operation of other functions. This
-    behavior may change in future versions of icmplib.
+    If you pass an IP address, no lookup is done. The same address is
+    returned.
+
+    Raises a `NameLookupError` exception if the requested name does
+    not exist or cannot be resolved.
 
     '''
     if is_ipv4_address(name) or is_ipv6_address(name):
@@ -87,7 +91,7 @@ def resolve(name):
         )[0][4][0]
 
     except OSError:
-        return name
+        raise NameLookupError(name)
 
 
 def is_ipv4_address(address):
@@ -96,10 +100,8 @@ def is_ipv4_address(address):
     Return a `boolean`.
 
     '''
-    return match(
-        r'^([0-9]{1,3}[.]){3}[0-9]{1,3}$',
-        address
-    ) is not None
+    pattern = r'^([0-9]{1,3}[.]){3}[0-9]{1,3}$'
+    return match(pattern, address) is not None
 
 
 def is_ipv6_address(address):
