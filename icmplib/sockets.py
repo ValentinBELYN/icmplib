@@ -38,6 +38,29 @@ from .utils import *
 
 
 class ICMPSocket:
+    '''
+    Base class for ICMP sockets.
+
+    :type address: str, optional
+    :param address: The IP address from which you want to listen and
+        send packets. By default, the socket listens on all interfaces.
+
+    :type privileged: bool, optional
+    :param privileged: When this option is enabled, the socket fully
+        manages the exchanges and the structure of the ICMP packets.
+        Disable this option if you want to instantiate and use the
+        socket without root privileges and let the kernel handle ICMP
+        headers. Default to True.
+        Only available on Unix systems. Ignored on Windows.
+
+    :raises SocketPermissionError: If the privileges are insufficient
+        to create the socket.
+    :raises SocketAddressError: If the requested address cannot be
+        assigned to the socket.
+    :raises ICMPSocketError: If another error occurs while creating the
+        socket.
+
+    '''
     _ICMP_HEADER_OFFSET   = -1
     _ICMP_CODE_OFFSET     = _ICMP_HEADER_OFFSET + 1
     _ICMP_CHECKSUM_OFFSET = _ICMP_HEADER_OFFSET + 2
@@ -77,24 +100,56 @@ class ICMPSocket:
             raise ICMPSocketError(str(err))
 
     def __enter__(self):
+        '''
+        Return this object.
+
+        '''
         return self
 
     def __exit__(self, type, value, traceback):
+        '''
+        Call the `close` method.
+
+        '''
         self.close()
 
     def __del__(self):
+        '''
+        Call the `close` method.
+
+        '''
         self.close()
 
     def _create_socket(self, type):
+        '''
+        Create and return a new socket. Must be overridden.
+
+        '''
         raise NotImplementedError
 
     def _set_ttl(self, ttl):
+        '''
+        Set the time to live of every IP packet originating from this
+        socket. Must be overridden.
+
+        '''
         raise NotImplementedError
 
     def _set_traffic_class(self, traffic_class):
+        '''
+        Set the DS Field (formerly TOS) or the Traffic Class field of
+        every IP packet originating from this socket. Must be
+        overridden.
+
+        '''
         raise NotImplementedError
 
     def _checksum(self, data):
+        '''
+        Compute the checksum of an ICMP packet. Checksums are used to
+        verify the integrity of packets.
+
+        '''
         sum = 0
         data += b'\x00'
 
@@ -107,6 +162,14 @@ class ICMPSocket:
         return sum
 
     def _create_packet(self, id, sequence, payload):
+        '''
+        Build an ICMP packet from an identifier, a sequence number and
+        a payload.
+
+        This method returns the newly created ICMP header concatenated
+        to the payload passed in parameters.
+
+        '''
         checksum = 0
 
         # Temporary ICMP header to compute the checksum
@@ -122,6 +185,13 @@ class ICMPSocket:
         return header + payload
 
     def _parse_reply(self, packet, source, time):
+        '''
+        Parse an ICMP reply from bytes.
+
+        This method returns an `ICMPReply` object or `None` if the
+        reply cannot be parsed.
+
+        '''
         if len(packet) < self._ICMP_CHECKSUM_OFFSET:
             return None
 
@@ -151,6 +221,25 @@ class ICMPSocket:
             time=time)
 
     def send(self, request):
+        '''
+        Send an ICMP request message over the network to a remote host.
+
+        This operation is non-blocking. Use the `receive` method to get
+        the reply.
+
+        :type request: ICMPRequest
+        :param request: The ICMP request you have created. If the
+            socket is used in non-privileged mode on a Linux system,
+            the identifier defined in the request will be replaced by
+            the kernel.
+
+        :raises SocketBroadcastError: If a broadcast address is used
+            and the corresponding option is not enabled on the socket
+            (ICMPv4 only).
+        :raises SocketUnavailableError: If the socket is closed.
+        :raises ICMPSocketError: If another error occurs while sending.
+
+        '''
         if not self._socket:
             raise SocketUnavailableError
 
@@ -183,6 +272,34 @@ class ICMPSocket:
             raise ICMPSocketError(str(err))
 
     def receive(self, request=None, timeout=2):
+        '''
+        Receive an ICMP reply message from the socket.
+
+        This method can be called multiple times if you expect several
+        responses as with a broadcast address.
+
+        :type request: ICMPRequest, optional
+        :param request: The ICMP request to use to match the response.
+            By default, all ICMP packets arriving on the socket are
+            returned.
+
+        :type timeout: int or float, optional
+        :param timeout: The maximum waiting time for receiving the
+            response in seconds. Default to 2.
+
+        :raises TimeoutExceeded: If no response is received before the
+            timeout specified in parameters.
+        :raises SocketUnavailableError: If the socket is closed.
+        :raises ICMPSocketError: If another error occurs while
+            receiving.
+
+        :rtype: ICMPReply
+        :returns: An `ICMPReply` object representing the response of
+            the desired destination or an upstream gateway.
+
+        See the `ICMPReply` class for details.
+
+        '''
         if not self._socket:
             raise SocketUnavailableError
 
@@ -226,20 +343,39 @@ class ICMPSocket:
             raise ICMPSocketError(str(err))
 
     def close(self):
+        '''
+        Close the socket. It cannot be used after this call.
+
+        '''
         if self._socket:
             self._socket.close()
             self._socket = None
 
     @property
     def address(self):
+        '''
+        The IP address from which the socket listens and sends packets.
+        Return `None` if the socket listens on all interfaces.
+
+        '''
         return self._address
 
     @property
     def is_privileged(self):
+        '''
+        Indicate whether the socket is running in privileged mode.
+        Return a `boolean`.
+
+        '''
         return self._privileged
 
     @property
     def is_closed(self):
+        '''
+        Indicate whether the socket is closed.
+        Return a `boolean`.
+
+        '''
         return self._socket is None
 
 
@@ -269,6 +405,29 @@ class ICMPSocket:
 
 
 class ICMPv4Socket(ICMPSocket):
+    '''
+    Class for sending and receiving ICMPv4 packets.
+
+    :type address: str, optional
+    :param address: The IP address from which you want to listen and
+        send packets. By default, the socket listens on all interfaces.
+
+    :type privileged: bool, optional
+    :param privileged: When this option is enabled, the socket fully
+        manages the exchanges and the structure of the ICMP packets.
+        Disable this option if you want to instantiate and use the
+        socket without root privileges and let the kernel handle ICMP
+        headers. Default to True.
+        Only available on Unix systems. Ignored on Windows.
+
+    :raises SocketPermissionError: If the privileges are insufficient
+        to create the socket.
+    :raises SocketAddressError: If the requested address cannot be
+        assigned to the socket.
+    :raises ICMPSocketError: If another error occurs while creating the
+        socket.
+
+    '''
     _ICMP_HEADER_OFFSET   = 20
     _ICMP_CODE_OFFSET     = _ICMP_HEADER_OFFSET + 1
     _ICMP_CHECKSUM_OFFSET = _ICMP_HEADER_OFFSET + 2
@@ -280,18 +439,34 @@ class ICMPv4Socket(ICMPSocket):
     _ICMP_ECHO_REPLY      = 0
 
     def _create_socket(self, type):
+        '''
+        Create and return a new socket.
+
+        '''
         return socket.socket(
             family=socket.AF_INET,
             type=type,
             proto=socket.IPPROTO_ICMP)
 
     def _set_ttl(self, ttl):
+        '''
+        Set the time to live of every IP packet originating from this
+        socket.
+
+        '''
         self._socket.setsockopt(
             socket.IPPROTO_IP,
             socket.IP_TTL,
             ttl)
 
     def _set_traffic_class(self, traffic_class):
+        '''
+        Set the DS Field (formerly TOS) of every IP packet originating
+        from this socket.
+
+        Only available on Unix systems. Ignored on Windows.
+
+        '''
         if PLATFORM_WINDOWS:
             return
 
@@ -302,6 +477,15 @@ class ICMPv4Socket(ICMPSocket):
 
     @property
     def broadcast(self):
+        '''
+        Indicate whether broadcast support is enabled on the socket.
+        Return a `boolean`.
+
+        .. note::
+           To enable broadcast support:
+           icmp_socket.broadcast = True
+
+        '''
         return self._socket.getsockopt(
             socket.SOL_SOCKET,
             socket.SO_BROADCAST) > 0
@@ -339,11 +523,33 @@ class ICMPv4Socket(ICMPSocket):
 #     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 # Windows IPv6 compatibility
-if PLATFORM_WINDOWS:
-    socket.IPPROTO_IPV6 = 41
+if PLATFORM_WINDOWS: socket.IPPROTO_IPV6 = 41
 
 
 class ICMPv6Socket(ICMPSocket):
+    '''
+    Class for sending and receiving ICMPv6 packets.
+
+    :type address: str, optional
+    :param address: The IP address from which you want to listen and
+        send packets. By default, the socket listens on all interfaces.
+
+    :type privileged: bool, optional
+    :param privileged: When this option is enabled, the socket fully
+        manages the exchanges and the structure of the ICMP packets.
+        Disable this option if you want to instantiate and use the
+        socket without root privileges and let the kernel handle ICMP
+        headers. Default to True.
+        Only available on Unix systems. Ignored on Windows.
+
+    :raises SocketPermissionError: If the privileges are insufficient
+        to create the socket.
+    :raises SocketAddressError: If the requested address cannot be
+        assigned to the socket.
+    :raises ICMPSocketError: If another error occurs while creating the
+        socket.
+
+    '''
     _ICMP_HEADER_OFFSET   = 0
     _ICMP_CODE_OFFSET     = _ICMP_HEADER_OFFSET + 1
     _ICMP_CHECKSUM_OFFSET = _ICMP_HEADER_OFFSET + 2
@@ -355,18 +561,34 @@ class ICMPv6Socket(ICMPSocket):
     _ICMP_ECHO_REPLY      = 129
 
     def _create_socket(self, type):
+        '''
+        Create and return a new socket.
+
+        '''
         return socket.socket(
             family=socket.AF_INET6,
             type=type,
             proto=socket.IPPROTO_ICMPV6)
 
     def _set_ttl(self, ttl):
+        '''
+        Set the time to live of every IP packet originating from this
+        socket.
+
+        '''
         self._socket.setsockopt(
             socket.IPPROTO_IPV6,
             socket.IPV6_MULTICAST_HOPS,
             ttl)
 
     def _set_traffic_class(self, traffic_class):
+        '''
+        Set the Traffic Class field of every IP packet originating from
+        this socket.
+
+        Only available on Unix systems. Ignored on Windows.
+
+        '''
         if PLATFORM_WINDOWS:
             return
 
