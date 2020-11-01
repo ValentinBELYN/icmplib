@@ -2,6 +2,9 @@
     icmplib
     ~~~~~~~
 
+    A powerful Python library for forging ICMP packets and performing
+    ping and traceroute.
+
         https://github.com/ValentinBELYN/icmplib
 
     :copyright: Copyright 2017-2020 Valentin BELYN.
@@ -32,38 +35,69 @@ from .exceptions import *
 from .utils import PID, resolve, is_ipv6_address
 
 
-def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
-        traffic_class=0, max_hops=30, fast_mode=False, **kwargs):
+def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
+        max_hops=30, source=None, fast=False, **kwargs):
     '''
     Determine the route to a destination host.
 
     The Internet is a large and complex aggregation of network hardware,
-    connected together by gateways. Tracking the route one's packets
-    follow can be difficult. This function utilizes the IP protocol
-    time to live field and attempts to elicit an ICMP TIME_EXCEEDED
-    response from each gateway along the path to some host.
+    connected together by gateways. Tracking the route one's packet
+    follow can be difficult. This function uses the IP protocol time to
+    live field and attempts to elicit an ICMP Time Exceeded response
+    from each gateway along the path to some host.
+
+    This function requires root privileges to run.
 
     :type address: str
-    :param address: The destination IP address.
+    :param address: The IP address, hostname or FQDN of the host to
+        reach. For a deterministic behavior, prefer to use an IP
+        address.
 
-    :type count: int
-    :param count: (Optional) The number of ping to perform per hop.
+    :type count: int, optional
+    :param count: The number of ping to perform per hop. Default to 2.
 
-    :type interval: int or float
-    :param interval: (Optional) The interval in seconds between sending
-        each packet.
+    :type interval: int or float, optional
+    :param interval: The interval in seconds between sending each
+        packet. Default to 0.05.
 
-    :type timeout: int or float
-    :param timeout: (Optional) The maximum waiting time for receiving
-        a reply in seconds.
+    :type timeout: int or float, optional
+    :param timeout: The maximum waiting time for receiving a reply in
+        seconds. Default to 2.
 
-    :type id: int
-    :param id: (Optional) The identifier of the request. Used to match
-        the reply with the request. In practice, a unique identifier is
-        used for every ping process.
+    :type id: int, optional
+    :param id: The identifier of ICMP requests. Used to match the
+        responses with requests. In practice, a unique identifier
+        should be used for every traceroute process. By default, the
+        identifier corresponds to the PID.
 
-    :type traffic_class: int
-    :param traffic_class: (Optional) The traffic class of packets.
+    :type max_hops: int, optional
+    :param max_hops: The maximum time to live used in outgoing probe
+        packets. Default to 30.
+
+    :type source: str, optional
+    :param source: The IP address from which you want to send packets.
+        By default, the interface is automatically chosen according to
+        the specified destination.
+
+    :type fast: bool, optional
+    :param fast: When this option is enabled and an intermediate router
+        has been reached, skip to the next hop rather than perform
+        additional requests. The `count` parameter then becomes the
+        maximum number of requests in the event of no response.
+        Default to False.
+
+    Advanced (**kwags):
+
+    :type payload: bytes, optional
+    :param payload: The payload content in bytes. A random payload is
+        used by default.
+
+    :type payload_size: int, optional
+    :param payload_size: The payload size. Ignored when the `payload`
+        parameter is set. Default to 56.
+
+    :type traffic_class: int, optional
+    :param traffic_class: The traffic class of ICMP packets.
         Provides a defined level of service to packets by setting the
         DS Field (formerly TOS) or the Traffic Class field of IP
         headers. Packets are delivered with the minimum priority by
@@ -71,28 +105,21 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
         Intermediate routers must be able to support this feature.
         Only available on Unix systems. Ignored on Windows.
 
-    :type max_hops: int
-    :param max_hops: (Optional) The maximum time to live (max number of
-        hops) used in outgoing probe packets.
-
-    :type fast_mode: bool
-    :param fast_mode: (Optional) When this option is enabled and an
-        intermediate router has been reached, skip to the next hop
-        rather than perform additional requests. The `count` parameter
-        then becomes the maximum number of requests in case of no
-        responses.
-
-    :param **kwargs: (Optional) Advanced use: arguments passed to
-        `ICMPRequest` objects.
-
     :rtype: list of Hop
     :returns: A list of `Hop` objects representing the route to the
-        desired host. The list is sorted in ascending order according
-        to the distance (in terms of hops) that separates the remote
-        host from the current machine.
+        desired destination. The list is sorted in ascending order
+        according to the distance, in terms of hops, that separates the
+        remote host from the current machine. Gateways that do not
+        respond to requests are not added to this list.
 
-    :raises SocketPermissionError: If the permissions are insufficient
-        to create a socket.
+    :raises NameLookupError: If you pass a hostname or FQDN in
+        parameters and it does not exist or cannot be resolved.
+    :raises SocketPermissionError: If the privileges are insufficient
+        to create the socket.
+    :raises SocketAddressError: If the source address cannot be
+        assigned to the socket.
+    :raises ICMPSocketError: If another error occurs. See the
+        `ICMPv4Socket` or `ICMPv6Socket` class for details.
 
     Usage::
 
@@ -102,18 +129,18 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
 
         >>> for hop in hops:
         ...     if last_distance + 1 != hop.distance:
-        ...         print('Some routers are not responding')
+        ...         print('Some gateways are not responding')
         ...
         ...     print(f'{hop.distance} {hop.address} {hop.avg_rtt} ms')
         ...
         ...     last_distance = hop.distance
         ...
-        1       10.0.0.1             5.196 ms
-        2       194.149.169.49       7.552 ms
-        3       194.149.166.54       12.21 ms
-        *       Some routers are not responding
-        5       212.73.205.22        22.15 ms
-        6       1.1.1.1              13.59 ms
+        1       10.0.0.1            5.196 ms
+        2       194.149.169.49      7.552 ms
+        3       194.149.166.54      12.21 ms
+        *       Some gateways are not responding
+        5       212.73.205.22       22.15 ms
+        6       1.1.1.1             13.59 ms
 
     See the `Hop` class for details.
 
@@ -121,10 +148,10 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
     address = resolve(address)
 
     if is_ipv6_address(address):
-        socket = ICMPv6Socket()
+        socket = ICMPv6Socket(source)
 
     else:
-        socket = ICMPv4Socket()
+        socket = ICMPv4Socket(source)
 
     ttl = 1
     host_reached = False
@@ -144,16 +171,14 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
                 destination=address,
                 id=id,
                 sequence=sequence,
-                timeout=timeout,
                 ttl=ttl,
-                traffic_class=traffic_class,
                 **kwargs)
 
             try:
                 socket.send(request)
                 packets_sent += 1
 
-                reply = socket.receive()
+                reply = socket.receive(request, timeout)
                 reply.raise_for_status()
                 host_reached = True
 
@@ -171,7 +196,7 @@ def traceroute(address, count=3, interval=0.05, timeout=2, id=PID,
             min_rtt = min(round_trip_time, min_rtt)
             max_rtt = max(round_trip_time, max_rtt)
 
-            if fast_mode:
+            if fast:
                 break
 
         if packets_received:

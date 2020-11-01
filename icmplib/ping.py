@@ -2,6 +2,9 @@
     icmplib
     ~~~~~~~
 
+    A powerful Python library for forging ICMP packets and performing
+    ping and traceroute.
+
         https://github.com/ValentinBELYN/icmplib
 
     :copyright: Copyright 2017-2020 Valentin BELYN.
@@ -24,71 +27,93 @@
     <https://www.gnu.org/licenses/>.
 '''
 
-from threading import Thread
 from time import sleep
 
 from .sockets import ICMPv4Socket, ICMPv6Socket
 from .models import ICMPRequest, Host
 from .exceptions import *
-from .utils import PID, resolve, is_ipv6_address
+from .utils import *
 
 
-class PingThread(Thread):
-    def __init__(self, **kwargs):
-        super().__init__()
-        self._kwargs = kwargs
-        self._host = None
-
-    def run(self):
-        self._host = ping(**self._kwargs)
-
-    @property
-    def host(self):
-        return self._host
-
-
-def ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs):
+def ping(address, count=4, interval=1, timeout=2, id=PID, source=None,
+        privileged=True, **kwargs):
     '''
-    Send ICMP ECHO_REQUEST packets to a network host.
+    Send ICMP Echo Request packets to a network host.
 
     :type address: str
-    :param address: The IP address of the gateway or host to which
-        the message should be sent.
+    :param address: The IP address, hostname or FQDN of the host to
+        which messages should be sent. For a deterministic behavior,
+        prefer to use an IP address.
 
-    :type count: int
-    :param count: (Optional) The number of ping to perform.
+    :type count: int, optional
+    :param count: The number of ping to perform. Default to 4.
 
-    :type interval: int or float
-    :param interval: (Optional) The interval in seconds between sending
-        each packet.
+    :type interval: int or float, optional
+    :param interval: The interval in seconds between sending each
+        packet. Default to 4.
 
-    :type timeout: int or float
-    :param timeout: (Optional) The maximum waiting time for receiving
-        a reply in seconds.
+    :type timeout: int or float, optional
+    :param timeout: The maximum waiting time for receiving a reply in
+        seconds. Default to 2.
 
-    :type id: int
-    :param id: (Optional) The identifier of the request. Used to match
-        the reply with the request. In practice, a unique identifier is
-        used for every ping process.
+    :type id: int, optional
+    :param id: The identifier of ICMP requests. Used to match the
+        responses with requests. In practice, a unique identifier
+        should be used for every ping process. On Linux, this
+        identifier is ignored when the `privileged` parameter is
+        disabled.
 
-    :param **kwargs: (Optional) Advanced use: arguments passed to
-        `ICMPRequest` objects.
+    :type source: str, optional
+    :param source: The IP address from which you want to send packets.
+        By default, the interface is automatically chosen according to
+        the specified destination.
+
+    :type privileged: bool, optional
+    :param privileged: When this option is enabled, this library fully
+        manages the exchanges and the structure of the ICMP packets.
+        Disable this option if you want to use this function without
+        root privileges and let the kernel handle ICMP headers.
+        Default to True.
+        Only available on Unix systems. Ignored on Windows.
+
+    Advanced (**kwags):
+
+    :type payload: bytes, optional
+    :param payload: The payload content in bytes. A random payload is
+        used by default.
+
+    :type payload_size: int, optional
+    :param payload_size: The payload size. Ignored when the `payload`
+        parameter is set. Default to 56.
+
+    :type traffic_class: int, optional
+    :param traffic_class: The traffic class of ICMP packets.
+        Provides a defined level of service to packets by setting the
+        DS Field (formerly TOS) or the Traffic Class field of IP
+        headers. Packets are delivered with the minimum priority by
+        default (Best-effort delivery).
+        Intermediate routers must be able to support this feature.
+        Only available on Unix systems. Ignored on Windows.
 
     :rtype: Host
     :returns: A `Host` object containing statistics about the desired
         destination.
 
-    :raises SocketPermissionError: If the permissions are insufficient
-        to create a socket.
+    :raises NameLookupError: If you pass a hostname or FQDN in
+        parameters and it does not exist or cannot be resolved.
+    :raises SocketPermissionError: If the privileges are insufficient
+        to create the socket.
+    :raises SocketAddressError: If the source address cannot be
+        assigned to the socket.
+    :raises ICMPSocketError: If another error occurs. See the
+        `ICMPv4Socket` or `ICMPv6Socket` class for details.
 
     Usage::
 
         >>> from icmplib import ping
         >>> host = ping('1.1.1.1')
-
         >>> host.avg_rtt
         13.2
-
         >>> host.is_alive
         True
 
@@ -98,10 +123,14 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs):
     address = resolve(address)
 
     if is_ipv6_address(address):
-        socket = ICMPv6Socket()
+        socket = ICMPv6Socket(
+            address=source,
+            privileged=privileged)
 
     else:
-        socket = ICMPv4Socket()
+        socket = ICMPv4Socket(
+            address=source,
+            privileged=privileged)
 
     packets_sent = 0
     packets_received = 0
@@ -115,14 +144,13 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs):
             destination=address,
             id=id,
             sequence=sequence,
-            timeout=timeout,
             **kwargs)
 
         try:
             socket.send(request)
             packets_sent += 1
 
-            reply = socket.receive()
+            reply = socket.receive(request, timeout)
             reply.raise_for_status()
             packets_received += 1
 
@@ -154,94 +182,3 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, **kwargs):
     socket.close()
 
     return host
-
-
-def multiping(addresses, count=2, interval=1, timeout=2, id=PID,
-        max_threads=10, **kwargs):
-    '''
-    Send ICMP ECHO_REQUEST packets to multiple network hosts.
-
-    :type addresses: list of str
-    :param addresses: The IP addresses of the gateways or hosts to
-        which messages should be sent.
-
-    :type count: int
-    :param count: (Optional) The number of ping to perform per address.
-
-    :type interval: int or float
-    :param interval: (Optional) The interval in seconds between sending
-        each packet.
-
-    :type timeout: int or float
-    :param timeout: (Optional) The maximum waiting time for receiving
-        a reply in seconds.
-
-    :type id: int
-    :param id: (Optional) The identifier of the requests. This
-        identifier will be incremented by one for each destination.
-
-    :type max_threads: int
-    :param max_threads: (Optional) The number of threads allowed to
-        speed up processing.
-
-    :param **kwargs: (Optional) Advanced use: arguments passed to
-        `ICMPRequest` objects.
-
-    :rtype: list of Host
-    :returns: A list of `Host` objects containing statistics about the
-        desired destinations. The list is sorted in the same order as
-        the addresses passed in parameters.
-
-    :raises SocketPermissionError: If the permissions are insufficient
-        to create a socket.
-
-    Usage::
-
-        >>> from icmplib import multiping
-        >>> hosts = multiping(['10.0.0.5', '127.0.0.1', '::1'])
-
-        >>> for host in hosts:
-        ...     if host.is_alive:
-        ...         print(f'{host.address} is alive!')
-        ...
-        ...     else:
-        ...         print(f'{host.address} is dead!')
-        ...
-        10.0.0.5 is dead!
-        127.0.0.1 is alive!
-        ::1 is alive!
-
-    See the `Host` class for details.
-
-    '''
-    hosts = []
-    inactive_threads = []
-    active_threads = []
-
-    for i, address in enumerate(addresses):
-        thread = PingThread(
-            address=address,
-            count=count,
-            interval=interval,
-            timeout=timeout,
-            id=id + i,
-            **kwargs)
-
-        inactive_threads.append(thread)
-
-    while inactive_threads:
-        thread = inactive_threads.pop(0)
-        thread.start()
-        active_threads.append(thread)
-
-        if (inactive_threads and
-            len(active_threads) < max_threads):
-            sleep(0.05)
-            continue
-
-        while active_threads:
-            thread = active_threads.pop(0)
-            thread.join()
-            hosts.append(thread.host)
-
-    return hosts

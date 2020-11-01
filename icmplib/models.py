@@ -2,6 +2,9 @@
     icmplib
     ~~~~~~~
 
+    A powerful Python library for forging ICMP packets and performing
+    ping and traceroute.
+
         https://github.com/ValentinBELYN/icmplib
 
     :copyright: Copyright 2017-2020 Valentin BELYN.
@@ -54,26 +57,22 @@ class ICMPRequest:
     :param payload_size: The payload size. Ignored when the `payload`
         parameter is set. Default to 56.
 
-    :type timeout: int or float, optional
-    :param timeout: The maximum waiting time for receiving the reply in
-        seconds. Default to 2.
-
     :type ttl: int, optional
     :param ttl: The time to live of the packet in terms of hops.
         Default to 64.
 
     :type traffic_class: int, optional
-    :param traffic_class: The traffic class of the packet. Provides a
-        defined level of service to the packet by setting the DS Field
-        (formerly TOS) or the Traffic Class field of the IP header.
-        Packets are delivered with the minimum priority by default
-        (Best-effort delivery).
+    :param traffic_class: The traffic class of the packet.
+        Provides a defined level of service to the packet by setting
+        the DS Field (formerly TOS) or the Traffic Class field of the
+        IP header. Packets are delivered with the minimum priority by
+        default (Best-effort delivery).
         Intermediate routers must be able to support this feature.
         Only available on Unix systems. Ignored on Windows.
 
     '''
     def __init__(self, destination, id, sequence, payload=None,
-            payload_size=56, timeout=2, ttl=64, traffic_class=0):
+            payload_size=56, ttl=64, traffic_class=0):
 
         if payload:
             payload_size = len(payload)
@@ -83,7 +82,6 @@ class ICMPRequest:
         self._sequence = sequence & 0xffff
         self._payload = payload
         self._payload_size = payload_size
-        self._timeout = timeout
         self._ttl = ttl
         self._traffic_class = traffic_class
         self._time = 0
@@ -135,14 +133,6 @@ class ICMPRequest:
         return self._payload_size
 
     @property
-    def timeout(self):
-        '''
-        The maximum waiting time for receiving the reply in seconds.
-
-        '''
-        return self._timeout
-
-    @property
     def ttl(self):
         '''
         The time to live of the packet in terms of hops.
@@ -173,15 +163,15 @@ class ICMPRequest:
 
 class ICMPReply:
     '''
-    A class that represents an ICMP reply.
-    Generated from an `ICMPv4Socket` or `ICMPv6Socket` object.
+    A class that represents an ICMP reply. Generated from an ICMP
+    socket (`ICMPv4Socket` or `ICMPv6Socket`).
 
     :type source: str
     :param source: The IP address of the gateway or host that composes
         the ICMP message.
 
     :type id: int
-    :param id: The identifier of the request. Used to match the reply
+    :param id: The identifier of the reply. Used to match the reply
         with the request.
 
     :type sequence: int
@@ -265,7 +255,7 @@ class ICMPReply:
     @property
     def id(self):
         '''
-        The identifier of the request.
+        The identifier of the reply.
         Used to match the reply with the request.
 
         '''

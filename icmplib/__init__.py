@@ -2,6 +2,9 @@
     icmplib
     ~~~~~~~
 
+    A powerful Python library for forging ICMP packets and performing
+    ping and traceroute.
+
         https://github.com/ValentinBELYN/icmplib
 
     :copyright: Copyright 2017-2020 Valentin BELYN.
@@ -26,10 +29,10 @@
 
 from .sockets import ICMPv4Socket, ICMPv6Socket
 from .models import ICMPRequest, ICMPReply, Host, Hop
-from .ping import ping, multiping
+from .ping import ping
 from .traceroute import traceroute
 from .exceptions import *
-from .utils import PID, is_ipv4_address, is_ipv6_address
+from .utils import PID, resolve, is_ipv4_address, is_ipv6_address
 
 
 __author__    = 'Valentin BELYN'
@@ -37,4 +40,4 @@ __copyright__ = 'Copyright 2017-2020 Valentin BELYN'
 __license__   = 'GNU Lesser General Public License v3.0'
 
 __version__   = '2.0-alpha'
-__build__     = '201031'
+__build__     = '201101'
