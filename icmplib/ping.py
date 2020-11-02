@@ -26,12 +26,15 @@
     License along with this program.  If not, see
     <https://www.gnu.org/licenses/>.
 '''
-
+import asyncio
+import random
+from functools import partial
+from ipaddress import AddressValueError, IPv6Address
 from time import sleep
 
-from .sockets import ICMPv4Socket, ICMPv6Socket
-from .models import ICMPRequest, Host
 from .exceptions import *
+from .models import Host, ICMPRequest
+from .sockets import ICMPv4Socket, ICMPv6Socket
 from .utils import *
 
 
@@ -180,5 +183,75 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, source=None,
         packets_received=packets_received)
 
     socket.close()
+
+    return host
+
+
+async def aioping(address, count=4, interval=1, timeout=2, packet_id=0, source=None, privileged=True, **kwargs):
+    """
+    Send ICMP Echo Request packets to a network host.
+
+    Same API as `ping`.
+    Usage::
+        >>> from icmplib import ping
+        >>> host = await ping('1.1.1.1')
+        >>> host.avg_rtt
+        13.2
+        >>> host.is_alive
+        True
+    See the `Host` class for details.
+    """
+    address = resolve(address)
+
+    try:
+        IPv6Address(address)
+        sock = ICMPv6Socket(address=source, privileged=privileged)
+    except AddressValueError:
+        sock = ICMPv4Socket(address=source, privileged=privileged)
+    sock._socket.setblocking(False)  # Should probably be moved down to the Socket API?
+    packets_sent = 0
+    packets_received = 0
+
+    min_rtt = float('inf')
+    avg_rtt = 0.0
+    max_rtt = 0.0
+    packet_id = random.randint(0, 100000) if not packet_id else packet_id
+    loop = asyncio.get_event_loop()
+    for sequence in range(count):
+        request = ICMPRequest(destination=address, id=packet_id, sequence=sequence, **kwargs)
+        try:
+            await loop.run_in_executor(None, partial(sock.send, request))
+            packets_sent += 1
+            reply = await loop.run_in_executor(None, partial(sock.receive, request, timeout))
+            reply.raise_for_status()
+            packets_received += 1
+
+            round_trip_time = (reply.time - request.time) * 1000
+            avg_rtt += round_trip_time
+            min_rtt = min(round_trip_time, min_rtt)
+            max_rtt = max(round_trip_time, max_rtt)
+
+            if sequence < count - 1:
+                await asyncio.sleep(interval)
+
+        except ICMPLibError:
+            pass
+
+    if packets_received:
+        avg_rtt /= packets_received
+
+    else:
+        min_rtt = 0.0
+
+    host = Host(
+        address=address,
+        min_rtt=min_rtt,
+        avg_rtt=avg_rtt,
+        max_rtt=max_rtt,
+        packets_sent=packets_sent,
+        packets_received=packets_received,
+    )
+
+    sock.close()
 
     return host
