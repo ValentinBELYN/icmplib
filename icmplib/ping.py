@@ -193,12 +193,18 @@ async def aioping(address, count=4, interval=1, timeout=2, packet_id=0, source=N
 
     Same API as `ping`.
     Usage::
-        >>> from icmplib import ping
-        >>> host = await ping('1.1.1.1')
-        >>> host.avg_rtt
+        >>> import asyncio
+        >>> from icmplib import aioping
+        >>> asyncio.run(aioping('1.1.1.1'))
+        Or
+        >>> async def my_func():
+        >>>     host = await aioping('1.1.1.1')
+        >>>     host.avg_rtt
+        >>>     host.is_alive
+        >>> asyncio.run(my_func())
         13.2
-        >>> host.is_alive
         True
+
     See the `Host` class for details.
     """
     address = resolve(address)
