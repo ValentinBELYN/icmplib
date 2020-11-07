@@ -29,6 +29,7 @@
 
 import socket
 
+from threading import Thread, Lock, Event
 from struct import pack, unpack
 from time import time
 
@@ -595,3 +596,177 @@ class ICMPv6Socket(ICMPSocket):
             socket.IPPROTO_IPV6,
             socket.IPV6_TCLASS,
             traffic_class)
+
+
+class BufferedSocket:
+    '''
+    A wrapper for ICMP sockets that reads and classifies incoming ICMP
+    packets into a buffer, in real time.
+
+    Useful if you want to send several ICMP packets consecutively
+    without waiting for a response between each sending. For this, an
+    internal thread is used. It stops automatically when you call the
+    `detach` or `close` method.
+
+    This feature is experimental. There is no guarantee that it will be
+    retained in future versions.
+
+    :type sock: ICMPSocket
+    :param sock: An ICMP socket. Once the wrapper instantiated, this
+        socket should no longer be used directly.
+
+    '''
+    def __init__(self, sock):
+        self._sock = sock
+        self._buffer = {}
+
+        self._buffer_event = Event()
+        self._buffer_lock = Lock()
+
+        self._thread = Thread(target=self._read_from_socket)
+        self._thread.start()
+
+    def __enter__(self):
+        '''
+        Return this object.
+
+        '''
+        return self
+
+    def __exit__(self, type, value, traceback):
+        '''
+        Call the `close` method.
+
+        '''
+        self.close()
+
+    def __del__(self):
+        '''
+        Call the `close` method.
+
+        '''
+        self.close()
+
+    def _read_from_socket(self):
+        '''
+        Internal thread which retrieves incoming ICMP packets from the
+        socket and adds them to a buffer.
+
+        '''
+        while self._sock:
+            try:
+                reply = self._sock.receive(timeout=1)
+
+                with self._buffer_lock:
+                    buffer_id = reply.id, reply.sequence
+
+                    if buffer_id not in self._buffer:
+                        self._buffer[buffer_id] = []
+
+                    self._buffer[buffer_id].append(reply)
+                    self._buffer_event.set()
+
+            except ICMPSocketError:
+                pass
+
+    def send(self, request):
+        '''
+        Send an ICMP request message over the network to a remote host.
+
+        This operation is non-blocking. Use the `receive` method to get
+        the reply.
+
+        :type request: ICMPRequest
+        :param request: The ICMP request you have created. If the
+            underlying socket is used in non-privileged mode on a Linux
+            system, the identifier defined in the request will be
+            replaced by the kernel.
+
+        :raises SocketBroadcastError: If a broadcast address is used
+            and the corresponding option is not enabled on the
+            underlying socket (ICMPv4 only).
+        :raises SocketUnavailableError: If the socket is closed.
+        :raises ICMPSocketError: If another error occurs while sending.
+
+        '''
+        if not self._sock:
+            raise SocketUnavailableError
+
+        self._sock.send(request)
+
+    def receive(self, request, timeout=2):
+        '''
+        Retrieve an ICMP reply message from the buffer.
+
+        This method can be called multiple times if you expect several
+        responses as with a broadcast address.
+
+        :type request: ICMPRequest
+        :param request: The ICMP request to use to match the response.
+
+        :type timeout: int or float, optional
+        :param timeout: The maximum waiting time for receiving the
+            response in seconds. This parameter takes into account the
+            timestamp of the request. Default to 2.
+
+        :raises TimeoutExceeded: If no response is received before the
+            timeout specified in parameters.
+
+        :rtype: ICMPReply
+        :returns: An `ICMPReply` object representing the response of
+            the desired destination or an upstream gateway.
+
+        See the `ICMPReply` class for details.
+
+        '''
+        buffer_id = request.id, request.sequence
+
+        while True:
+            with self._buffer_lock:
+                self._buffer_event.clear()
+
+                if buffer_id in self._buffer:
+                    reply = self._buffer[buffer_id].pop(0)
+
+                    if not self._buffer[buffer_id]:
+                        del self._buffer[buffer_id]
+
+                    return reply
+
+            remaining_time = request.time + timeout - time()
+
+            if not self._buffer_event.wait(remaining_time):
+                raise TimeoutExceeded(timeout)
+
+    def detach(self):
+        '''
+        Detach the socket from the wrapper and return it. The wrapper
+        cannot be used after this call but the socket can be reused for
+        other purposes.
+
+        '''
+        sock = self._sock
+
+        if self._sock:
+            self._sock = None
+            self._thread.join()
+
+        return sock
+
+    def close(self):
+        '''
+        Close this object and the underlying socket. Both cannot be
+        used after this call.
+
+        '''
+        if self._sock:
+            self.detach().close()
+
+    @property
+    def is_closed(self):
+        '''
+        Indicate whether the wrapper is still operational or not.
+        Return a `boolean`.
+
+        '''
+        return self._sock is None
