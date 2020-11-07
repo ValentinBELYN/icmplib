@@ -2,8 +2,8 @@
     icmplib
     ~~~~~~~
 
-    A powerful Python library for forging ICMP packets and performing
-    ping and traceroute.
+    A powerful library for forging ICMP packets and performing ping
+    and traceroute.
 
         https://github.com/ValentinBELYN/icmplib
 
@@ -72,7 +72,7 @@ class ICMPSocket:
     _ICMP_ECHO_REPLY      = -1
 
     def __init__(self, address=None, privileged=True):
-        self._socket = None
+        self._sock = None
         self._address = address
 
         # The Linux kernel allows unprivileged users to use datagram
@@ -82,13 +82,12 @@ class ICMPSocket:
         self._privileged = privileged or PLATFORM_WINDOWS
 
         try:
-            self._socket = self._create_socket(
-                socket.SOCK_RAW
-                if self._privileged else
+            self._sock = self._create_socket(
+                socket.SOCK_RAW if self._privileged else
                 socket.SOCK_DGRAM)
 
             if address:
-                self._socket.bind((address, 0))
+                self._sock.bind((address, 0))
 
         except OSError as err:
             if err.errno == 1:
@@ -184,7 +183,7 @@ class ICMPSocket:
 
         return header + payload
 
-    def _parse_reply(self, packet, source, time):
+    def _parse_reply(self, packet, source, current_time):
         '''
         Parse an ICMP reply from bytes.
 
@@ -192,6 +191,8 @@ class ICMPSocket:
         reply cannot be parsed.
 
         '''
+        bytes_received = len(packet) - self._ICMP_HEADER_OFFSET
+
         if len(packet) < self._ICMP_CHECKSUM_OFFSET:
             return None
 
@@ -209,8 +210,6 @@ class ICMPSocket:
             self._ICMP_ID_OFFSET:
             self._ICMP_PAYLOAD_OFFSET])
 
-        bytes_received = len(packet) - self._ICMP_HEADER_OFFSET
-
         return ICMPReply(
             source=source,
             id=id,
@@ -218,7 +217,7 @@ class ICMPSocket:
             type=type,
             code=code,
             bytes_received=bytes_received,
-            time=time)
+            time=current_time)
 
     def send(self, request):
         '''
@@ -240,7 +239,7 @@ class ICMPSocket:
         :raises ICMPSocketError: If another error occurs while sending.
 
         '''
-        if not self._socket:
+        if not self._sock:
             raise SocketUnavailableError
 
         payload = request.payload or \
@@ -256,14 +255,14 @@ class ICMPSocket:
             self._set_traffic_class(request.traffic_class)
 
             request._time = time()
-            self._socket.sendto(packet, (request.destination, 0))
+            self._sock.sendto(packet, (request.destination, 0))
 
             # On Linux, the ICMP request identifier is replaced by the
             # kernel with a random port number when a datagram socket
             # is used (SOCK_DGRAM). So, we update the request created
             # by the user to take this new identifier into account.
             if not self._privileged and PLATFORM_LINUX:
-                request._id = self._socket.getsockname()[1]
+                request._id = self._sock.getsockname()[1]
 
         except PermissionError:
             raise SocketBroadcastError
@@ -300,15 +299,15 @@ class ICMPSocket:
         See the `ICMPReply` class for details.
 
         '''
-        if not self._socket:
+        if not self._sock:
             raise SocketUnavailableError
 
-        self._socket.settimeout(timeout)
+        self._sock.settimeout(timeout)
         time_limit = time() + timeout
 
         try:
             while True:
-                response = self._socket.recvfrom(1024)
+                response = self._sock.recvfrom(1024)
                 current_time = time()
 
                 packet = response[0]
@@ -329,7 +328,7 @@ class ICMPSocket:
                 reply = self._parse_reply(
                     packet=packet,
                     source=source,
-                    time=current_time)
+                    current_time=current_time)
 
                 if (reply and not request or
                     reply and request.id == reply.id and
@@ -347,9 +346,9 @@ class ICMPSocket:
         Close the socket. It cannot be used after this call.
 
         '''
-        if self._socket:
-            self._socket.close()
-            self._socket = None
+        if self._sock:
+            self._sock.close()
+            self._sock = None
 
     @property
     def address(self):
@@ -376,32 +375,32 @@ class ICMPSocket:
         Return a `boolean`.
 
         '''
-        return self._socket is None
+        return self._sock is None
 
 
-#   Echo Request and Echo Reply messages -- RFC 792
+#   Echo Request and Echo Reply messages                      RFC 792
 #
-#      0                   1                   2                   3
-#      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-#     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#     |     Type      |     Code      |           Checksum            |
-#     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#     |           Identifier          |        Sequence Number        |
-#     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#     |     Data ...
-#     +-+-+-+-+-
+#    0                   1                   2                   3
+#    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#   |     Type      |     Code      |           Checksum            |
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#   |           Identifier          |        Sequence Number        |
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#   |     Data ...
+#   +-+-+-+-+-
 #
-#   ICMPv4 Error message -- RFC 792
+#   ICMPv4 Error message                                      RFC 792
 #
-#      0                   1                   2                   3
-#      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-#     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#     |     Type      |     Code      |           Checksum            |
-#     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#     |                 Unused / Depends on the error                 |
-#     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#     |      Internet Header + 64 bits of Original Data Datagram      |
-#     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#    0                   1                   2                   3
+#    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#   |     Type      |     Code      |           Checksum            |
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#   |                 Unused / Depends on the error                 |
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#   |      Internet Header + 64 bits of Original Data Datagram      |
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 
 class ICMPv4Socket(ICMPSocket):
@@ -454,7 +453,7 @@ class ICMPv4Socket(ICMPSocket):
         socket.
 
         '''
-        self._socket.setsockopt(
+        self._sock.setsockopt(
             socket.IPPROTO_IP,
             socket.IP_TTL,
             ttl)
@@ -470,7 +469,7 @@ class ICMPv4Socket(ICMPSocket):
         if PLATFORM_WINDOWS:
             return
 
-        self._socket.setsockopt(
+        self._sock.setsockopt(
             socket.IPPROTO_IP,
             socket.IP_TOS,
             traffic_class)
@@ -486,41 +485,41 @@ class ICMPv4Socket(ICMPSocket):
            icmp_socket.broadcast = True
 
         '''
-        return self._socket.getsockopt(
+        return self._sock.getsockopt(
             socket.SOL_SOCKET,
             socket.SO_BROADCAST) > 0
 
     @broadcast.setter
     def broadcast(self, allow):
-        self._socket.setsockopt(
+        self._sock.setsockopt(
             socket.SOL_SOCKET,
             socket.SO_BROADCAST,
             allow)
 
 
-#   Echo Request and Echo Reply messages -- RFC 4443
+#   Echo Request and Echo Reply messages                     RFC 4443
 #
-#      0                   1                   2                   3
-#      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-#     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#     |     Type      |     Code      |           Checksum            |
-#     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#     |           Identifier          |        Sequence Number        |
-#     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#     |     Data ...
-#     +-+-+-+-+-
+#    0                   1                   2                   3
+#    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#   |     Type      |     Code      |           Checksum            |
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#   |           Identifier          |        Sequence Number        |
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#   |     Data ...
+#   +-+-+-+-+-
 #
-#   ICMPv6 Error message -- RFC 4443
+#   ICMPv6 Error message                                     RFC 4443
 #
-#      0                   1                   2                   3
-#      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-#     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#     |     Type      |     Code      |           Checksum            |
-#     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#     |                 Unused / Depends on the error                 |
-#     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#     |      Original packet without exceed the minimum IPv6 MTU      |
-#     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#    0                   1                   2                   3
+#    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#   |     Type      |     Code      |           Checksum            |
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#   |                 Unused / Depends on the error                 |
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#   |      Original packet without exceed the minimum IPv6 MTU      |
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 # Windows IPv6 compatibility
 if PLATFORM_WINDOWS: socket.IPPROTO_IPV6 = 41
@@ -576,7 +575,7 @@ class ICMPv6Socket(ICMPSocket):
         socket.
 
         '''
-        self._socket.setsockopt(
+        self._sock.setsockopt(
             socket.IPPROTO_IPV6,
             socket.IPV6_MULTICAST_HOPS,
             ttl)
@@ -592,7 +591,7 @@ class ICMPv6Socket(ICMPSocket):
         if PLATFORM_WINDOWS:
             return
 
-        self._socket.setsockopt(
+        self._sock.setsockopt(
             socket.IPPROTO_IPV6,
             socket.IPV6_TCLASS,
             traffic_class)

@@ -2,8 +2,8 @@
     icmplib
     ~~~~~~~
 
-    A powerful Python library for forging ICMP packets and performing
-    ping and traceroute.
+    A powerful library for forging ICMP packets and performing ping
+    and traceroute.
 
         https://github.com/ValentinBELYN/icmplib
 
@@ -32,7 +32,7 @@ from time import sleep
 from .sockets import ICMPv4Socket, ICMPv6Socket
 from .models import ICMPRequest, Host
 from .exceptions import *
-from .utils import *
+from .utils import PID, PLATFORM_LINUX, resolve, is_ipv6_address
 
 
 def ping(address, count=4, interval=1, timeout=2, id=PID, source=None,
@@ -42,7 +42,7 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, source=None,
 
     :type address: str
     :param address: The IP address, hostname or FQDN of the host to
-        which messages should be sent. For a deterministic behavior,
+        which messages should be sent. For deterministic behavior,
         prefer to use an IP address.
 
     :type count: int, optional
@@ -50,7 +50,7 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, source=None,
 
     :type interval: int or float, optional
     :param interval: The interval in seconds between sending each
-        packet. Default to 4.
+        packet. Default to 1.
 
     :type timeout: int or float, optional
     :param timeout: The maximum waiting time for receiving a reply in
@@ -70,7 +70,7 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, source=None,
 
     :type privileged: bool, optional
     :param privileged: When this option is enabled, this library fully
-        manages the exchanges and the structure of the ICMP packets.
+        manages the exchanges and the structure of ICMP packets.
         Disable this option if you want to use this function without
         root privileges and let the kernel handle ICMP headers.
         Default to True.
@@ -123,12 +123,12 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, source=None,
     address = resolve(address)
 
     if is_ipv6_address(address):
-        socket = ICMPv6Socket(
+        sock = ICMPv6Socket(
             address=source,
             privileged=privileged)
 
     else:
-        socket = ICMPv4Socket(
+        sock = ICMPv4Socket(
             address=source,
             privileged=privileged)
 
@@ -147,10 +147,10 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, source=None,
             **kwargs)
 
         try:
-            socket.send(request)
+            sock.send(request)
             packets_sent += 1
 
-            reply = socket.receive(request, timeout)
+            reply = sock.receive(request, timeout)
             reply.raise_for_status()
             packets_received += 1
 
@@ -179,6 +179,6 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, source=None,
         packets_sent=packets_sent,
         packets_received=packets_received)
 
-    socket.close()
+    sock.close()
 
     return host

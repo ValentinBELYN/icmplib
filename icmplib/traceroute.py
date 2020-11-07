@@ -2,8 +2,8 @@
     icmplib
     ~~~~~~~
 
-    A powerful Python library for forging ICMP packets and performing
-    ping and traceroute.
+    A powerful library for forging ICMP packets and performing ping
+    and traceroute.
 
         https://github.com/ValentinBELYN/icmplib
 
@@ -41,7 +41,7 @@ def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
     Determine the route to a destination host.
 
     The Internet is a large and complex aggregation of network hardware,
-    connected together by gateways. Tracking the route one's packet
+    connected together by gateways. Tracking the route one's packets
     follow can be difficult. This function uses the IP protocol time to
     live field and attempts to elicit an ICMP Time Exceeded response
     from each gateway along the path to some host.
@@ -50,8 +50,7 @@ def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
 
     :type address: str
     :param address: The IP address, hostname or FQDN of the host to
-        reach. For a deterministic behavior, prefer to use an IP
-        address.
+        reach. For deterministic behavior, prefer to use an IP address.
 
     :type count: int, optional
     :param count: The number of ping to perform per hop. Default to 2.
@@ -148,10 +147,10 @@ def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
     address = resolve(address)
 
     if is_ipv6_address(address):
-        socket = ICMPv6Socket(source)
+        sock = ICMPv6Socket(source)
 
     else:
-        socket = ICMPv4Socket(source)
+        sock = ICMPv4Socket(source)
 
     ttl = 1
     host_reached = False
@@ -175,10 +174,10 @@ def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
                 **kwargs)
 
             try:
-                socket.send(request)
+                sock.send(request)
                 packets_sent += 1
 
-                reply = socket.receive(request, timeout)
+                reply = sock.receive(request, timeout)
                 reply.raise_for_status()
                 host_reached = True
 
@@ -215,6 +214,6 @@ def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
 
         ttl += 1
 
-    socket.close()
+    sock.close()
 
     return hops
