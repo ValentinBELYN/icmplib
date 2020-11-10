@@ -37,11 +37,11 @@ from time import sleep
 
 
 def verbose_traceroute(address, count=3, interval=0.05, timeout=2,
-        id=PID, max_hops=30):
+        id=PID, min_hops=1, max_hops=30):
     # ICMPRequest uses a payload of 56 bytes by default
     # You can modify it using the payload_size parameter
     print(f'Traceroute to {address} ({gethostbyname(address)}): '
-          f'56 data bytes, {max_hops} hops max\n')
+          f'56 data bytes, {min_hops} hops min, {max_hops} hops max\n')
 
     # Detection of the socket to use
     if is_ipv6_address(address):
@@ -50,7 +50,7 @@ def verbose_traceroute(address, count=3, interval=0.05, timeout=2,
     else:
         socket = ICMPv4Socket()
 
-    ttl = 1
+    ttl = min_hops
     host_reached = False
 
     while not host_reached and ttl <= max_hops:

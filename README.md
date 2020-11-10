@@ -261,7 +261,7 @@ The Internet is a large and complex aggregation of network hardware, connected t
 
 #### Definition
 ```python
-traceroute(address, count=3, interval=0.05, timeout=2, id=PID, traffic_class=0, max_hops=30, fast_mode=False, **kwargs)
+traceroute(address, count=3, interval=0.05, timeout=2, id=PID, traffic_class=0, min_hops=1, max_hops=30, fast_mode=False, **kwargs)
 ```
 
 #### Parameters
@@ -309,6 +309,13 @@ traceroute(address, count=3, interval=0.05, timeout=2, id=PID, traffic_class=0, 
 
   - Type: `int`
   - Default: `0`
+
+- `min_hops`
+
+  The minimum time to live (max number of hops) used in outgoing probe packets.
+
+  - Type: `int`
+  - Default: `1`
 
 - `max_hops`
 
