@@ -36,7 +36,7 @@ from .utils import PID, resolve, is_ipv6_address
 
 
 def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
-        min_hops=1, max_hops=30, source=None, fast=False, **kwargs):
+        first_hop=1, max_hops=30, source=None, fast=False, **kwargs):
     '''
     Determine the route to a destination host.
 
@@ -69,8 +69,8 @@ def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
         should be used for every traceroute process. By default, the
         identifier corresponds to the PID.
 
-    :type min_hops: int, optional
-    :param min_hops: The minimum time to live used in outgoing probe
+    :type first_hop: int, optional
+    :param first_hop: The first time to live used in outgoing probe
         packets. Default to 1.
 
     :type max_hops: int, optional
@@ -156,7 +156,7 @@ def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
     else:
         sock = ICMPv4Socket(source)
 
-    ttl = min_hops
+    ttl = first_hop
     host_reached = False
     hops = []
 
