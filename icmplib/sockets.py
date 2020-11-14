@@ -94,7 +94,7 @@ class ICMPSocket:
             if err.errno in (1, 10013):
                 raise SocketPermissionError
 
-            if err.errno in (49, 99, 10049):
+            if err.errno in (-9, 49, 99, 10049, 11001):
                 raise SocketAddressError(address)
 
             raise ICMPSocketError(str(err))
@@ -287,17 +287,16 @@ class ICMPSocket:
         :param timeout: The maximum waiting time for receiving the
             response in seconds. Default to 2.
 
+        :rtype: ICMPReply
+        :returns: An `ICMPReply` object representing the response of
+            the desired destination or an upstream gateway. See the
+            `ICMPReply` class for details.
+
         :raises TimeoutExceeded: If no response is received before the
             timeout specified in parameters.
         :raises SocketUnavailableError: If the socket is closed.
         :raises ICMPSocketError: If another error occurs while
             receiving.
-
-        :rtype: ICMPReply
-        :returns: An `ICMPReply` object representing the response of
-            the desired destination or an upstream gateway.
-
-        See the `ICMPReply` class for details.
 
         '''
         if not self._sock:
@@ -709,14 +708,13 @@ class BufferedSocket:
             response in seconds. This parameter takes into account the
             timestamp of the request. Default to 2.
 
-        :raises TimeoutExceeded: If no response is received before the
-            timeout specified in parameters.
-
         :rtype: ICMPReply
         :returns: An `ICMPReply` object representing the response of
-            the desired destination or an upstream gateway.
+            the desired destination or an upstream gateway. See the
+            `ICMPReply` class for details.
 
-        See the `ICMPReply` class for details.
+        :raises TimeoutExceeded: If no response is received before the
+            timeout specified in parameters.
 
         '''
         buffer_id = request.id, request.sequence

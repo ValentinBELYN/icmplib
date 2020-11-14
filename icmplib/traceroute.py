@@ -70,12 +70,12 @@ def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
         identifier corresponds to the PID.
 
     :type first_hop: int, optional
-    :param first_hop: The first time to live used in outgoing probe
-        packets. Default to 1.
+    :param first_hop: The initial time to live value used in outgoing
+        probe packets. Default to 1.
 
     :type max_hops: int, optional
-    :param max_hops: The maximum time to live used in outgoing probe
-        packets. Default to 30.
+    :param max_hops: The maximum time to live (max number of hops) used
+        in outgoing probe packets. Default to 30.
 
     :type source: str, optional
     :param source: The IP address from which you want to send packets.

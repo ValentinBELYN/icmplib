@@ -220,7 +220,9 @@ def multiping(addresses, count=2, interval=0.01, timeout=2, id=PID,
     :type source: str, optional
     :param source: The IP address from which you want to send packets.
         By default, the interface is automatically chosen according to
-        the specified destinations.
+        the specified destinations. This parameter should not be used
+        if you are passing both IPv4 and IPv6 addresses to this
+        function.
 
     :type privileged: bool, optional
     :param privileged: When this option is enabled, this library fully
@@ -252,7 +254,7 @@ def multiping(addresses, count=2, interval=0.01, timeout=2, id=PID,
     :rtype: list of Host
     :returns: A list of `Host` objects containing statistics about the
         desired destinations. The list is sorted in the same order as
-        the adresses passed in parameters.
+        the addresses passed in parameters.
 
     :raises SocketPermissionError: If the privileges are insufficient
         to create the socket.
