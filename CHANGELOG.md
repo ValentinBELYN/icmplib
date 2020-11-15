@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.0.0](https://github.com/ValentinBELYN/icmplib/releases/tag/v2.0.0) - 2020-11-15
+icmplib 2.0 is here! :tada:
+
+Here is an overview of the improvements:
+- All the foundations of the library have been completely reworked to make it even faster and simplify future developments.
+- You can now use the library without root privileges. Remember to disable the `privileged` parameter on functions and sockets.
+- The `multiping` function has been rewritten to use only one thread instead of as many threads as hosts to reach. This function will be up to 10 times faster and up to 2 times more memory efficient.
+- You can set a source IP address for sending your ICMP packets.
+- The `traceroute` function now has a `first_hop` parameter to specify the initial time to live value.
+- Two new exceptions have been added: `NameLookupError` and `SocketAddressError`
+- Compatibility with Linux, macOS and Windows has been improved.
+- Docstrings, examples and documentation have been updated.
+
+And more!
+- The `receive` method of sockets can receive all incoming packets.
+- The new `BufferedSocket` class (experimental) can read and classify incoming ICMP packets into a buffer, in real time. Useful if you want to send several ICMP packets consecutively without waiting for a response between each sending.
+- Sockets throw new exceptions during instantiation, sending and receiving.
+- The `resolve` function now raises a `NameLookupError` if the requested name does not exist or cannot be resolved.
+- Compatibility with existing programs is maintained.
+
 ## [v1.2.2](https://github.com/ValentinBELYN/icmplib/releases/tag/v1.2.2) - 2020-10-10
 - Add support for hostnames and FQDN resolution to IPv6 addresses.
 - Performance improvement.
