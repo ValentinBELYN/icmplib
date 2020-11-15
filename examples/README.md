@@ -21,6 +21,8 @@
     64 bytes from 1.1.1.1: icmp_seq=1 time=12.597 ms
     64 bytes from 1.1.1.1: icmp_seq=2 time=12.475 ms
     64 bytes from 1.1.1.1: icmp_seq=3 time=10.822 ms
+
+  Completed.
   ```
 
 - [verbose-traceroute](verbose_traceroute.py)
@@ -33,12 +35,14 @@
   Traceroute to ovh.com (198.27.92.1): 56 data bytes, 30 hops max
 
     1    192.168.0.254      192.168.0.254                9.86 ms
-    2    194.149.164.56     194.149.164.56               4.6 ms
-    3    213.186.32.181     be100-159.th2-1-a9.fr.eu     11.99 ms
-    4    94.23.122.146      be102.rbx-g1-nc5.fr.eu       7.81 ms
+    2    194.149.164.56     194.149.164.56               4.61 ms
+    3    213.186.32.181     be100-159.th2-1-a9.fr.eu     11.97 ms
+    4    94.23.122.146      be102.rbx-g1-nc5.fr.eu       15.81 ms
     5    * * *
-    6    37.187.231.75      be5.rbx-iplb1-a70.fr.eu      17.1 ms
+    6    37.187.231.75      be5.rbx-iplb1-a70.fr.eu      17.12 ms
     7    198.27.92.1        www.ovh.com                  10.87 ms
+
+  Completed.
   ```
 
 - [broadcast-ping](broadcast_ping.py)
@@ -65,4 +69,6 @@
     64 bytes from 10.0.0.17: icmp_seq=3 time=1.112 ms
     64 bytes from 10.0.0.40: icmp_seq=3 time=1.384 ms
     64 bytes from 10.0.0.41: icmp_seq=3 time=9.565 ms
+
+  Completed.
   ```

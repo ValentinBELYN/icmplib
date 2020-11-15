@@ -2,6 +2,9 @@
     icmplib
     ~~~~~~~
 
+    A powerful library for forging ICMP packets and performing ping
+    and traceroute.
+
         https://github.com/ValentinBELYN/icmplib
 
     :copyright: Copyright 2017-2020 Valentin BELYN.
@@ -14,41 +17,42 @@
     Traceroute to ovh.com (198.27.92.1): 56 data bytes, 30 hops max
 
         1    192.168.0.254      192.168.0.254                9.86 ms
-        2    194.149.164.56     194.149.164.56               4.6 ms
-        3    213.186.32.181     be100-159.th2-1-a9.fr.eu     11.99 ms
-        4    94.23.122.146      be102.rbx-g1-nc5.fr.eu       7.81 ms
+        2    194.149.164.56     194.149.164.56               4.61 ms
+        3    213.186.32.181     be100-159.th2-1-a9.fr.eu     11.97 ms
+        4    94.23.122.146      be102.rbx-g1-nc5.fr.eu       15.81 ms
         5    * * *
-        6    37.187.231.75      be5.rbx-iplb1-a70.fr.eu      17.1 ms
+        6    37.187.231.75      be5.rbx-iplb1-a70.fr.eu      17.12 ms
         7    198.27.92.1        www.ovh.com                  10.87 ms
+
+    Completed.
 '''
 
-from icmplib import (
-    ICMPv4Socket,
-    ICMPv6Socket,
-    ICMPRequest,
-    TimeoutExceeded,
-    TimeExceeded,
-    ICMPLibError,
-    is_ipv6_address,
-    PID)
-
-from socket import getfqdn, gethostbyname
+from socket import getfqdn
 from time import sleep
 
+from icmplib import ICMPv4Socket, ICMPv6Socket, ICMPRequest
+from icmplib import ICMPLibError, TimeoutExceeded, TimeExceeded
+from icmplib import PID, resolve, is_ipv6_address
 
-def verbose_traceroute(address, count=3, interval=0.05, timeout=2,
+
+def verbose_traceroute(address, count=2, interval=0.05, timeout=2,
         id=PID, max_hops=30):
-    # ICMPRequest uses a payload of 56 bytes by default
-    # You can modify it using the payload_size parameter
-    print(f'Traceroute to {address} ({gethostbyname(address)}): '
+    # We perform a DNS resolution of the address passed in parameters.
+    # If the address is already an IP address, no lookup is done. The
+    # same address is returned.
+    ip_address = resolve(address)
+
+    # A payload of 56 bytes is used by default. You can modify it using
+    # the 'payload_size' parameter of your ICMP request.
+    print(f'Traceroute to {address} ({ip_address}): '
           f'56 data bytes, {max_hops} hops max\n')
 
-    # Detection of the socket to use
-    if is_ipv6_address(address):
-        socket = ICMPv6Socket()
+    # We detect the socket to use from the specified IP address
+    if is_ipv6_address(ip_address):
+        sock = ICMPv6Socket()
 
     else:
-        socket = ICMPv4Socket()
+        sock = ICMPv4Socket()
 
     ttl = 1
     host_reached = False
@@ -57,24 +61,23 @@ def verbose_traceroute(address, count=3, interval=0.05, timeout=2,
         for sequence in range(count):
             # We create an ICMP request
             request = ICMPRequest(
-                destination=address,
+                destination=ip_address,
                 id=id,
                 sequence=sequence,
-                timeout=timeout,
                 ttl=ttl)
 
             try:
                 # We send the request
-                socket.send(request)
+                sock.send(request)
 
                 # We are awaiting receipt of an ICMP reply
-                reply = socket.receive()
+                reply = sock.receive(request, timeout)
 
                 # We received a reply
                 # We display some information
                 source_name = getfqdn(reply.source)
 
-                print(f'{ttl:3}    {reply.source:15}    '
+                print(f'  {ttl:<2}    {reply.source:15}    '
                       f'{source_name:40}    ', end='')
 
                 # We throw an exception if it is an ICMP error message
@@ -104,9 +107,9 @@ def verbose_traceroute(address, count=3, interval=0.05, timeout=2,
 
             except TimeoutExceeded:
                 # The timeout has been reached and no host or gateway
-                # has responded after multiple attemps
+                # has responded after multiple attempts
                 if sequence >= count - 1:
-                    print(f'{ttl:3}    * * *')
+                    print(f'  {ttl:<2}    * * *')
 
             except ICMPLibError:
                 # Other errors are ignored
@@ -114,7 +117,9 @@ def verbose_traceroute(address, count=3, interval=0.05, timeout=2,
 
         ttl += 1
 
-    print()
+    print('\nCompleted.')
 
 
+# This function supports both FQDNs and IP addresses. See the 'resolve'
+# function for details.
 verbose_traceroute('ovh.com')

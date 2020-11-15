@@ -2,6 +2,9 @@
     icmplib
     ~~~~~~~
 
+    A powerful library for forging ICMP packets and performing ping
+    and traceroute.
+
         https://github.com/ValentinBELYN/icmplib
 
     :copyright: Copyright 2017-2020 Valentin BELYN.
@@ -17,47 +20,42 @@
         64 bytes from 1.1.1.1: icmp_seq=1 time=12.597 ms
         64 bytes from 1.1.1.1: icmp_seq=2 time=12.475 ms
         64 bytes from 1.1.1.1: icmp_seq=3 time=10.822 ms
-'''
 
-from icmplib import (
-    ICMPv4Socket,
-    ICMPv6Socket,
-    ICMPRequest,
-    TimeoutExceeded,
-    ICMPError,
-    ICMPLibError,
-    is_ipv6_address,
-    PID)
+    Completed.
+'''
 
 from time import sleep
 
+from icmplib import ICMPv4Socket, ICMPv6Socket, ICMPRequest
+from icmplib import ICMPLibError, ICMPError, TimeoutExceeded
+from icmplib import PID, is_ipv6_address
+
 
 def verbose_ping(address, count=4, interval=1, timeout=2, id=PID):
-    # ICMPRequest uses a payload of 56 bytes by default
-    # You can modify it using the payload_size parameter
+    # A payload of 56 bytes is used by default. You can modify it using
+    # the 'payload_size' parameter of your ICMP request.
     print(f'PING {address}: 56 data bytes\n')
 
-    # Detection of the socket to use
+    # We detect the socket to use from the specified IP address
     if is_ipv6_address(address):
-        socket = ICMPv6Socket()
+        sock = ICMPv6Socket()
 
     else:
-        socket = ICMPv4Socket()
+        sock = ICMPv4Socket()
 
     for sequence in range(count):
         # We create an ICMP request
         request = ICMPRequest(
             destination=address,
             id=id,
-            sequence=sequence,
-            timeout=timeout)
+            sequence=sequence)
 
         try:
             # We send the request
-            socket.send(request)
+            sock.send(request)
 
             # We are awaiting receipt of an ICMP reply
-            reply = socket.receive()
+            reply = sock.receive(request, timeout)
 
             # We received a reply
             # We display some information
@@ -79,7 +77,7 @@ def verbose_ping(address, count=4, interval=1, timeout=2, id=PID):
 
         except TimeoutExceeded:
             # The timeout has been reached
-            print(f'Request timeout for icmp_seq {sequence}')
+            print(f'  Request timeout for icmp_seq {sequence}')
 
         except ICMPError as err:
             # An ICMP error message has been received
@@ -87,7 +85,9 @@ def verbose_ping(address, count=4, interval=1, timeout=2, id=PID):
 
         except ICMPLibError:
             # All other errors
-            print('An error has occurred.')
+            print('  An error has occurred.')
+
+    print('\nCompleted.')
 
 
 verbose_ping('1.1.1.1')

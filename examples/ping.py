@@ -2,6 +2,9 @@
     icmplib
     ~~~~~~~
 
+    A powerful library for forging ICMP packets and performing ping
+    and traceroute.
+
         https://github.com/ValentinBELYN/icmplib
 
     :copyright: Copyright 2017-2020 Valentin BELYN.
@@ -21,15 +24,15 @@ host = ping('1.1.1.1', count=10, interval=0.5, timeout=1)
 print(host.address)
 # '1.1.1.1'
 
-# The minimum round-trip time
+# The minimum round-trip time in milliseconds
 print(host.min_rtt)
 # 12.2
 
-# The average round-trip time
+# The average round-trip time in milliseconds
 print(host.avg_rtt)
 # 13.2
 
-# The maximum round-trip time
+# The maximum round-trip time in milliseconds
 print(host.max_rtt)
 # 17.6
 
