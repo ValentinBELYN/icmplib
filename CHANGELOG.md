@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.0.1](https://github.com/ValentinBELYN/icmplib/releases/tag/v2.0.1) - 2020-12-12
+
+- Handle `EACCES` errors at sockets level.
+- Fix a bug preventing the `traceroute` function to work with IPv6 addresses.
+- Add some details about the `privileged` parameter in the `README` file.
+
 ## [v2.0.0](https://github.com/ValentinBELYN/icmplib/releases/tag/v2.0.0) - 2020-11-15
 icmplib 2.0 is here! :tada:
 
