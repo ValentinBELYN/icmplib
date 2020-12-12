@@ -91,7 +91,7 @@ class ICMPSocket:
                 self._sock.bind((address, 0))
 
         except OSError as err:
-            if err.errno in (1, 10013):
+            if err.errno in (1, 13, 10013):
                 raise SocketPermissionError
 
             if err.errno in (-9, 49, 99, 10049, 11001):
