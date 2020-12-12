@@ -17,18 +17,13 @@
   </div>
   <br>
 
-  <pre><strong>icmplib 2.0 is here! 🎉</strong>
-
-To celebrate its first year and its integration into popular projects,
-icmplib has been completely revised! Thanks to its advanced features,
-including the ability to use the library without root privileges, QoS and
-increased compatibility with all modern operating systems, it becomes the
-most advanced library in its category. Many things are yet to come!
-
-Star this project if you like it 😍</pre>
-
   <pre>icmplib is a brand new and modern implementation of the ICMP protocol in Python.
-Use the built-in functions or build your own, you have the choice!</pre>
+Use the built-in functions or build your own, you have the choice!
+
+<a href="#how-to-use-the-library-without-root-privileges">-=-=- You can now use this library without root privileges -=-=-</a></pre>
+  <a href="https://pypi.org/project/icmplib">
+    <img src="https://img.shields.io/pypi/dm/icmplib.svg?style=flat-square&labelColor=0366d6&color=005cc5" alt="statistics">
+  </a>
 </div>
 
 <br>
@@ -905,12 +900,30 @@ The use of the built-in `resolve` function is recommended:
 - If you pass an IP address, no lookup is done. The same address is returned.
 - Raises a `NameLookupError` exception if the requested name does not exist or cannot be resolved.
 
+### How to use the library without root privileges?
+Since its version 2.0, icmplib can be used without root privileges.
+
+For this, you can set the `privileged` parameter to `False` on the `ping` and `multiping` functions, as well as the low level classes. By disabling this parameter, the kernel handles some parts of the ICMP headers.
+
+On some Linux systems, you must allow this feature:
+
+```shell
+$ sudo sysctl -w net.ipv4.ping_group_range='0 2147483647'
+net.ipv4.ping_group_range = 0 2147483647
+```
+
+*Since Ubuntu 20.04 LTS, this manipulation is no longer necessary.*
+
+[Read more on www.kernel.org](https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt)
+
 ### Why I have no response from a remote host?
 In the event of no response from a remote host, several causes are possible:
 - Your computer's firewall may not be properly configured. This impacts in particular the `traceroute` function which can no longer receive ICMP Time Exceeded messages.
 - The remote host or an upstream gateway is down.
 - The remote host or an upstream gateway drops ICMP messages for security reasons.
 - In the case of the `traceroute` function, if the last host in the list is not the one expected, more than 30 hops (default) may be needed to reach it. You can try increasing the value of the `max_hops` parameter.
+
+<br>
 
 ## Contributing
 
