@@ -577,7 +577,7 @@ class ICMPv6Socket(ICMPSocket):
         '''
         self._sock.setsockopt(
             socket.IPPROTO_IPV6,
-            socket.IPV6_MULTICAST_HOPS,
+            socket.IPV6_UNICAST_HOPS,
             ttl)
 
     def _set_traffic_class(self, traffic_class):
