@@ -62,15 +62,17 @@ class ICMPSocket:
         socket.
 
     '''
-    _ICMP_HEADER_OFFSET   = -1
-    _ICMP_CODE_OFFSET     = _ICMP_HEADER_OFFSET + 1
-    _ICMP_CHECKSUM_OFFSET = _ICMP_HEADER_OFFSET + 2
-    _ICMP_ID_OFFSET       = _ICMP_HEADER_OFFSET + 4
-    _ICMP_SEQUENCE_OFFSET = _ICMP_HEADER_OFFSET + 6
-    _ICMP_PAYLOAD_OFFSET  = _ICMP_HEADER_OFFSET + 8
+    _ICMP_HEADER_OFFSET      = -1
+    _ICMP_HEADER_REAL_OFFSET = -1
 
-    _ICMP_ECHO_REQUEST    = -1
-    _ICMP_ECHO_REPLY      = -1
+    _ICMP_CODE_OFFSET        = _ICMP_HEADER_OFFSET + 1
+    _ICMP_CHECKSUM_OFFSET    = _ICMP_HEADER_OFFSET + 2
+    _ICMP_ID_OFFSET          = _ICMP_HEADER_OFFSET + 4
+    _ICMP_SEQUENCE_OFFSET    = _ICMP_HEADER_OFFSET + 6
+    _ICMP_PAYLOAD_OFFSET     = _ICMP_HEADER_OFFSET + 8
+
+    _ICMP_ECHO_REQUEST       = -1
+    _ICMP_ECHO_REPLY         = -1
 
     def __init__(self, address=None, privileged=True):
         self._sock = None
@@ -202,7 +204,10 @@ class ICMPSocket:
             self._ICMP_CHECKSUM_OFFSET])
 
         if type != self._ICMP_ECHO_REPLY:
-            packet = packet[self._ICMP_PAYLOAD_OFFSET:]
+            packet = packet[
+                self._ICMP_PAYLOAD_OFFSET
+                - self._ICMP_HEADER_OFFSET
+                + self._ICMP_HEADER_REAL_OFFSET:]
 
         if len(packet) < self._ICMP_PAYLOAD_OFFSET:
             return None
@@ -427,15 +432,17 @@ class ICMPv4Socket(ICMPSocket):
         socket.
 
     '''
-    _ICMP_HEADER_OFFSET   = 20
-    _ICMP_CODE_OFFSET     = _ICMP_HEADER_OFFSET + 1
-    _ICMP_CHECKSUM_OFFSET = _ICMP_HEADER_OFFSET + 2
-    _ICMP_ID_OFFSET       = _ICMP_HEADER_OFFSET + 4
-    _ICMP_SEQUENCE_OFFSET = _ICMP_HEADER_OFFSET + 6
-    _ICMP_PAYLOAD_OFFSET  = _ICMP_HEADER_OFFSET + 8
+    _ICMP_HEADER_OFFSET      = 20
+    _ICMP_HEADER_REAL_OFFSET = 20
 
-    _ICMP_ECHO_REQUEST    = 8
-    _ICMP_ECHO_REPLY      = 0
+    _ICMP_CODE_OFFSET        = _ICMP_HEADER_OFFSET + 1
+    _ICMP_CHECKSUM_OFFSET    = _ICMP_HEADER_OFFSET + 2
+    _ICMP_ID_OFFSET          = _ICMP_HEADER_OFFSET + 4
+    _ICMP_SEQUENCE_OFFSET    = _ICMP_HEADER_OFFSET + 6
+    _ICMP_PAYLOAD_OFFSET     = _ICMP_HEADER_OFFSET + 8
+
+    _ICMP_ECHO_REQUEST       = 8
+    _ICMP_ECHO_REPLY         = 0
 
     def _create_socket(self, type):
         '''
@@ -549,15 +556,17 @@ class ICMPv6Socket(ICMPSocket):
         socket.
 
     '''
-    _ICMP_HEADER_OFFSET   = 0
-    _ICMP_CODE_OFFSET     = _ICMP_HEADER_OFFSET + 1
-    _ICMP_CHECKSUM_OFFSET = _ICMP_HEADER_OFFSET + 2
-    _ICMP_ID_OFFSET       = _ICMP_HEADER_OFFSET + 4
-    _ICMP_SEQUENCE_OFFSET = _ICMP_HEADER_OFFSET + 6
-    _ICMP_PAYLOAD_OFFSET  = _ICMP_HEADER_OFFSET + 8
+    _ICMP_HEADER_OFFSET      = 0
+    _ICMP_HEADER_REAL_OFFSET = 40
 
-    _ICMP_ECHO_REQUEST    = 128
-    _ICMP_ECHO_REPLY      = 129
+    _ICMP_CODE_OFFSET        = _ICMP_HEADER_OFFSET + 1
+    _ICMP_CHECKSUM_OFFSET    = _ICMP_HEADER_OFFSET + 2
+    _ICMP_ID_OFFSET          = _ICMP_HEADER_OFFSET + 4
+    _ICMP_SEQUENCE_OFFSET    = _ICMP_HEADER_OFFSET + 6
+    _ICMP_PAYLOAD_OFFSET     = _ICMP_HEADER_OFFSET + 8
+
+    _ICMP_ECHO_REQUEST       = 128
+    _ICMP_ECHO_REPLY         = 129
 
     def _create_socket(self, type):
         '''
