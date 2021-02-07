@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v2.0.2](https://github.com/ValentinBELYN/icmplib/releases/tag/v2.0.2) - 2020-02-07
+## [v2.0.2](https://github.com/ValentinBELYN/icmplib/releases/tag/v2.0.2) - 2021-02-07
 
 - Rename the default branch from `master` to `main`.
 - Fix a bug preventing the `traceroute` function to work with IPv6 addresses (part 2).
