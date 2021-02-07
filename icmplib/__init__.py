@@ -7,7 +7,7 @@
 
         https://github.com/ValentinBELYN/icmplib
 
-    :copyright: Copyright 2017-2020 Valentin BELYN.
+    :copyright: Copyright 2017-2021 Valentin BELYN.
     :license: GNU LGPLv3, see the LICENSE for details.
 
     ~~~~~~~
@@ -36,8 +36,8 @@ from .utils import PID, resolve, is_ipv4_address, is_ipv6_address
 
 
 __author__    = 'Valentin BELYN'
-__copyright__ = 'Copyright 2017-2020 Valentin BELYN'
+__copyright__ = 'Copyright 2017-2021 Valentin BELYN'
 __license__   = 'GNU Lesser General Public License v3.0'
 
 __version__   = '2.0.1'
-__build__     = '201212'
+__build__     = '200207'
