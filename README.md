@@ -20,7 +20,7 @@
   <pre>icmplib is a brand new and modern implementation of the ICMP protocol in Python.
 Use the built-in functions or build your own, you have the choice!
 
-<a href="#how-to-use-the-library-without-root-privileges">-=-=- You can now use this library without root privileges -=-=-</a></pre>
+<a href="#how-to-use-the-library-without-root-privileges">- You can now use this library without root privileges -</a></pre>
   <a href="https://pypi.org/project/icmplib">
     <img src="https://img.shields.io/pypi/dm/icmplib.svg?style=flat-square&labelColor=0366d6&color=005cc5" alt="statistics">
   </a>
@@ -908,7 +908,14 @@ For this, you can set the `privileged` parameter to `False` on the `ping` and `m
 On some Linux systems, you must allow this feature:
 
 ```shell
-$ sudo sysctl -w net.ipv4.ping_group_range='0 2147483647'
+$ echo 'net.ipv4.ping_group_range = 0 2147483647' | sudo tee -a /etc/sysctl.conf
+$ sudo sysctl -p
+```
+
+You can check the current value with the following command:
+
+```shell
+$ sysctl net.ipv4.ping_group_range
 net.ipv4.ping_group_range = 0 2147483647
 ```
 
@@ -939,6 +946,6 @@ icmplib is completely free and open source. It has been fully developed on my fr
 
 ## License
 
-Copyright 2017-2020 Valentin BELYN.
+Copyright 2017-2021 Valentin BELYN.
 
 Code released under the GNU LGPLv3 license. See the [LICENSE](LICENSE) for details.
