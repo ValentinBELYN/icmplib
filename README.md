@@ -1,6 +1,8 @@
 <div align="center">
   <br>
-  <img src="media/icmplib-logo-2.0.png" height="190" width="100" alt="icmplib">
+  <br>
+  <br>
+  <img src="media/icmplib-logo-125k.png" height="140" width="266" alt="icmplib">
   <br>
   <br>
 
