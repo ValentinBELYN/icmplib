@@ -2,14 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v2.0.2](https://github.com/ValentinBELYN/icmplib/releases/tag/v2.0.2) - 2021-02-07
+## [v2.1.0](https://github.com/ValentinBELYN/icmplib/releases/tag/v2.1.0) - 2021-03-20
+- Add a `family` parameter to the `resolve` function to define the address family.
+- Improve the reliability of the results of the `traceroute` function.
 
+> This version is the last of the 2.x branch. See you soon for the release of icmplib 3.0!
+
+## [v2.0.2](https://github.com/ValentinBELYN/icmplib/releases/tag/v2.0.2) - 2021-02-07
 - Rename the default branch from `master` to `main`.
 - Fix a bug preventing the `traceroute` function to work with IPv6 addresses (part 2).
 - Add more details about the `privileged` parameter in the `README` file (part 2).
 
 ## [v2.0.1](https://github.com/ValentinBELYN/icmplib/releases/tag/v2.0.1) - 2020-12-12
-
 - Handle `EACCES` errors at sockets level.
 - Fix a bug preventing the `traceroute` function to work with IPv6 addresses.
 - Add some details about the `privileged` parameter in the `README` file.
