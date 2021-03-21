@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v2.1.1](https://github.com/ValentinBELYN/icmplib/releases/tag/v2.1.1) - 2021-03-21
+- Rollback changes made to the `traceroute` function due to a bug.
+
 ## [v2.1.0](https://github.com/ValentinBELYN/icmplib/releases/tag/v2.1.0) - 2021-03-20
 - Add a `family` parameter to the `resolve` function to define the address family.
 - Improve the reliability of the results of the `traceroute` function.
