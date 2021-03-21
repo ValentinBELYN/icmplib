@@ -171,7 +171,7 @@ def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
 
         for sequence in range(count):
             request = ICMPRequest(
-                destination=address,
+                destination=hop_address or address,
                 id=id,
                 sequence=sequence,
                 ttl=ttl,
