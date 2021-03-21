@@ -72,7 +72,7 @@ def resolve(name, family=None):
         IPv4 addresses first for compatibility reasons (A DNS lookup)
         before searching for IPv6 addresses (AAAA DNS lookup).
 
-    :raises NameLookupError: If the requested name does ot exist or
+    :raises NameLookupError: If the requested name does not exist or
         cannot be resolved.
 
     '''
