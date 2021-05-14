@@ -29,7 +29,8 @@
 
 from .sockets import ICMPv4Socket, ICMPv6Socket
 from .models import ICMPRequest, ICMPReply, Host, Hop
-from .ping import ping, multiping
+from .ping import ping
+from .multiping import multiping
 from .traceroute import traceroute
 from .exceptions import *
 from .utils import PID, resolve, is_ipv4_address, is_ipv6_address
