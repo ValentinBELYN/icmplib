@@ -29,6 +29,7 @@
 
 import socket
 
+from threading import Lock
 from sys import platform
 from os import getpid
 from re import match
@@ -42,6 +43,9 @@ PLATFORM_LINUX   = platform == 'linux'
 PLATFORM_MACOS   = platform == 'darwin'
 PLATFORM_WINDOWS = platform == 'win32'
 
+_lock_id = Lock()
+_curr_id = PID
+
 
 def random_byte_message(size):
     '''
@@ -54,6 +58,21 @@ def random_byte_message(size):
         b'1234567890', k=size)
 
     return bytes(sequence)
+
+
+def unique_identifier():
+    '''
+    Generate a unique identifier between 0 and 65535.
+    The first number generated will be equal to the PID + 1.
+
+    '''
+    global _curr_id
+
+    with _lock_id:
+        _curr_id += 1
+        _curr_id &= 0xffff
+
+        return _curr_id
 
 
 def resolve(name, family=None):
@@ -100,6 +119,16 @@ def resolve(name, family=None):
             return resolve(name, 6)
 
     raise NameLookupError(name)
+
+
+def is_hostname(name):
+    '''
+    Indicate whether the specified name is a hostname or an FQDN.
+    Return a `boolean`.
+
+    '''
+    pattern = r'(?i)^([a-z0-9-]+|([a-z0-9_-]+[.])+[a-z]+)$'
+    return match(pattern, name) is not None
 
 
 def is_ipv4_address(address):
