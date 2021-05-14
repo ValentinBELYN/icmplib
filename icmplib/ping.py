@@ -120,7 +120,7 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, source=None,
     See the `Host` class for details.
 
     '''
-    address = resolve(address)
+    address = resolve(address)[0]
 
     if is_ipv6_address(address):
         sock = ICMPv6Socket(

@@ -148,7 +148,7 @@ def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
     See the `Hop` class for details.
 
     '''
-    address = resolve(address)
+    address = resolve(address)[0]
 
     if is_ipv6_address(address):
         sock = ICMPv6Socket(source)

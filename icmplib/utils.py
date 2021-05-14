@@ -58,50 +58,46 @@ def random_byte_message(size):
 
 def resolve(name, family=None):
     '''
-    Resolve a hostname or FQDN into an IP address. If several IP
-    addresses are available, only the first one is returned.
+    Resolve a hostname or FQDN to an IP address. Depending on the name
+    specified in parameters, several IP addresses may be returned.
+
+    This function relies on the DNS name server configured on your
+    operating system.
 
     :type name: str
     :param name: A hostname or a Fully Qualified Domain Name (FQDN).
-        If you pass an IP address, no lookup is done. The same address
-        is returned.
 
     :type family: int, optional
-    :param family: The address family. Can be set to `4` for IPv4 or
-        `6` for IPv6 addresses. By default, this function searches for
-        IPv4 addresses first for compatibility reasons (A DNS lookup)
-        before searching for IPv6 addresses (AAAA DNS lookup).
+    :param family: The address family. Can be set to `4` for IPv4 or `6`
+        for IPv6 addresses. By default, this function searches for IPv4
+        addresses first for compatibility reasons (A DNS lookup) before
+        searching for IPv6 addresses (AAAA DNS lookup).
+
+    :rtype: list[str]
+    :returns: A list of IP addresses associated with the name passed as
+        a parameter.
 
     :raises NameLookupError: If the requested name does not exist or
         cannot be resolved.
 
     '''
-    if is_ipv4_address(name) or is_ipv6_address(name):
-        return name
+    try:
+        if family == 6:
+            _family = socket.AF_INET6
+        else:
+            _family = socket.AF_INET
 
-    if family is None or family == 4:
-        try:
-            return socket.getaddrinfo(
-                host=name,
-                port=None,
-                family=socket.AF_INET,
-                type=socket.SOCK_DGRAM
-            )[0][4][0]
+        lookup = socket.getaddrinfo(
+            host=name,
+            port=None,
+            family=_family,
+            type=socket.SOCK_DGRAM)
 
-        except OSError:
-            pass
+        return [address[4][0] for address in lookup]
 
-    if family is None or family == 6:
-        try:
-            return socket.getaddrinfo(
-                host=name,
-                port=None,
-                family=socket.AF_INET6,
-                type=socket.SOCK_DGRAM
-            )[0][4][0]
-
-        except OSError:
-            pass
+    except OSError:
+        if not family:
+            return resolve(name, 6)
 
     raise NameLookupError(name)
 
