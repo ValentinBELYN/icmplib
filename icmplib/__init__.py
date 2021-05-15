@@ -27,14 +27,14 @@
     <https://www.gnu.org/licenses/>.
 '''
 
-from .sockets import ICMPv4Socket, ICMPv6Socket
+from .sockets import ICMPv4Socket, ICMPv6Socket, AsyncSocket
 from .models import ICMPRequest, ICMPReply, Host, Hop
-from .ping import ping
-from .multiping import multiping
+from .ping import ping, async_ping
+from .multiping import multiping, async_multiping
 from .traceroute import traceroute
 from .exceptions import *
 from .utils import is_hostname, is_ipv4_address, is_ipv6_address
-from .utils import PID, resolve
+from .utils import PID, resolve, async_resolve
 
 
 __author__    = 'Valentin BELYN'

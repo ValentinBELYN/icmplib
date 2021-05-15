@@ -27,7 +27,7 @@
     <https://www.gnu.org/licenses/>.
 '''
 
-import socket
+import socket, asyncio
 
 from threading import Lock
 from sys import platform
@@ -44,7 +44,7 @@ PLATFORM_MACOS   = platform == 'darwin'
 PLATFORM_WINDOWS = platform == 'win32'
 
 _lock_id = Lock()
-_curr_id = PID
+_current_id = PID
 
 
 def random_byte_message(size):
@@ -66,13 +66,13 @@ def unique_identifier():
     The first number generated will be equal to the PID + 1.
 
     '''
-    global _curr_id
+    global _current_id
 
     with _lock_id:
-        _curr_id += 1
-        _curr_id &= 0xffff
+        _current_id += 1
+        _current_id &= 0xffff
 
-        return _curr_id
+        return _current_id
 
 
 def resolve(name, family=None):
@@ -117,6 +117,56 @@ def resolve(name, family=None):
     except OSError:
         if not family:
             return resolve(name, 6)
+
+    raise NameLookupError(name)
+
+
+async def async_resolve(name, family=None):
+    '''
+    Resolve a hostname or FQDN to an IP address. Depending on the name
+    specified in parameters, several IP addresses may be returned.
+
+    This function relies on the DNS name server configured on your
+    operating system.
+
+    This function is non-blocking.
+
+    :type name: str
+    :param name: A hostname or a Fully Qualified Domain Name (FQDN).
+
+    :type family: int, optional
+    :param family: The address family. Can be set to `4` for IPv4 or `6`
+        for IPv6 addresses. By default, this function searches for IPv4
+        addresses first for compatibility reasons (A DNS lookup) before
+        searching for IPv6 addresses (AAAA DNS lookup).
+
+    :rtype: list[str]
+    :returns: A list of IP addresses associated with the name passed as
+        a parameter.
+
+    :raises NameLookupError: If the requested name does not exist or
+        cannot be resolved.
+
+    '''
+    try:
+        if family == 6:
+            _family = socket.AF_INET6
+        else:
+            _family = socket.AF_INET
+
+        loop = asyncio.get_running_loop()
+
+        lookup = await loop.getaddrinfo(
+            host=name,
+            port=None,
+            family=_family,
+            type=socket.SOCK_DGRAM)
+
+        return [address[4][0] for address in lookup]
+
+    except OSError:
+        if not family:
+            return await async_resolve(name, 6)
 
     raise NameLookupError(name)
 

@@ -27,11 +27,11 @@
     <https://www.gnu.org/licenses/>.
 '''
 
-import socket
+import socket, asyncio
 from struct import pack, unpack
 from time import time
 
-from .models import ICMPRequest, ICMPReply
+from .models import ICMPReply
 from .exceptions import *
 from .utils import *
 
@@ -60,6 +60,8 @@ class ICMPSocket:
         socket.
 
     '''
+    __slots__ = '_sock', '_address', '_privileged'
+
     _IP_VERSION              = -1
     _ICMP_HEADER_OFFSET      = -1
     _ICMP_HEADER_REAL_OFFSET = -1
@@ -353,6 +355,19 @@ class ICMPSocket:
             self._sock = None
 
     @property
+    def blocking(self):
+        '''
+        Indicate whether the socket is in blocking mode.
+        Return a `boolean`.
+
+        '''
+        return self._sock.getblocking()
+
+    @blocking.setter
+    def blocking(self, enable):
+        return self._sock.setblocking(enable)
+
+    @property
     def address(self):
         '''
         The IP address from which the socket listens and sends packets.
@@ -429,6 +444,8 @@ class ICMPv4Socket(ICMPSocket):
         socket.
 
     '''
+    __slots__ = '_sock', '_address', '_privileged'
+
     _IP_VERSION              = 4
     _ICMP_HEADER_OFFSET      = 20
     _ICMP_HEADER_REAL_OFFSET = 20
@@ -554,6 +571,8 @@ class ICMPv6Socket(ICMPSocket):
         socket.
 
     '''
+    __slots__ = '_sock', '_address', '_privileged'
+
     _IP_VERSION              = 6
     _ICMP_HEADER_OFFSET      = 0
     _ICMP_HEADER_REAL_OFFSET = 40
@@ -603,3 +622,146 @@ class ICMPv6Socket(ICMPSocket):
             socket.IPPROTO_IPV6,
             socket.IPV6_TCLASS,
             traffic_class)
+
+
+class AsyncSocket:
+    '''
+    A wrapper for ICMP sockets which makes them asynchronous.
+
+    :type icmp_sock: ICMPSocket
+    :param icmp_sock: An ICMP socket. Once the wrapper is instantiated,
+        this socket should no longer be used directly.
+
+    '''
+    __slots__ = '_icmp_sock'
+
+    def __init__(self, icmp_sock):
+        self._icmp_sock = icmp_sock
+        self._icmp_sock.blocking = False
+
+    def __getattr__(self, name):
+        if not self._icmp_sock:
+            raise SocketUnavailableError
+
+        return getattr(self._icmp_sock, name)
+
+    def __enter__(self):
+        '''
+        Return this object.
+
+        '''
+        return self
+
+    def __exit__(self, type, value, traceback):
+        '''
+        Call the `close` method.
+
+        '''
+        self.close()
+
+    def __del__(self):
+        '''
+        Call the `close` method.
+
+        '''
+        self.close()
+
+    async def receive(self, request=None, timeout=2):
+        '''
+        Receive an ICMP reply message from the socket.
+
+        This method can be called multiple times if you expect several
+        responses as with a broadcast address.
+
+        This method is non-blocking.
+
+        :type request: ICMPRequest, optional
+        :param request: The ICMP request to use to match the response.
+            By default, all ICMP packets arriving on the socket are
+            returned.
+
+        :type timeout: int or float, optional
+        :param timeout: The maximum waiting time for receiving the
+            response in seconds. Default to 2.
+
+        :rtype: ICMPReply
+        :returns: An `ICMPReply` object representing the response of the
+            desired destination or an upstream gateway. See the
+            `ICMPReply` class for details.
+            Unlike the `reveive` method of synchronous ICMP sockets, the
+            returned `ICMPReply` object does not specify the IP address
+            of the host that replied to the request message.
+
+        :raises TimeoutExceeded: If no response is received before the
+            timeout specified in parameters.
+        :raises SocketUnavailableError: If the socket is closed.
+        :raises ICMPSocketError: If another error occurs while receiving.
+
+        '''
+        if not self._icmp_sock or not self._icmp_sock._sock:
+            raise SocketUnavailableError
+
+        loop = asyncio.get_running_loop()
+        time_limit = time() + timeout
+        remaining_time = timeout
+
+        try:
+            while True:
+                packet = await asyncio.wait_for(
+                    loop.sock_recv(self._icmp_sock._sock, 1024),
+                    remaining_time)
+
+                current_time = time()
+
+                if current_time > time_limit:
+                    raise asyncio.TimeoutError
+
+                reply = self._parse_reply(
+                    packet=packet,
+                    source=None,
+                    current_time=current_time)
+
+                if (reply and not request or
+                    reply and request.id == reply.id and
+                    request.sequence == reply.sequence):
+                    return reply
+
+                remaining_time = time_limit - current_time
+
+        except asyncio.TimeoutError:
+            raise TimeoutExceeded(timeout)
+
+        except OSError as err:
+            raise ICMPSocketError(str(err))
+
+    def detach(self):
+        '''
+        Detach the socket from the wrapper and return it. The wrapper
+        cannot be used after this call but the socket can be reused for
+        other purposes.
+
+        '''
+        icmp_sock = self._icmp_sock
+
+        if self._icmp_sock:
+            self._icmp_sock = None
+
+        return icmp_sock
+
+    def close(self):
+        '''
+        Detach the underlying socket from the wrapper and close it. Both
+        cannot be used after this call.
+
+        '''
+        if self._icmp_sock:
+            self.detach().close()
+
+    @property
+    def is_closed(self):
+        '''
+        Indicate whether the underlying socket is closed or detached
+        from this wrapper. Return a `boolean`.
+
+        '''
+        return self._icmp_sock is None

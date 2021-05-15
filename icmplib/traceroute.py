@@ -144,7 +144,7 @@ def traceroute(address, count=2, interval=0.05, timeout=2, first_hop=1,
         ...     print(f'{hop.distance} {hop.address} {hop.avg_rtt} ms')
         ...
         ...     last_distance = hop.distance
-        ...
+
         1       10.0.0.1            5.196 ms
         2       194.149.169.49      7.552 ms
         3       194.149.166.54      12.21 ms
@@ -159,56 +159,55 @@ def traceroute(address, count=2, interval=0.05, timeout=2, first_hop=1,
         address = resolve(address, family)[0]
 
     if is_ipv6_address(address):
-        sock = ICMPv6Socket(source)
+        _Socket = ICMPv6Socket
     else:
-        sock = ICMPv4Socket(source)
+        _Socket = ICMPv4Socket
 
     id = id or unique_identifier()
     ttl = first_hop
     host_reached = False
     hops = []
 
-    while not host_reached and ttl <= max_hops:
-        reply = None
-        packets_sent = 0
-        rtts = []
+    with _Socket(source) as sock:
+        while not host_reached and ttl <= max_hops:
+            reply = None
+            packets_sent = 0
+            rtts = []
 
-        for sequence in range(count):
-            request = ICMPRequest(
-                destination=address,
-                id=id,
-                sequence=sequence,
-                ttl=ttl,
-                **kwargs)
+            for sequence in range(count):
+                request = ICMPRequest(
+                    destination=address,
+                    id=id,
+                    sequence=sequence,
+                    ttl=ttl,
+                    **kwargs)
 
-            try:
-                sock.send(request)
-                packets_sent += 1
+                try:
+                    sock.send(request)
+                    packets_sent += 1
 
-                reply = sock.receive(request, timeout)
-                rtt = (reply.time - request.time) * 1000
-                rtts.append(rtt)
+                    reply = sock.receive(request, timeout)
+                    rtt = (reply.time - request.time) * 1000
+                    rtts.append(rtt)
 
-                reply.raise_for_status()
-                host_reached = True
+                    reply.raise_for_status()
+                    host_reached = True
 
-            except TimeExceeded:
-                sleep(interval)
+                except TimeExceeded:
+                    sleep(interval)
 
-            except ICMPLibError:
-                break
+                except ICMPLibError:
+                    break
 
-        if reply:
-            hop = Hop(
-                address=reply.source,
-                packets_sent=packets_sent,
-                rtts=rtts,
-                distance=ttl)
+            if reply:
+                hop = Hop(
+                    address=reply.source,
+                    packets_sent=packets_sent,
+                    rtts=rtts,
+                    distance=ttl)
 
-            hops.append(hop)
+                hops.append(hop)
 
-        ttl += 1
-
-    sock.close()
+            ttl += 1
 
     return hops
