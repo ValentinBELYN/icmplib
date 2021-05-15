@@ -32,11 +32,11 @@ from time import sleep
 from .sockets import ICMPv4Socket, ICMPv6Socket
 from .models import ICMPRequest, Host
 from .exceptions import *
-from .utils import PID, resolve, is_ipv6_address
+from .utils import *
 
 
-def ping(address, count=4, interval=1, timeout=2, id=PID, source=None,
-        privileged=True, **kwargs):
+def ping(address, count=4, interval=1, timeout=2, id=None, source=None,
+        family=None, privileged=True, **kwargs):
     '''
     Send ICMP Echo Request packets to a network host.
 
@@ -58,15 +58,21 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, source=None,
 
     :type id: int, optional
     :param id: The identifier of ICMP requests. Used to match the
-        responses with requests. In practice, a unique identifier
-        should be used for every ping process. On Linux, this
-        identifier is ignored when the `privileged` parameter is
-        disabled.
+        responses with requests. In practice, a unique identifier should
+        be used for every ping process. On Linux, this identifier is
+        ignored when the `privileged` parameter is disabled. The library
+        handles this identifier itself by default.
 
     :type source: str, optional
     :param source: The IP address from which you want to send packets.
         By default, the interface is automatically chosen according to
         the specified destination.
+
+    :type family: int, optional
+    :param family: The address family if a hostname or FQDN is specified.
+        Can be set to `4` for IPv4 or `6` for IPv6 addresses. By default,
+        this function searches for IPv4 addresses first before searching
+        for IPv6 addresses.
 
     :type privileged: bool, optional
     :param privileged: When this option is enabled, this library fully
@@ -101,10 +107,10 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, source=None,
 
     :raises NameLookupError: If you pass a hostname or FQDN in
         parameters and it does not exist or cannot be resolved.
-    :raises SocketPermissionError: If the privileges are insufficient
-        to create the socket.
-    :raises SocketAddressError: If the source address cannot be
-        assigned to the socket.
+    :raises SocketPermissionError: If the privileges are insufficient to
+        create the socket.
+    :raises SocketAddressError: If the source address cannot be assigned
+        to the socket.
     :raises ICMPSocketError: If another error occurs. See the
         `ICMPv4Socket` or `ICMPv6Socket` class for details.
 
@@ -120,65 +126,43 @@ def ping(address, count=4, interval=1, timeout=2, id=PID, source=None,
     See the `Host` class for details.
 
     '''
-    address = resolve(address)[0]
+    if is_hostname(address):
+        address = resolve(address, family)[0]
 
     if is_ipv6_address(address):
-        sock = ICMPv6Socket(
-            address=source,
-            privileged=privileged)
-
+        ICMPSocketClass = ICMPv6Socket
     else:
-        sock = ICMPv4Socket(
-            address=source,
-            privileged=privileged)
+        ICMPSocketClass = ICMPv4Socket
 
+    id = id or unique_identifier()
     packets_sent = 0
-    packets_received = 0
+    rtts = []
 
-    min_rtt = float('inf')
-    avg_rtt = 0.0
-    max_rtt = 0.0
-
-    for sequence in range(count):
-        request = ICMPRequest(
-            destination=address,
-            id=id,
-            sequence=sequence,
-            **kwargs)
-
-        try:
-            sock.send(request)
-            packets_sent += 1
-
-            reply = sock.receive(request, timeout)
-            reply.raise_for_status()
-            packets_received += 1
-
-            round_trip_time = (reply.time - request.time) * 1000
-            avg_rtt += round_trip_time
-            min_rtt = min(round_trip_time, min_rtt)
-            max_rtt = max(round_trip_time, max_rtt)
-
-            if sequence < count - 1:
+    with ICMPSocketClass(source, privileged) as sock:
+        for sequence in range(count):
+            if sequence > 0:
                 sleep(interval)
 
-        except ICMPLibError:
-            pass
+            request = ICMPRequest(
+                destination=address,
+                id=id,
+                sequence=sequence,
+                **kwargs)
 
-    if packets_received:
-        avg_rtt /= packets_received
+            try:
+                sock.send(request)
+                packets_sent += 1
 
-    else:
-        min_rtt = 0.0
+                reply = sock.receive(request, timeout)
+                reply.raise_for_status()
 
-    host = Host(
+                rtt = (reply.time - request.time) * 1000
+                rtts.append(rtt)
+
+            except ICMPLibError:
+                pass
+
+    return Host(
         address=address,
-        min_rtt=min_rtt,
-        avg_rtt=avg_rtt,
-        max_rtt=max_rtt,
         packets_sent=packets_sent,
-        packets_received=packets_received)
-
-    sock.close()
-
-    return host
+        rtts=rtts)
