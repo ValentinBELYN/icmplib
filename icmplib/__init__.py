@@ -33,7 +33,8 @@ from .ping import ping
 from .multiping import multiping
 from .traceroute import traceroute
 from .exceptions import *
-from .utils import PID, resolve, is_ipv4_address, is_ipv6_address
+from .utils import is_hostname, is_ipv4_address, is_ipv6_address
+from .utils import PID, resolve
 
 
 __author__    = 'Valentin BELYN'
@@ -41,4 +42,4 @@ __copyright__ = 'Copyright 2017-2021 Valentin BELYN'
 __license__   = 'GNU Lesser General Public License v3.0'
 
 __version__   = '3.0-alpha'
-__build__     = '210514'
+__build__     = '210515'
