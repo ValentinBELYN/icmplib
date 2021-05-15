@@ -28,7 +28,6 @@
 '''
 
 import socket
-
 from struct import pack, unpack
 from time import time
 
@@ -53,14 +52,15 @@ class ICMPSocket:
         headers. Default to True.
         Only available on Unix systems. Ignored on Windows.
 
-    :raises SocketPermissionError: If the privileges are insufficient
-        to create the socket.
+    :raises SocketPermissionError: If the privileges are insufficient to
+        create the socket.
     :raises SocketAddressError: If the requested address cannot be
         assigned to the socket.
     :raises ICMPSocketError: If another error occurs while creating the
         socket.
 
     '''
+    _IP_VERSION              = -1
     _ICMP_HEADER_OFFSET      = -1
     _ICMP_HEADER_REAL_OFFSET = -1
 
@@ -189,10 +189,17 @@ class ICMPSocket:
         '''
         Parse an ICMP reply from bytes.
 
-        This method returns an `ICMPReply` object or `None` if the
-        reply cannot be parsed.
+        This method returns an `ICMPReply` object or `None` if the reply
+        cannot be parsed.
 
         '''
+        # On Linux, the IP header is missing when a datagram socket is
+        # used (SOCK_DGRAM). To keep the same behavior on all operating
+        # systems including macOS which has this header, we add a
+        # padding of the size of the missing IP header.
+        if not self._privileged and PLATFORM_LINUX:
+            packet = b'\x00' * self._ICMP_HEADER_OFFSET + packet
+
         bytes_received = len(packet) - self._ICMP_HEADER_OFFSET
 
         if len(packet) < self._ICMP_CHECKSUM_OFFSET:
@@ -217,6 +224,7 @@ class ICMPSocket:
 
         return ICMPReply(
             source=source,
+            family=self._IP_VERSION,
             id=id,
             sequence=sequence,
             type=type,
@@ -232,13 +240,13 @@ class ICMPSocket:
         the reply.
 
         :type request: ICMPRequest
-        :param request: The ICMP request you have created. If the
-            socket is used in non-privileged mode on a Linux system,
-            the identifier defined in the request will be replaced by
-            the kernel.
+        :param request: The ICMP request you have created. If the socket
+            is used in non-privileged mode on a Linux system, the
+            identifier defined in the request will be replaced by the
+            kernel.
 
-        :raises SocketBroadcastError: If a broadcast address is used
-            and the corresponding option is not enabled on the socket
+        :raises SocketBroadcastError: If a broadcast address is used and
+            the corresponding option is not enabled on the socket
             (ICMPv4 only).
         :raises SocketUnavailableError: If the socket is closed.
         :raises ICMPSocketError: If another error occurs while sending.
@@ -263,9 +271,9 @@ class ICMPSocket:
             self._sock.sendto(packet, (request.destination, 0))
 
             # On Linux, the ICMP request identifier is replaced by the
-            # kernel with a random port number when a datagram socket
-            # is used (SOCK_DGRAM). So, we update the request created
-            # by the user to take this new identifier into account.
+            # kernel with a random port number when a datagram socket is
+            # used (SOCK_DGRAM). So, we update the request created by
+            # the user to take this new identifier into account.
             if not self._privileged and PLATFORM_LINUX:
                 request._id = self._sock.getsockname()[1]
 
@@ -292,15 +300,14 @@ class ICMPSocket:
             response in seconds. Default to 2.
 
         :rtype: ICMPReply
-        :returns: An `ICMPReply` object representing the response of
-            the desired destination or an upstream gateway. See the
+        :returns: An `ICMPReply` object representing the response of the
+            desired destination or an upstream gateway. See the
             `ICMPReply` class for details.
 
         :raises TimeoutExceeded: If no response is received before the
             timeout specified in parameters.
         :raises SocketUnavailableError: If the socket is closed.
-        :raises ICMPSocketError: If another error occurs while
-            receiving.
+        :raises ICMPSocketError: If another error occurs while receiving.
 
         '''
         if not self._sock:
@@ -319,15 +326,6 @@ class ICMPSocket:
 
                 if current_time > time_limit:
                     raise socket.timeout
-
-                # On Linux, the IP header is missing when a datagram
-                # socket is used (SOCK_DGRAM). To keep the same
-                # behavior on all operating systems including macOS
-                # which has this header, we add a padding of the size
-                # of the missing IP header.
-                if not self._privileged and PLATFORM_LINUX:
-                    padding = b'\x00' * self._ICMP_HEADER_OFFSET
-                    packet = padding + packet
 
                 reply = self._parse_reply(
                     packet=packet,
@@ -423,14 +421,15 @@ class ICMPv4Socket(ICMPSocket):
         headers. Default to True.
         Only available on Unix systems. Ignored on Windows.
 
-    :raises SocketPermissionError: If the privileges are insufficient
-        to create the socket.
+    :raises SocketPermissionError: If the privileges are insufficient to
+        create the socket.
     :raises SocketAddressError: If the requested address cannot be
         assigned to the socket.
     :raises ICMPSocketError: If another error occurs while creating the
         socket.
 
     '''
+    _IP_VERSION              = 4
     _ICMP_HEADER_OFFSET      = 20
     _ICMP_HEADER_REAL_OFFSET = 20
 
@@ -547,14 +546,15 @@ class ICMPv6Socket(ICMPSocket):
         headers. Default to True.
         Only available on Unix systems. Ignored on Windows.
 
-    :raises SocketPermissionError: If the privileges are insufficient
-        to create the socket.
+    :raises SocketPermissionError: If the privileges are insufficient to
+        create the socket.
     :raises SocketAddressError: If the requested address cannot be
         assigned to the socket.
     :raises ICMPSocketError: If another error occurs while creating the
         socket.
 
     '''
+    _IP_VERSION              = 6
     _ICMP_HEADER_OFFSET      = 0
     _ICMP_HEADER_REAL_OFFSET = 40
 
