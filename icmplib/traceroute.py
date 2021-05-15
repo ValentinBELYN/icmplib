@@ -32,11 +32,12 @@ from time import sleep
 from .sockets import ICMPv4Socket, ICMPv6Socket
 from .models import ICMPRequest, Hop
 from .exceptions import *
-from .utils import PID, resolve, is_ipv6_address
+from .utils import *
 
 
-def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
-        first_hop=1, max_hops=30, source=None, fast=False, **kwargs):
+def traceroute(address, count=2, interval=0.05, timeout=2, first_hop=1,
+        max_hops=30, fast=False, id=None, source=None, family=None,
+        **kwargs):
     '''
     Determine the route to a destination host.
 
@@ -63,12 +64,6 @@ def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
     :param timeout: The maximum waiting time for receiving a reply in
         seconds. Default to 2.
 
-    :type id: int, optional
-    :param id: The identifier of ICMP requests. Used to match the
-        responses with requests. In practice, a unique identifier
-        should be used for every traceroute process. By default, the
-        identifier corresponds to the PID.
-
     :type first_hop: int, optional
     :param first_hop: The initial time to live value used in outgoing
         probe packets. Default to 1.
@@ -77,17 +72,29 @@ def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
     :param max_hops: The maximum time to live (max number of hops) used
         in outgoing probe packets. Default to 30.
 
-    :type source: str, optional
-    :param source: The IP address from which you want to send packets.
-        By default, the interface is automatically chosen according to
-        the specified destination.
-
     :type fast: bool, optional
     :param fast: When this option is enabled and an intermediate router
         has been reached, skip to the next hop rather than perform
         additional requests. The `count` parameter then becomes the
         maximum number of requests in the event of no response.
         Default to False.
+
+    :type id: int, optional
+    :param id: The identifier of ICMP requests. Used to match the
+        responses with requests. In practice, a unique identifier should
+        be used for every traceroute process. The library handles this
+        identifier itself by default.
+
+    :type source: str, optional
+    :param source: The IP address from which you want to send packets.
+        By default, the interface is automatically chosen according to
+        the specified destination.
+
+    :type family: int, optional
+    :param family: The address family if a hostname or FQDN is specified.
+        Can be set to `4` for IPv4 or `6` for IPv6 addresses. By default,
+        this function searches for IPv4 addresses first before searching
+        for IPv6 addresses.
 
     Advanced (**kwags):
 
@@ -108,7 +115,7 @@ def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
         Intermediate routers must be able to support this feature.
         Only available on Unix systems. Ignored on Windows.
 
-    :rtype: list of Hop
+    :rtype: list[Hop]
     :returns: A list of `Hop` objects representing the route to the
         desired destination. The list is sorted in ascending order
         according to the distance, in terms of hops, that separates the
@@ -117,10 +124,10 @@ def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
 
     :raises NameLookupError: If you pass a hostname or FQDN in
         parameters and it does not exist or cannot be resolved.
-    :raises SocketPermissionError: If the privileges are insufficient
-        to create the socket.
-    :raises SocketAddressError: If the source address cannot be
-        assigned to the socket.
+    :raises SocketPermissionError: If the privileges are insufficient to
+        create the socket.
+    :raises SocketAddressError: If the source address cannot be assigned
+        to the socket.
     :raises ICMPSocketError: If another error occurs. See the
         `ICMPv4Socket` or `ICMPv6Socket` class for details.
 
@@ -148,26 +155,23 @@ def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
     See the `Hop` class for details.
 
     '''
-    address = resolve(address)[0]
+    if is_hostname(address):
+        address = resolve(address, family)[0]
 
     if is_ipv6_address(address):
         sock = ICMPv6Socket(source)
-
     else:
         sock = ICMPv4Socket(source)
 
+    id = id or unique_identifier()
     ttl = first_hop
     host_reached = False
     hops = []
 
     while not host_reached and ttl <= max_hops:
-        hop_address = None
+        reply = None
         packets_sent = 0
-        packets_received = 0
-
-        min_rtt = float('inf')
-        avg_rtt = 0.0
-        max_rtt = 0.0
+        rtts = []
 
         for sequence in range(count):
             request = ICMPRequest(
@@ -182,6 +186,9 @@ def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
                 packets_sent += 1
 
                 reply = sock.receive(request, timeout)
+                rtt = (reply.time - request.time) * 1000
+                rtts.append(rtt)
+
                 reply.raise_for_status()
                 host_reached = True
 
@@ -189,29 +196,13 @@ def traceroute(address, count=2, interval=0.05, timeout=2, id=PID,
                 sleep(interval)
 
             except ICMPLibError:
-                continue
-
-            hop_address = reply.source
-            packets_received += 1
-
-            round_trip_time = (reply.time - request.time) * 1000
-            avg_rtt += round_trip_time
-            min_rtt = min(round_trip_time, min_rtt)
-            max_rtt = max(round_trip_time, max_rtt)
-
-            if fast:
                 break
 
-        if packets_received:
-            avg_rtt /= packets_received
-
+        if reply:
             hop = Hop(
-                address=hop_address,
-                min_rtt=min_rtt,
-                avg_rtt=avg_rtt,
-                max_rtt=max_rtt,
+                address=reply.source,
                 packets_sent=packets_sent,
-                packets_received=packets_received,
+                rtts=rtts,
                 distance=ttl)
 
             hops.append(hop)
