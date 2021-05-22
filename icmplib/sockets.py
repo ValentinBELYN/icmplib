@@ -544,7 +544,9 @@ class ICMPv4Socket(ICMPSocket):
 #   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 # Windows IPv6 compatibility
-if PLATFORM_WINDOWS: socket.IPPROTO_IPV6 = 41
+if PLATFORM_WINDOWS:
+    socket.IPPROTO_IPV6 = 41
+    socket.IPPROTO_ICMPV6 = 58
 
 
 class ICMPv6Socket(ICMPSocket):
