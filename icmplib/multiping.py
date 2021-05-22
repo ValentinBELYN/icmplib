@@ -40,7 +40,7 @@ async def async_multiping(addresses, count=2, interval=0.5, timeout=2,
 
     This function is non-blocking.
 
-    :type addresses: str
+    :type addresses: list[str]
     :param addresses: The IP addresses of the hosts to which messages
         should be sent. Hostnames and FQDNs are allowed but not
         recommended. You can easily retrieve their IP address by calling
@@ -51,8 +51,8 @@ async def async_multiping(addresses, count=2, interval=0.5, timeout=2,
         Default to 2.
 
     :type interval: int or float, optional
-    :param interval: The interval in seconds between sending each
-        packet. Default to 0.5.
+    :param interval: The interval in seconds between sending each packet.
+        Default to 0.5.
 
     :type timeout: int or float, optional
     :param timeout: The maximum waiting time for receiving a reply in
@@ -96,10 +96,10 @@ async def async_multiping(addresses, count=2, interval=0.5, timeout=2,
 
     :type traffic_class: int, optional
     :param traffic_class: The traffic class of ICMP packets.
-        Provides a defined level of service to packets by setting the
-        DS Field (formerly TOS) or the Traffic Class field of IP
-        headers. Packets are delivered with the minimum priority by
-        default (Best-effort delivery).
+        Provides a defined level of service to packets by setting the DS
+        Field (formerly TOS) or the Traffic Class field of IP headers.
+        Packets are delivered with the minimum priority by default
+        (Best-effort delivery).
         Intermediate routers must be able to support this feature.
         Only available on Unix systems. Ignored on Windows.
 
@@ -170,7 +170,7 @@ def multiping(addresses, count=2, interval=0.5, timeout=2,
     '''
     Send ICMP Echo Request packets to several network hosts.
 
-    :type addresses: str
+    :type addresses: list[str]
     :param addresses: The IP addresses of the hosts to which messages
         should be sent. Hostnames and FQDNs are allowed but not
         recommended. You can easily retrieve their IP address by calling
@@ -181,8 +181,8 @@ def multiping(addresses, count=2, interval=0.5, timeout=2,
         Default to 2.
 
     :type interval: int or float, optional
-    :param interval: The interval in seconds between sending each
-        packet. Default to 0.5.
+    :param interval: The interval in seconds between sending each packet.
+        Default to 0.5.
 
     :type timeout: int or float, optional
     :param timeout: The maximum waiting time for receiving a reply in
@@ -226,10 +226,10 @@ def multiping(addresses, count=2, interval=0.5, timeout=2,
 
     :type traffic_class: int, optional
     :param traffic_class: The traffic class of ICMP packets.
-        Provides a defined level of service to packets by setting the
-        DS Field (formerly TOS) or the Traffic Class field of IP
-        headers. Packets are delivered with the minimum priority by
-        default (Best-effort delivery).
+        Provides a defined level of service to packets by setting the DS
+        Field (formerly TOS) or the Traffic Class field of IP headers.
+        Packets are delivered with the minimum priority by default
+        (Best-effort delivery).
         Intermediate routers must be able to support this feature.
         Only available on Unix systems. Ignored on Windows.
 

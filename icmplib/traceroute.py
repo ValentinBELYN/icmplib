@@ -57,8 +57,8 @@ def traceroute(address, count=2, interval=0.05, timeout=2, first_hop=1,
     :param count: The number of ping to perform per hop. Default to 2.
 
     :type interval: int or float, optional
-    :param interval: The interval in seconds between sending each
-        packet. Default to 0.05.
+    :param interval: The interval in seconds between sending each packet.
+        Default to 0.05.
 
     :type timeout: int or float, optional
     :param timeout: The maximum waiting time for receiving a reply in
@@ -108,10 +108,10 @@ def traceroute(address, count=2, interval=0.05, timeout=2, first_hop=1,
 
     :type traffic_class: int, optional
     :param traffic_class: The traffic class of ICMP packets.
-        Provides a defined level of service to packets by setting the
-        DS Field (formerly TOS) or the Traffic Class field of IP
-        headers. Packets are delivered with the minimum priority by
-        default (Best-effort delivery).
+        Provides a defined level of service to packets by setting the DS
+        Field (formerly TOS) or the Traffic Class field of IP headers.
+        Packets are delivered with the minimum priority by default
+        (Best-effort delivery).
         Intermediate routers must be able to support this feature.
         Only available on Unix systems. Ignored on Windows.
 

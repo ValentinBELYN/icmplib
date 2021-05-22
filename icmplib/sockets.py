@@ -512,11 +512,11 @@ class ICMPv4Socket(ICMPSocket):
             socket.SO_BROADCAST) > 0
 
     @broadcast.setter
-    def broadcast(self, allow):
+    def broadcast(self, enable):
         self._sock.setsockopt(
             socket.SOL_SOCKET,
             socket.SO_BROADCAST,
-            allow)
+            enable)
 
 
 #   Echo Request and Echo Reply messages                     RFC 4443

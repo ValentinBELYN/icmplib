@@ -62,11 +62,11 @@ class ICMPRequest:
         Default to 64.
 
     :type traffic_class: int, optional
-    :param traffic_class: The traffic class of the packet.
-        Provides a defined level of service to the packet by setting
-        the DS Field (formerly TOS) or the Traffic Class field of the
-        IP header. Packets are delivered with the minimum priority by
-        default (Best-effort delivery).
+    :param traffic_class: The traffic class of ICMP packets.
+        Provides a defined level of service to packets by setting the DS
+        Field (formerly TOS) or the Traffic Class field of IP headers.
+        Packets are delivered with the minimum priority by default
+        (Best-effort delivery).
         Intermediate routers must be able to support this feature.
         Only available on Unix systems. Ignored on Windows.
 
@@ -480,7 +480,7 @@ class Hop(Host):
         return f'<Hop {self._distance} [{self._address}]>'
 
     def __str__(self):
-        return f'  #{self._distance:<2} ' + super().__str__()[2:]
+        return f'  #{self._distance:<2} {super().__str__()[2:]}'
 
     @property
     def distance(self):

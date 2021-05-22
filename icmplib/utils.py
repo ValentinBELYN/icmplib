@@ -141,7 +141,7 @@ async def async_resolve(name, family=None):
         searching for IPv6 addresses (AAAA DNS lookup).
 
     :rtype: list[str]
-    :returns: A list of IP addresses associated with the name passed as
+    :returns: A list of IP addresses corresponding to the name passed as
         a parameter.
 
     :raises NameLookupError: If the requested name does not exist or
