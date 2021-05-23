@@ -62,11 +62,11 @@ class ICMPRequest:
         Default to 64.
 
     :type traffic_class: int, optional
-    :param traffic_class: The traffic class of ICMP packets.
-        Provides a defined level of service to packets by setting the DS
-        Field (formerly TOS) or the Traffic Class field of IP headers.
-        Packets are delivered with the minimum priority by default
-        (Best-effort delivery).
+    :param traffic_class: The traffic class of the ICMP packet.
+        Provides a defined level of service to the packet by setting the
+        DS Field (formerly TOS) or the Traffic Class field of the IP
+        header. Packets are delivered with the minimum priority by
+        default (Best-effort delivery).
         Intermediate routers must be able to support this feature.
         Only available on Unix systems. Ignored on Windows.
 
@@ -392,7 +392,7 @@ class Host:
     @property
     def packets_sent(self):
         '''
-        The number of packets transmitted to the destination host.
+        The number of requests transmitted to the remote host.
 
         '''
         return self._packets_sent
@@ -400,8 +400,7 @@ class Host:
     @property
     def packets_received(self):
         '''
-        The number of packets sent by the remote host and received by
-        the current host.
+        The number of ICMP responses received from the remote host.
 
         '''
         return len(self._rtts)

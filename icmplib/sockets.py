@@ -488,6 +488,7 @@ class ICMPv4Socket(ICMPSocket):
         Only available on Unix systems. Ignored on Windows.
 
         '''
+        # Not available on Windows
         if PLATFORM_WINDOWS:
             return
 
@@ -604,6 +605,10 @@ class ICMPv6Socket(ICMPSocket):
         socket.
 
         '''
+        # Not available on macOS when the privileged param. is disabled
+        if PLATFORM_MACOS and not self._privileged:
+            return
+
         self._sock.setsockopt(
             socket.IPPROTO_IPV6,
             socket.IPV6_UNICAST_HOPS,
@@ -617,7 +622,12 @@ class ICMPv6Socket(ICMPSocket):
         Only available on Unix systems. Ignored on Windows.
 
         '''
+        # Not available on Windows
         if PLATFORM_WINDOWS:
+            return
+
+        # Not available on macOS when the privileged param. is disabled
+        if PLATFORM_MACOS and not self._privileged:
             return
 
         self._sock.setsockopt(
@@ -642,6 +652,10 @@ class AsyncSocket:
         self._icmp_sock.blocking = False
 
     def __getattr__(self, name):
+        '''
+        Return the specified attribute of the underlying ICMP socket.
+
+        '''
         if not self._icmp_sock:
             raise SocketUnavailableError
 
@@ -735,6 +749,9 @@ class AsyncSocket:
 
         except OSError as err:
             raise ICMPSocketError(str(err))
+
+        finally:
+            loop.remove_reader(self._icmp_sock._sock)
 
     def detach(self):
         '''
