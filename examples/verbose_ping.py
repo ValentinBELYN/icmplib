@@ -39,7 +39,6 @@ def verbose_ping(address, count=4, interval=1, timeout=2, id=PID):
     # We detect the socket to use from the specified IP address
     if is_ipv6_address(address):
         sock = ICMPv6Socket()
-
     else:
         sock = ICMPv4Socket()
 
@@ -71,7 +70,7 @@ def verbose_ping(address, count=4, interval=1, timeout=2, id=PID):
             print(f'icmp_seq={sequence} '
                   f'time={round(round_trip_time, 3)} ms')
 
-            # We pause before continuing
+            # We wait before continuing
             if sequence < count - 1:
                 sleep(interval)
 

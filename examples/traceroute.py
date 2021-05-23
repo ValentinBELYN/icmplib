@@ -21,10 +21,8 @@ from icmplib import traceroute
 hops = traceroute('1.1.1.1', timeout=1, fast=True)
 
 print(hops)
-# [ <Hop 1 [10.0.0.1]>,
-#   <Hop 2 [194.149.169.49]>,
-#   <Hop 3 [194.149.166.54]>,
-#   <Hop 5 [212.73.205.22]>,
+# [ <Hop 1 [10.0.0.1]>, <Hop 2 [194.149.169.49]>,
+#   <Hop 3 [194.149.166.54]>, <Hop 5 [212.73.205.22]>,
 #   <Hop 6 [1.1.1.1]> ]
 
 last_distance = 0

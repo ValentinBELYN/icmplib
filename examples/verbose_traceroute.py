@@ -32,15 +32,17 @@ from time import sleep
 
 from icmplib import ICMPv4Socket, ICMPv6Socket, ICMPRequest
 from icmplib import ICMPLibError, TimeoutExceeded, TimeExceeded
-from icmplib import PID, resolve, is_ipv6_address
+from icmplib import PID, resolve, is_hostname, is_ipv6_address
 
 
 def verbose_traceroute(address, count=2, interval=0.05, timeout=2,
         id=PID, max_hops=30):
-    # We perform a DNS resolution of the address passed in parameters.
-    # If the address is already an IP address, no lookup is done. The
-    # same address is returned.
-    ip_address = resolve(address)
+    # We perform a DNS lookup if a hostname or an FQDN is passed in
+    # parameters.
+    if is_hostname(address):
+        ip_address = resolve(address)[0]
+    else:
+        ip_address = address
 
     # A payload of 56 bytes is used by default. You can modify it using
     # the 'payload_size' parameter of your ICMP request.
@@ -50,7 +52,6 @@ def verbose_traceroute(address, count=2, interval=0.05, timeout=2,
     # We detect the socket to use from the specified IP address
     if is_ipv6_address(ip_address):
         sock = ICMPv6Socket()
-
     else:
         sock = ICMPv4Socket()
 

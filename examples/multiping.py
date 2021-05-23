@@ -28,12 +28,11 @@ addresses = [
     # IPv6 addresses
     '::1',
 
-    # Hostnames and Fully Qualified Domain Names (FQDNs) are not
-    # allowed. You can easily retrieve their IP address by calling the
-    # built-in 'resolve' function. The first address returned from the
-    # DNS resolution will be used. For deterministic behavior, prefer
-    # to use an IP address.
-    resolve('github.com')
+    # Hostnames and Fully Qualified Domain Names (FQDNs) are allowed but
+    # not recommended. You can easily retrieve their IP address by
+    # calling the built-in 'resolve' function. For deterministic
+    # behavior, prefer to use an IP address.
+    'github.com'
 ]
 
 hosts = multiping(addresses, count=2, timeout=1)
@@ -44,7 +43,6 @@ hosts_dead = []
 for host in hosts:
     if host.is_alive:
         hosts_alive.append(host.address)
-
     else:
         hosts_dead.append(host.address)
 
