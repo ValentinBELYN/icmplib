@@ -751,7 +751,8 @@ class AsyncSocket:
             raise ICMPSocketError(str(err))
 
         finally:
-            loop.remove_reader(self._icmp_sock._sock)
+            if isinstance(loop, asyncio.SelectorEventLoop):
+                loop.remove_reader(self._icmp_sock._sock)
 
     def detach(self):
         '''

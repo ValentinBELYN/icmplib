@@ -143,7 +143,6 @@ class DestinationUnreachable(ICMPError):
     def __init__(self, reply):
         if reply.code in self._CODES:
             message = self._CODES[reply.code]
-
         else:
             message = f'Destination unreachable, bad code: {reply.code}'
 
@@ -198,7 +197,6 @@ class TimeExceeded(ICMPError):
     def __init__(self, reply):
         if reply.code in self._CODES:
             message = self._CODES[reply.code]
-
         else:
             message = f'Time exceeded, bad code: {reply.code}'
 
