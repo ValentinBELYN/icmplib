@@ -2,8 +2,7 @@
     icmplib
     ~~~~~~~
 
-    A powerful library for forging ICMP packets and performing ping
-    and traceroute.
+    The power to forge ICMP packets and do ping and traceroute.
 
         https://github.com/ValentinBELYN/icmplib
 
@@ -44,7 +43,7 @@ async def async_multiping(addresses, count=2, interval=0.5, timeout=2,
     :param addresses: The IP addresses of the hosts to which messages
         should be sent. Hostnames and FQDNs are allowed but not
         recommended. You can easily retrieve their IP address by calling
-        the built-in `resolve` function.
+        the built-in `async_resolve` function.
 
     :type count: int, optional
     :param count: The number of ping to perform per address.

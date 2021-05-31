@@ -2,8 +2,7 @@
     icmplib
     ~~~~~~~
 
-    A powerful library for forging ICMP packets and performing ping
-    and traceroute.
+    The power to forge ICMP packets and do ping and traceroute.
 
         https://github.com/ValentinBELYN/icmplib
 
@@ -42,4 +41,4 @@ __copyright__ = 'Copyright 2017-2021 Valentin BELYN'
 __license__   = 'GNU Lesser General Public License v3.0'
 
 __version__   = '3.0'
-__build__     = '210524'
+__build__     = '210531'
