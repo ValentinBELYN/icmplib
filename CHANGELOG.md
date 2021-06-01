@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v3.0.0](https://github.com/ValentinBELYN/icmplib/releases/tag/v3.0.0) - 2021-06-01
+**icmplib 3.0 is here! :rocket:**
+
+- The library is now asynchronous!
+  - Introduce new functions: `async_ping`, `async_multiping` and `async_resolve`.
+  - Add a new `AsyncSocket` class to make an ICMP socket asynchronous.
+- Rewrite models:
+  - All the properties of `Host` and `Hop` classes are now lazy.
+  - Add new properties to the `Host` and `Hop` classes: you can retrieve the list of round-trip times and calculate the jitter.
+  - Add the metaclass `__str__` to visualize the results more easily.
+- Rewrite the `ping`, `multiping` and `traceroute` functions:
+  - The identifier of ICMP requests is now handled automatically by the library.
+  - Add the ability to set the address family if a hostname or an FQDN is specified.
+  - A new implementation is used for the `multiping` function. It should be more reliable.
+  - The `multiping` function is now in a dedicated module.
+- Rewrite the documentation to help you get started with icmplib.
+- Improve the `resolve` function to return all IP addresses found.
+- Add the `is_hostname` function to check if a string is a hostname or an FQDN.
+- Delete the experimental class `BufferedSocket`, replaced by `AsyncSocket`.
+- Performance and compatibility improvement.
+- Many other small changes and fixes.
+
+Special thanks to [@JonasKs](https://github.com/JonasKs) and [@bdraco](https://github.com/bdraco) for their suggestions, advice and feedback!
+
+> Python 3.7 or later is now required.
+
 ## [v2.1.1](https://github.com/ValentinBELYN/icmplib/releases/tag/v2.1.1) - 2021-03-21
 - :bug: Revert changes made to the `traceroute` function due to a bug.
 
