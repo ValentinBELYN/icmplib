@@ -1,16 +1,15 @@
 <div align="center">
   <br>
-  <img src="media/icmplib-logo-2.0.png" height="190" width="100" alt="icmplib">
   <br>
+  <img src="media/icmplib-logo.png" height="125" width="100" alt="icmplib">
   <br>
 
   <br>
   <div>
     <a href="#features">Features</a>&nbsp;&nbsp;&nbsp;
     <a href="#installation">Installation</a>&nbsp;&nbsp;&nbsp;
-    <a href="#built-in-functions">Built-in functions</a>&nbsp;&nbsp;&nbsp;
-    <a href="#icmp-sockets">ICMP sockets</a>&nbsp;&nbsp;&nbsp;
-    <a href="#faq">FAQ</a>&nbsp;&nbsp;&nbsp;
+    <a href="#getting-started">Getting started</a>&nbsp;&nbsp;&nbsp;
+    <a href="#documentation">Documentation</a>&nbsp;&nbsp;&nbsp;
     <a href="#contributing">Contributing</a>&nbsp;&nbsp;&nbsp;
     <a href="#donate">Donate</a>&nbsp;&nbsp;&nbsp;
     <a href="#license">License</a>
@@ -20,7 +19,8 @@
   <pre>icmplib is a brand new and modern implementation of the ICMP protocol in Python.
 Use the built-in functions or build your own, you have the choice!
 
-<a href="#how-to-use-the-library-without-root-privileges">- You can now use this library without root privileges -</a></pre>
+<a href="CHANGELOG.md">icmplib 3.0 has been released! See what's new 🎉</a></pre>
+
   <a href="https://pypi.org/project/icmplib">
     <img src="https://img.shields.io/pypi/dm/icmplib.svg?style=flat-square&labelColor=0366d6&color=005cc5" alt="statistics">
   </a>
@@ -30,57 +30,73 @@ Use the built-in functions or build your own, you have the choice!
 
 ## Features
 
-- :deciduous_tree: **Ready-to-use:** icmplib offers ready-to-use functions such as the most popular ones: `ping`, `multiping` and `traceroute`.
-- :gem: **Modern:** This library uses the latest technologies offered by Python 3.6+ and is fully object-oriented.
-- :rocket: **Fast:** Each class and function has been designed and optimized to deliver the best performance. Some functions are also multithreaded like the `multiping` function. You can ping the world in seconds!
-- :zap: **Powerful:** Use the library without root privileges, set the traffic class of ICMP packets, customize their payload and more!
+- :deciduous_tree: **Ready-to-use:** icmplib offers ready-to-use functions such as the most popular ones: `ping`, `multiping` and `traceroute`. An extensive documentation also helps you get started.
+- :gem: **Modern:** This library uses the latest mechanisms offered by Python 3.6/3.7+ and is fully object-oriented.
+- :rocket: **Fast:** Each class and function has been designed and optimized to deliver the best performance. Some functions are also asynchronous like the `async_ping` and `async_multiping` functions. You can ping the world in seconds!
+- :zap: **Powerful:** Use the library without root privileges, set the traffic class of ICMP packets, customize their payload, send broadcast requests and more!
 - :nut_and_bolt: **Evolutive:** Easily build your own classes and functions with `ICMPv4` and `ICMPv6` sockets.
-- :fire: **Seamless integration of IPv6:** Use IPv6 the same way you use IPv4. Automatic detection is done without impacting performance.
-- :rainbow: **Broadcast support** (you must use the `ICMPv4Socket` class to enable it).
-- :beer: **Support of all operating systems.** Tested on Linux, macOS and Windows.
-- :metal: **No dependency:** icmplib is a pure Python implementation of the ICMP protocol. It does not use any external dependencies.
+- :fire: **Seamless integration of IPv6:** Use IPv6 the same way you use IPv4.
+- :beer: **Cross-platform:** Optimized for Linux, macOS and Windows. The library automatically manages the specificities of each system.
+- :metal: **No dependency:** icmplib is a pure Python implementation of the ICMP protocol. It does not rely on any external dependency.
 
 <br>
 
 ## Installation
 
-The recommended way to install or upgrade icmplib is to use `pip3`:
+- **Install icmplib**
 
-```shell
-$ pip3 install icmplib
-$ pip3 install --upgrade icmplib
-```
+  The recommended way to install icmplib is to use `pip3`:
 
-*icmplib requires Python 3.6 or later.*
+  ```shell
+  $ pip3 install icmplib
+  ```
 
-To import icmplib into your project (only import what you need):
+  *Since icmplib 3, Python 3.7 or later is required to use the library.*<br>
+  *If you are using Python 3.6 and you cannot update it, you can still install icmplib 2.*
 
-```python
-# For simple use
-from icmplib import ping, multiping, traceroute, resolve, Host, Hop
+- **Import basic functions**
 
-# For advanced use (sockets)
-from icmplib import ICMPv4Socket, ICMPv6Socket, ICMPRequest, ICMPReply
+  ```python
+  from icmplib import ping, multiping, traceroute, resolve
+  ```
 
-# Exceptions
-from icmplib import ICMPLibError, NameLookupError, ICMPSocketError
-from icmplib import SocketAddressError, SocketPermissionError
-from icmplib import SocketUnavailableError, SocketBroadcastError, TimeoutExceeded
-from icmplib import ICMPError, DestinationUnreachable, TimeExceeded
-```
+- **Import asynchronous functions**
+
+  ```python
+  from icmplib import async_ping, async_multiping, async_resolve
+  ```
+
+- **Import sockets (advanced)**
+
+  ```python
+  from icmplib import ICMPv4Socket, ICMPv6Socket, AsyncSocket, ICMPRequest, ICMPReply
+  ```
+
+- **Import exceptions**
+
+  ```python
+  from icmplib import ICMPLibError, NameLookupError, ICMPSocketError
+  from icmplib import SocketAddressError, SocketPermissionError
+  from icmplib import SocketUnavailableError, SocketBroadcastError, TimeoutExceeded
+  from icmplib import ICMPError, DestinationUnreachable, TimeExceeded
+  ```
+
+  *Import only what you need.*
 
 <br>
 
-## Built-in functions
+## Getting started
 
-### Ping
+### ping
+
 Send ICMP Echo Request packets to a network host.
 
 ```python
-ping(address, count=4, interval=1, timeout=2, id=PID, source=None, privileged=True, **kwargs)
+ping(address, count=4, interval=1, timeout=2, id=None, source=None, family=None, privileged=True, **kwargs)
 ```
 
 #### Parameters
+
 - `address`
 
   The IP address, hostname or FQDN of the host to which messages should be sent. For deterministic behavior, prefer to use an IP address.
@@ -110,10 +126,10 @@ ping(address, count=4, interval=1, timeout=2, id=PID, source=None, privileged=Tr
 
 - `id`
 
-  The identifier of ICMP requests. Used to match the responses with requests. In practice, a unique identifier should be used for every ping process. On Linux, this identifier is ignored when the `privileged` parameter is disabled.
+  The identifier of ICMP requests. Used to match the responses with requests. In practice, a unique identifier should be used for every ping process. On Linux, this identifier is ignored when the `privileged` parameter is disabled. The library handles this identifier itself by default.
 
   - Type: `int`
-  - Default: `PID`
+  - Default: `None`
 
 - `source`
 
@@ -122,9 +138,18 @@ ping(address, count=4, interval=1, timeout=2, id=PID, source=None, privileged=Tr
   - Type: `str`
   - Default: `None`
 
+- `family`
+
+  The address family if a hostname or FQDN is specified. Can be set to `4` for IPv4 or `6` for IPv6 addresses. By default, this function searches for IPv4 addresses first before searching for IPv6 addresses.
+
+  - Type: `int`
+  - Default: `None`
+
 - `privileged`
 
   When this option is enabled, this library fully manages the exchanges and the structure of ICMP packets. Disable this option if you want to use this function without root privileges and let the kernel handle ICMP headers.
+
+  [Learn more about the `privileged` parameter.]
 
   *Only available on Unix systems. Ignored on Windows.*
 
@@ -155,72 +180,87 @@ ping(address, count=4, interval=1, timeout=2, id=PID, source=None, privileged=Tr
   - Default: `0`
 
 #### Return value
+
 - A `Host` object containing statistics about the desired destination:<br>
-  `address`, `min_rtt`, `avg_rtt`, `max_rtt`, `packets_sent`, `packets_received`, `packet_loss`, `is_alive`
+  `address`, `min_rtt`, `avg_rtt`, `max_rtt`, `rtts`, `packets_sent`, `packets_received`, `packet_loss`, `jitter`, `is_alive`
 
 #### Exceptions
-- `NameLookupError`
+
+- [`NameLookupError`]
 
   If you pass a hostname or FQDN in parameters and it does not exist or cannot be resolved.
 
-- `SocketPermissionError`
+- [`SocketPermissionError`]
 
   If the privileges are insufficient to create the socket.
 
-- `SocketAddressError`
+- [`SocketAddressError`]
 
   If the source address cannot be assigned to the socket.
 
-- `ICMPSocketError`
+- [`ICMPSocketError`]
 
-  If another error occurs. See the `ICMPv4Socket` or `ICMPv6Socket` class for details.
+  If another error occurs. See the [`ICMPv4Socket`] or [`ICMPv6Socket`] class for details.
 
 #### Example
+
 ```python
+>>> from icmplib import ping
+
 >>> host = ping('1.1.1.1', count=10, interval=0.2)
 
->>> host.address            # The IP address of the host that responded
-'1.1.1.1'                   # to the request
+>>> host.address              # The IP address of the host that responded
+'1.1.1.1'                     # to the request
 
->>> host.min_rtt            # The minimum round-trip time
-12.2
+>>> host.min_rtt              # The minimum round-trip time in milliseconds
+5.761
 
->>> host.avg_rtt            # The average round-trip time
-13.2
+>>> host.avg_rtt              # The average round-trip time in milliseconds
+12.036
 
->>> host.max_rtt            # The maximum round-trip time
-17.6
+>>> host.max_rtt              # The maximum round-trip time in milliseconds
+16.207
 
->>> host.packets_sent       # The number of packets transmitted to the
-10                          # destination host
+>>> host.rtts                 # The list of round-trip times expressed in
+[ 11.595, 13.135, 9.614,      # milliseconds
+  16.018, 11.960, 5.761,      # The results are not rounded unlike other
+  16.207, 11.937, 12.098 ]    # properties
 
->>> host.packets_received   # The number of packets sent by the remote
-9                           # host and received by the current host
+>>> host.packets_sent         # The number of requests transmitted to the
+10                            # remote host
 
->>> host.packet_loss        # Packet loss occurs when packets fail to
-0.1                         # reach their destination. Returns a float
-                            # between 0 and 1 (all packets are lost)
->>> host.is_alive           # Indicates whether the host is reachable
+>>> host.packets_received     # The number of ICMP responses received from
+9                             # the remote host
+
+>>> host.packet_loss          # Packet loss occurs when packets fail to
+0.1                           # reach their destination. Returns a float
+                              # between 0 and 1 (all packets are lost)
+
+>>> host.jitter               # The jitter in milliseconds, defined as the
+4.575                         # variance of the latency of packets flowing
+                              # through the network
+
+>>> host.is_alive             # Indicates whether the host is reachable
 True
 ```
 
 <br>
 
-### Multiping
+### multiping
+
 Send ICMP Echo Request packets to several network hosts.
 
-This function relies on a single thread to send multiple packets simultaneously. If you mix IPv4 and IPv6 addresses, up to two threads are used.
-
 ```python
-multiping(addresses, count=2, interval=0.01, timeout=2, id=PID, source=None, privileged=True, **kwargs)
+multiping(addresses, count=2, interval=0.5, timeout=2, concurrent_tasks=50, source=None, family=None, privileged=True, **kwargs)
 ```
 
 #### Parameters
+
 - `addresses`
 
-  The IP addresses of the hosts to which messages should be sent. Hostnames and FQDNs are not allowed. You can easily retrieve their IP address by calling the built-in `resolve` function.
+  The IP addresses of the hosts to which messages should be sent. Hostnames and FQDNs are allowed but not recommended. You can easily retrieve their IP address by calling the built-in [`resolve`] function.
 
-  - Type: `list of str`
+  - Type: `list[str]`
 
 - `count`
 
@@ -234,32 +274,41 @@ multiping(addresses, count=2, interval=0.01, timeout=2, id=PID, source=None, pri
   The interval in seconds between sending each packet.
 
   - Type: `int` or `float`
-  - Default: `0.01`
+  - Default: `0.5`
 
 - `timeout`
 
-  The maximum waiting time for receiving all responses in seconds.
+  The maximum waiting time for receiving a reply in seconds.
 
   - Type: `int` or `float`
   - Default: `2`
 
-- `id`
+- `concurrent_tasks`
 
-  The identifier of ICMP requests. Used to match the responses with requests. This identifier will be incremented by one for each destination. On Linux, this identifier is ignored when the `privileged` parameter is disabled.
+  The maximum number of concurrent tasks to speed up processing. This value cannot exceed the maximum number of file descriptors configured on the operating system.
 
   - Type: `int`
-  - Default: `PID`
+  - Default: `50`
 
 - `source`
 
-  The IP address from which you want to send packets. By default, the interface is automatically chosen according to the specified destination. This parameter should not be used if you are passing both IPv4 and IPv6 addresses to this function.
+  The IP address from which you want to send packets. By default, the interface is automatically chosen according to the specified destinations. This parameter should not be used if you are passing both IPv4 and IPv6 addresses to this function.
 
   - Type: `str`
+  - Default: `None`
+
+- `family`
+
+  The address family if a hostname or FQDN is specified. Can be set to `4` for IPv4 or `6` for IPv6 addresses. By default, this function searches for IPv4 addresses first before searching for IPv6 addresses.
+
+  - Type: `int`
   - Default: `None`
 
 - `privileged`
 
   When this option is enabled, this library fully manages the exchanges and the structure of ICMP packets. Disable this option if you want to use this function without root privileges and let the kernel handle ICMP headers.
+
+  [Learn more about the `privileged` parameter.]
 
   *Only available on Unix systems. Ignored on Windows.*
 
@@ -290,45 +339,53 @@ multiping(addresses, count=2, interval=0.01, timeout=2, id=PID, source=None, pri
   - Default: `0`
 
 #### Return value
-- A `list of Host` objects containing statistics about the desired destinations:<br>
-  `address`, `min_rtt`, `avg_rtt`, `max_rtt`, `packets_sent`, `packets_received`, `packet_loss`, `is_alive`
+
+- A list of `Host` objects containing statistics about the desired destinations:<br>
+  `address`, `min_rtt`, `avg_rtt`, `max_rtt`, `rtts`, `packets_sent`, `packets_received`, `packet_loss`, `jitter`, `is_alive`
 
   The list is sorted in the same order as the addresses passed in parameters.
 
 #### Exceptions
-- `SocketPermissionError`
+
+- [`NameLookupError`]
+
+  If you pass a hostname or FQDN in parameters and it does not exist or cannot be resolved.
+
+- [`SocketPermissionError`]
 
   If the privileges are insufficient to create the socket.
 
-- `SocketAddressError`
+- [`SocketAddressError`]
 
   If the source address cannot be assigned to the socket.
 
-- `ICMPSocketError`
+- [`ICMPSocketError`]
 
-  If another error occurs. See the `ICMPv4Socket` or `ICMPv6Socket` class for details.
+  If another error occurs. See the [`ICMPv4Socket`] or [`ICMPv6Socket`] class for details.
 
 #### Example
+
 ```python
+>>> from icmplib import multiping
+
 >>> hosts = multiping(['10.0.0.5', '127.0.0.1', '::1'])
 
 >>> for host in hosts:
 ...     if host.is_alive:
 ...         # See the Host class for details
-...         print(f'{host.address} is alive!')
-...
+...         print(f'{host.address} is up!')
 ...     else:
-...         print(f'{host.address} is dead!')
-...
+...         print(f'{host.address} is down!')
 
-# 10.0.0.5 is dead!
-# 127.0.0.1 is alive!
-# ::1 is alive!
+# 10.0.0.5 is down!
+# 127.0.0.1 is up!
+# ::1 is up!
 ```
 
 <br>
 
-### Traceroute
+### traceroute
+
 Determine the route to a destination host.
 
 The Internet is a large and complex aggregation of network hardware, connected together by gateways. Tracking the route one's packets follow can be difficult. This function uses the IP protocol time to live field and attempts to elicit an ICMP Time Exceeded response from each gateway along the path to some host.
@@ -336,10 +393,11 @@ The Internet is a large and complex aggregation of network hardware, connected t
 *This function requires root privileges to run.*
 
 ```python
-traceroute(address, count=2, interval=0.05, timeout=2, id=PID, first_hop=1, max_hops=30, source=None, fast=False, **kwargs)
+traceroute(address, count=2, interval=0.05, timeout=2, first_hop=1, max_hops=30, fast=False, id=None, source=None, family=None, **kwargs)
 ```
 
 #### Parameters
+
 - `address`
 
   The IP address, hostname or FQDN of the host to reach. For deterministic behavior, prefer to use an IP address.
@@ -367,13 +425,6 @@ traceroute(address, count=2, interval=0.05, timeout=2, id=PID, first_hop=1, max_
   - Type: `int` or `float`
   - Default: `2`
 
-- `id`
-
-  The identifier of ICMP requests. Used to match the responses with requests. In practice, a unique identifier should be used for every traceroute process.
-
-  - Type: `int`
-  - Default: `PID`
-
 - `first_hop`
 
   The initial time to live value used in outgoing probe packets.
@@ -388,6 +439,20 @@ traceroute(address, count=2, interval=0.05, timeout=2, id=PID, first_hop=1, max_
   - Type: `int`
   - Default: `30`
 
+- `fast`
+
+  When this option is enabled and an intermediate router has been reached, skip to the next hop rather than perform additional requests. The `count` parameter then becomes the maximum number of requests in the event of no response.
+
+  - Type: `bool`
+  - Default: `False`
+
+- `id`
+
+  The identifier of ICMP requests. Used to match the responses with requests. In practice, a unique identifier should be used for every traceroute process. The library handles this identifier itself by default.
+
+  - Type: `int`
+  - Default: `None`
+
 - `source`
 
   The IP address from which you want to send packets. By default, the interface is automatically chosen according to the specified destination.
@@ -395,12 +460,12 @@ traceroute(address, count=2, interval=0.05, timeout=2, id=PID, first_hop=1, max_
   - Type: `str`
   - Default: `None`
 
-- `fast`
+- `family`
 
-  When this option is enabled and an intermediate router has been reached, skip to the next hop rather than perform additional requests. The `count` parameter then becomes the maximum number of requests in the event of no response.
+  The address family if a hostname or FQDN is specified. Can be set to `4` for IPv4 or `6` for IPv6 addresses. By default, this function searches for IPv4 addresses first before searching for IPv6 addresses.
 
-  - Type: `bool`
-  - Default: `False`
+  - Type: `int`
+  - Default: `None`
 
 - `payload`
 
@@ -426,29 +491,35 @@ traceroute(address, count=2, interval=0.05, timeout=2, id=PID, first_hop=1, max_
   - Default: `0`
 
 #### Return value
-- A `list of Hop` objects representing the route to the desired destination. A `Hop` has the same properties as a `Host` object but it also has a `distance`.
+
+- A list of `Hop` objects representing the route to the desired destination. A `Hop` has the same properties as a `Host` object but it also has a `distance`:<br>
+  `address`, `min_rtt`, `avg_rtt`, `max_rtt`, `rtts`, `packets_sent`, `packets_received`, `packet_loss`, `jitter`, `is_alive`, `distance`
 
   The list is sorted in ascending order according to the distance, in terms of hops, that separates the remote host from the current machine. Gateways that do not respond to requests are not added to this list.
 
 #### Exceptions
-- `NameLookupError`
+
+- [`NameLookupError`]
 
   If you pass a hostname or FQDN in parameters and it does not exist or cannot be resolved.
 
-- `SocketPermissionError`
+- [`SocketPermissionError`]
 
   If the privileges are insufficient to create the socket.
 
-- `SocketAddressError`
+- [`SocketAddressError`]
 
   If the source address cannot be assigned to the socket.
 
-- `ICMPSocketError`
+- [`ICMPSocketError`]
 
-  If another error occurs. See the `ICMPv4Socket` or `ICMPv6Socket` class for details.
+  If another error occurs. See the [`ICMPv4Socket`] or [`ICMPv6Socket`] class for details.
 
 #### Example
+
 ```python
+>>> from icmplib import traceroute
+
 >>> hops = traceroute('1.1.1.1')
 
 >>> print('Distance/TTL    Address    Average round-trip time')
@@ -462,7 +533,6 @@ traceroute(address, count=2, interval=0.05, timeout=2, id=PID, first_hop=1, max_
 ...     print(f'{hop.distance}    {hop.address}    {hop.avg_rtt} ms')
 ...
 ...     last_distance = hop.distance
-...
 
 # Distance/TTL    Address                 Average round-trip time
 # 1               10.0.0.1                5.196 ms
@@ -475,477 +545,109 @@ traceroute(address, count=2, interval=0.05, timeout=2, id=PID, first_hop=1, max_
 
 <br>
 
-## ICMP sockets
+### async_ping
 
-If you want to create your own functions and classes using the ICMP protocol, you can use the `ICMPv4Socket` (for IPv4 only) and the `ICMPv6Socket` (for IPv6 only). These classes have many methods and properties in common. They manipulate `ICMPRequest` and `ICMPReply` objects.
+Send ICMP Echo Request packets to a network host.
 
-```
-                                    ┌──────────────────┐
-  ┌─────────────────┐   send(...)   │   ICMPv4Socket   │   receive()   ┌─────────────────┐
-  │   ICMPRequest   │ ────────────> │        or        │ ────────────> │    ICMPReply    │
-  └─────────────────┘               │   ICMPv6Socket   │               └─────────────────┘
-                                    └──────────────────┘
-```
-
-### ICMPRequest
-A user-created object that represents an ICMP Echo Request.
+*This function is non-blocking.*
 
 ```python
-ICMPRequest(destination, id, sequence, payload=None, payload_size=56, ttl=64, traffic_class=0)
+async_ping(address, count=4, interval=1, timeout=2, id=None, source=None, family=None, privileged=True, **kwargs)
 ```
 
-#### Parameters and properties
-- `destination`
+#### Parameters, return value and exceptions
 
-  The IP address of the host to which the message should be sent.
+The same parameters, return value and exceptions as for the [`ping`] function.
 
-  - Type: `str`
-
-- `id`
-
-  The identifier of the request. Used to match the reply with the request. In practice, a unique identifier is used for every ping process. On Linux, this identifier is automatically replaced if the request is sent from an unprivileged socket.
-
-  - Type: `int`
-
-- `sequence`
-
-  The sequence number. Used to match the reply with the request. Typically, the sequence number is incremented for each packet sent during the process.
-
-  - Type: `int`
-
-- `payload`
-
-  The payload content in bytes. A random payload is used by default.
-
-  - Type: `bytes`
-  - Default: `None`
-
-- `payload_size`
-
-  The payload size. Ignored when the `payload` parameter is set.
-
-  - Type: `int`
-  - Default: `56`
-
-- `ttl`
-
-  The time to live of the packet in terms of hops.
-
-  - Type: `int`
-  - Default: `64`
-
-- `traffic_class`
-
-  The traffic class of the packet. Provides a defined level of service to the packet by setting the DS Field (formerly TOS) or the Traffic Class field of the IP header. Packets are delivered with the minimum priority by default (Best-effort delivery). Intermediate routers must be able to support this feature.
-
-  *Only available on Unix systems. Ignored on Windows.*
-
-  - Type: `int`
-  - Default: `0`
-
-#### Properties only
-- `time`
-
-  The timestamp of the ICMP request. Initialized to zero when creating the request and replaced by the `send` method of `ICMPv4Socket` or `ICMPv6Socket` with the time of sending.
-
-  - Type: `float`
-
-<br>
-
-### ICMPReply
-A class that represents an ICMP reply. Generated from an ICMP socket (`ICMPv4Socket` or `ICMPv6Socket`).
+#### Example
 
 ```python
-ICMPReply(source, id, sequence, type, code, bytes_received, time)
-```
-
-#### Parameters and properties
-- `source`
-
-  The IP address of the gateway or host that composes the ICMP message.
-
-  - Type: `str`
-
-- `id`
-
-  The identifier of the reply. Used to match the reply with the request.
-
-  - Type: `int`
-
-- `sequence`
-
-  The sequence number. Used to match the reply with the request.
-
-  - Type: `int`
-
-- `type`
-
-  The type of ICMP message.
-
-  - Type: `int`
-
-- `code`
-
-  The ICMP error code.
-
-  - Type: `int`
-
-- `bytes_received`
-
-  The number of bytes received.
-
-  - Type: `int`
-
-- `time`
-
-  The timestamp of the ICMP reply.
-
-  - Type: `float`
-
-#### Methods
-- `raise_for_status()`
-
-  Throw an exception if the reply is not an ICMP Echo Reply. Otherwise, do nothing.
-
-  - Raises `DestinationUnreachable`: If the destination is unreachable for some reason.
-  - Raises `TimeExceeded`: If the time to live field of the ICMP request has reached zero.
-  - Raises `ICMPError`: Raised for any other type and ICMP error code, except ICMP Echo Reply messages.
-
-<br>
-
-### ICMPv4Socket
-Class for sending and receiving ICMPv4 packets.
-
-```python
-ICMPv4Socket(address=None, privileged=True)
-```
-
-#### Parameters
-- `source`
-
-  The IP address from which you want to listen and send packets. By default, the socket listens on all interfaces.
-
-  - Type: `str`
-  - Default: `None`
-
-- `privileged`
-
-  When this option is enabled, the socket fully manages the exchanges and the structure of the ICMP packets. Disable this option if you want to instantiate and use the socket without root privileges and let the kernel handle ICMP headers.
-
-  *Only available on Unix systems. Ignored on Windows.*
-
-  - Type: `bool`
-  - Default: `True`
-
-#### Methods
-- `__init__(address=None, privileged=True)`
-
-  *Constructor. Automatically called: do not call it directly.*
-
-  - Raises `SocketPermissionError`: If the privileges are insufficient to create the socket.
-  - Raises `SocketAddressError`: If the requested address cannot be assigned to the socket.
-  - Raises `ICMPSocketError`: If another error occurs while creating the socket.
-
-- `__del__()`
-
-  *Destructor. Automatically called: do not call it directly.*
-
-  Call the `close` method.
-
-- `send(request)`
-
-  Send an ICMP request message over the network to a remote host.<br>
-  This operation is non-blocking. Use the `receive` method to get the reply.
-
-  - Parameter `request` *(ICMPRequest)*: The ICMP request you have created. If the socket is used in non-privileged mode on a Linux system, the identifier defined in the request will be replaced by the kernel.
-  - Raises `SocketBroadcastError`: If a broadcast address is used and the corresponding option is not enabled on the socket (ICMPv4 only).
-  - Raises `SocketUnavailableError`: If the socket is closed.
-  - Raises `ICMPSocketError`: If another error occurs while sending.
-
-- `receive(request=None, timeout=2)`
-
-  Receive an ICMP reply message from the socket.<br>
-  This method can be called multiple times if you expect several responses as with a broadcast address.
-
-  - Parameter `request` *(ICMPRequest)*: The ICMP request to use to match the response. By default, all ICMP packets arriving on the socket are returned.
-  - Parameter `timeout` *(int or float)*: The maximum waiting time for receiving the response in seconds. Default to `2`.
-  - Raises `TimeoutExceeded`: If no response is received before the timeout specified in parameters.
-  - Raises `SocketUnavailableError`: If the socket is closed.
-  - Raises `ICMPSocketError`: If another error occurs while receiving.
-
-  Returns an `ICMPReply` object representing the response of the desired destination or an upstream gateway.
-
-- `close()`
-
-  Close the socket. It cannot be used after this call.
-
-#### Properties
-- `address`
-
-  The IP address from which the socket listens and sends packets. Return `None` if the socket listens on all interfaces.
-
-  - Type: `str`
-
-- `is_privileged`
-
-  Indicate whether the socket is running in privileged mode.
-
-  - Type: `bool`
-
-- `is_closed`
-
-  Indicate whether the socket is closed.
-
-  - Type: `bool`
-
-#### Properties and setters
-- `broadcast`
-
-  Enable or disable the broadcast support on the socket.
-
-  - Type: `bool`
-  - Default: `False`
-
-<br>
-
-### ICMPv6Socket
-Class for sending and receiving ICMPv6 packets.
-
-```python
-ICMPv6Socket(address=None, privileged=True)
-```
-
-#### Methods and properties
-The same methods and properties as for the `ICMPv4Socket` class, except the `broadcast` property.
-
-<br>
-
-### Exceptions
-The library contains many exceptions to adapt to your needs:
-
-```
-ICMPLibError
- ├─ NameLookupError
- ├─ ICMPSocketError
- │  ├─ SocketAddressError
- │  ├─ SocketPermissionError
- │  ├─ SocketUnavailableError
- │  ├─ SocketBroadcastError
- │  └─ TimeoutExceeded
- │
- └─ ICMPError
-    ├─ DestinationUnreachable
-    │  ├─ ICMPv4DestinationUnreachable
-    │  └─ ICMPv6DestinationUnreachable
-    │
-    └─ TimeExceeded
-       ├─ ICMPv4TimeExceeded
-       └─ ICMPv6TimeExceeded
-```
-
-- `ICMPLibError`: Exception class for the icmplib package.
-- `NameLookupError`: Raised when the requested name does not exist or cannot be resolved. This concerns both Fully Qualified Domain Names and hostnames.
-- `ICMPSocketError`: Base class for ICMP sockets exceptions.
-- `SocketAddressError`: Raised when the requested address cannot be assigned to the socket.
-- `SocketPermissionError`: Raised when the privileges are insufficient to create the socket.
-- `SocketUnavailableError`: Raised when an action is performed while the socket is closed.
-- `SocketBroadcastError`: Raised when a broadcast address is used and the corresponding option is not enabled on the socket.
-- `TimeoutExceeded`: Raised when a timeout occurs on a socket.
-- `ICMPError`: Base class for ICMP error messages.
-- `DestinationUnreachable`: Destination Unreachable message is generated by the host or its inbound gateway to inform the client that the destination is unreachable for some reason.
-- `TimeExceeded`: Time Exceeded message is generated by a gateway to inform the source of a discarded datagram due to the time to live field reaching zero. A Time Exceeded message may also be sent by a host if it fails to reassemble a fragmented datagram within its time limit.
-
-Use the `message` property to get the error message. `ICMPError` subclasses have a `reply` property to retrieve the response.
-
-<br>
-
-### Examples
-#### Sockets in action
-```python
-def single_ping(address, timeout=2, id=PID):
-    # Create an ICMP socket
-    sock = ICMPv4Socket()
-
-    # Create an ICMP request
-    # See the 'ICMPRequest' class for details
-    request = ICMPRequest(
-        destination=address,
-        id=id,
-        sequence=1)
-
-    try:
-        sock.send(request)
-
-        # If the program arrives in this section, it means that the
-        # packet has been transmitted.
-
-        reply = sock.receive(request, timeout)
-
-        # If the program arrives in this section, it means that a
-        # packet has been received. The reply has the same identifier
-        # and sequence number that the request but it can come from
-        # an intermediate gateway.
-
-        reply.raise_for_status()
-
-        # If the program arrives in this section, it means that the
-        # destination host has responded to the request.
-
-    except TimeoutExceeded as err:
-        # The timeout has been reached
-        print(err)
-
-    except DestinationUnreachable as err:
-        # The reply indicates that the destination host is unreachable
-        print(err)
-
-        # Retrieve the response
-        reply = err.reply
-
-    except TimeExceeded as err:
-        # The reply indicates that the time to live exceeded in transit
-        print(err)
-
-        # Retrieve the response
-        reply = err.reply
-
-    except ICMPLibError as err:
-        # All other errors
-        print(err)
-
-    # Automatic socket closure (garbage collector)
-```
-
-#### Verbose ping
-```python
-def verbose_ping(address, count=4, interval=1, timeout=2, id=PID):
-    # A payload of 56 bytes is used by default. You can modify it using
-    # the 'payload_size' parameter of your ICMP request.
-    print(f'PING {address}: 56 data bytes\n')
-
-    # We detect the socket to use from the specified IP address
-    if is_ipv6_address(address):
-        sock = ICMPv6Socket()
-
-    else:
-        sock = ICMPv4Socket()
-
-    for sequence in range(count):
-        # We create an ICMP request
-        request = ICMPRequest(
-            destination=address,
-            id=id,
-            sequence=sequence)
-
-        try:
-            # We send the request
-            sock.send(request)
-
-            # We are awaiting receipt of an ICMP reply
-            reply = sock.receive(request, timeout)
-
-            # We received a reply
-            # We display some information
-            print(f'{reply.bytes_received} bytes from '
-                  f'{reply.source}: ', end='')
-
-            # We throw an exception if it is an ICMP error message
-            reply.raise_for_status()
-
-            # We calculate the round-trip time and we display it
-            round_trip_time = (reply.time - request.time) * 1000
-
-            print(f'icmp_seq={sequence} '
-                  f'time={round(round_trip_time, 3)} ms')
-
-            # We pause before continuing
-            if sequence < count - 1:
-                sleep(interval)
-
-        except TimeoutExceeded:
-            # The timeout has been reached
-            print(f'Request timeout for icmp_seq {sequence}')
-
-        except ICMPError as err:
-            # An ICMP error message has been received
-            print(err)
-
-        except ICMPLibError:
-            # All other errors
-            print('An error has occurred.')
-
-
-verbose_ping('1.1.1.1')
-
-# PING 1.1.1.1: 56 data bytes
-# 64 bytes from 1.1.1.1: icmp_seq=0 time=12.061 ms
-# 64 bytes from 1.1.1.1: icmp_seq=1 time=12.597 ms
-# 64 bytes from 1.1.1.1: icmp_seq=2 time=12.475 ms
-# 64 bytes from 1.1.1.1: icmp_seq=3 time=10.822 ms
+>>> import asyncio
+>>> from icmplib import async_ping
+
+>>> async def is_alive(address):
+...     host = await async_ping(address, count=10, interval=0.2)
+...     return host.is_alive
+
+>>> asyncio.run(is_alive('1.1.1.1'))
+True
 ```
 
 <br>
 
-## FAQ
+### async_multiping
 
-### How to resolve a FQDN/domain name or a hostname?
-The use of the built-in `resolve` function is recommended:
+Send ICMP Echo Request packets to several network hosts.
+
+*This function is non-blocking.*
 
 ```python
->>> resolve('github.com')
-'140.82.118.4'
+async_multiping(addresses, count=2, interval=0.5, timeout=2, concurrent_tasks=50, source=None, family=None, privileged=True, **kwargs)
 ```
 
-- If several IP addresses are available, only the first one is returned. This function searches for IPv4 addresses first before searching for IPv6 addresses.
-- If you pass an IP address, no lookup is done. The same address is returned.
-- Raises a `NameLookupError` exception if the requested name does not exist or cannot be resolved.
+#### Parameters, return value and exceptions
 
-### How to use the library without root privileges?
-Since its version 2.0, icmplib can be used without root privileges.
+The same parameters, return values and exceptions as for the [`multiping`] function.
 
-For this, you can set the `privileged` parameter to `False` on the `ping` and `multiping` functions, as well as the low level classes. By disabling this parameter, the kernel handles some parts of the ICMP headers.
+#### Example
 
-On some Linux systems, you must allow this feature:
+```python
+>>> import asyncio
+>>> from icmplib import async_multiping
 
-```shell
-$ echo 'net.ipv4.ping_group_range = 0 2147483647' | sudo tee -a /etc/sysctl.conf
-$ sudo sysctl -p
+>>> async def are_alive(*addresses):
+...     hosts = await async_multiping(addresses)
+...     
+...     for host in hosts:
+...         if not host.is_alive:
+...             return False
+...
+...     return True
+
+>>> asyncio.run(are_alive('10.0.0.5', '127.0.0.1', '::1'))
+False
 ```
-
-You can check the current value with the following command:
-
-```shell
-$ sysctl net.ipv4.ping_group_range
-net.ipv4.ping_group_range = 0 2147483647
-```
-
-*Since Ubuntu 20.04 LTS, this manipulation is no longer necessary.*
-
-[Read more on www.kernel.org](https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt)
-
-### Why I have no response from a remote host?
-In the event of no response from a remote host, several causes are possible:
-- Your computer's firewall may not be properly configured. This impacts in particular the `traceroute` function which can no longer receive ICMP Time Exceeded messages.
-- The remote host or an upstream gateway is down.
-- The remote host or an upstream gateway drops ICMP messages for security reasons.
-- In the case of the `traceroute` function, if the last host in the list is not the one expected, more than 30 hops (default) may be needed to reach it. You can try increasing the value of the `max_hops` parameter.
 
 <br>
+
+## Documentation
+
+This page only gives an overview of the features of icmplib.
+
+To learn more about the built-in functions, on how to create your own and handle exceptions, you can click on the following link:
+
+- :rocket: [Documentation]
 
 ## Contributing
 
 Comments and enhancements are welcome.
 
-All development is done on [GitHub](https://github.com/ValentinBELYN/icmplib). Use [Issues](https://github.com/ValentinBELYN/icmplib/issues) to report problems and submit feature requests. Please include a minimal example that reproduces the bug.
+All development is done on [GitHub]. Use [Issues] to report problems and submit feature requests. Please include a minimal example that reproduces the bug.
 
 ## Donate
 
 icmplib is completely free and open source. It has been fully developed on my free time. If you enjoy it, please consider donating to support the development.
 
-- [:tada: Donate via PayPal](https://paypal.me/ValentinBELYN)
+- :tada: [Donate via PayPal]
 
 ## License
 
 Copyright 2017-2021 Valentin BELYN.
 
-Code released under the GNU LGPLv3 license. See the [LICENSE](LICENSE) for details.
+Code released under the GNU LGPLv3 license. See the [LICENSE] for details.
+
+[Learn more about the `privileged` parameter.]: docs/6-use-icmplib-without-privileges.md
+[Documentation]: docs
+[GitHub]: https://github.com/ValentinBELYN/icmplib
+[Issues]: https://github.com/ValentinBELYN/icmplib/issues
+[Donate via PayPal]: https://paypal.me/ValentinBELYN
+[LICENSE]: LICENSE
+[`ping`]: #ping
+[`multiping`]: #multiping
+[`ICMPv4Socket`]: docs/3-sockets.md#ICMPv4Socket
+[`ICMPv6Socket`]: docs/3-sockets.md#ICMPv6Socket
+[`NameLookupError`]: docs/4-exceptions.md#NameLookupError
+[`ICMPSocketError`]: docs/4-exceptions.md#ICMPSocketError
+[`SocketAddressError`]: docs/4-exceptions.md#SocketAddressError
+[`SocketPermissionError`]: docs/4-exceptions.md#SocketPermissionError
+[`resolve`]: docs/5-utilities.md#resolve
