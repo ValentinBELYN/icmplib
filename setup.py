@@ -28,4 +28,4 @@
 
 from setuptools import setup
 
-setup()
+setup(name='icmplib')
