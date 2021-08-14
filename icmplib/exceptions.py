@@ -32,15 +32,6 @@ class ICMPLibError(Exception):
     Exception class for the icmplib package.
 
     '''
-    def __init__(self, message):
-        self._message = message
-
-    def __str__(self):
-        return self._message
-
-    @property
-    def message(self):
-        return self._message
 
 
 class NameLookupError(ICMPLibError):
