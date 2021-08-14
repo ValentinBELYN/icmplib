@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v3.0.1](https://github.com/ValentinBELYN/icmplib/releases/tag/v3.0.1) - 2021-08-14
+- Make the `SocketPermissionError` more explicit when the OS does not allow instantiation of unprivileged sockets.
+- Delete unnecessary properties from exceptions.
+- Improve SEO on GitHub.
+
 ## [v3.0.0](https://github.com/ValentinBELYN/icmplib/releases/tag/v3.0.0) - 2021-06-01
 **icmplib 3.0 is here! :rocket:**
 
