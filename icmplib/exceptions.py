@@ -77,8 +77,15 @@ class SocketPermissionError(ICMPSocketError):
     Raised when the privileges are insufficient to create the socket.
 
     '''
-    def __init__(self):
-        message = 'Root privileges are required to create the socket'
+    def __init__(self, privileged):
+        if privileged:
+            message = 'Root privileges are required to create the socket'
+        else:
+            message = 'A prior configuration of your OS is required ' \
+                      'to use ICMP sockets without root privileges. ' \
+                      'Read more on https://github.com/ValentinBELYN' \
+                      '/icmplib'
+
         super().__init__(message)
 
 

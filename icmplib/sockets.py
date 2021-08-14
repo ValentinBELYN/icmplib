@@ -94,7 +94,7 @@ class ICMPSocket:
 
         except OSError as err:
             if err.errno in (1, 13, 10013):
-                raise SocketPermissionError
+                raise SocketPermissionError(privileged)
 
             if err.errno in (-9, 49, 99, 10049, 11001):
                 raise SocketAddressError(address)
