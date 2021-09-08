@@ -233,6 +233,15 @@ class ICMPSocket:
             bytes_received=bytes_received,
             time=current_time)
 
+    def _get_address_info(self, destination):
+        """Information required by the socket to describe a destination."""
+        addrinfo = socket.getaddrinfo(destination, port=None,
+                                      family=self._sock.family,
+                                      type=self._sock.type)
+        if len(addrinfo) == 0:
+            raise SocketAddressError("Name or service not found")
+        return addrinfo[0][4]
+
     def send(self, request):
         '''
         Send an ICMP request message over the network to a remote host.
@@ -269,7 +278,7 @@ class ICMPSocket:
             self._set_traffic_class(request.traffic_class)
 
             request._time = time()
-            self._sock.sendto(packet, (request.destination, 0))
+            self._sock.sendto(packet, self._get_address_info(request.destination))
 
             # On Linux, the ICMP request identifier is replaced by the
             # kernel with a random port number when a datagram socket is
