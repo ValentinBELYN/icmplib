@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v3.0.2](https://github.com/ValentinBELYN/icmplib/releases/tag/v3.0.2) - 2021-10-31
+- Add support for IPv6 addresses with zone index.
+- The `payload` property of an `ICMPRequest` now returns a random value if the payload is not defined instead of `None`.
+- Optimize imports.
+
 ## [v3.0.1](https://github.com/ValentinBELYN/icmplib/releases/tag/v3.0.1) - 2021-08-14
 - Make the `SocketPermissionError` more explicit when the OS does not allow instantiation of unprivileged sockets.
 - Delete unnecessary properties from exceptions.
