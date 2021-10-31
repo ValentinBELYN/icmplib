@@ -30,7 +30,7 @@ from time import sleep
 
 from .sockets import ICMPv4Socket, ICMPv6Socket
 from .models import ICMPRequest, Hop
-from .exceptions import *
+from .exceptions import TimeExceeded, ICMPLibError
 from .utils import *
 
 

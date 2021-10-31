@@ -31,7 +31,7 @@ from time import sleep
 
 from .sockets import ICMPv4Socket, ICMPv6Socket, AsyncSocket
 from .models import ICMPRequest, Host
-from .exceptions import *
+from .exceptions import ICMPLibError
 from .utils import *
 
 
