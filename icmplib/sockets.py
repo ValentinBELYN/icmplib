@@ -32,7 +32,7 @@ from time import time
 
 from .models import ICMPReply
 from .exceptions import *
-from .utils import *
+from .utils import PLATFORM_LINUX, PLATFORM_MACOS, PLATFORM_WINDOWS
 
 
 class ICMPSocket:
@@ -256,20 +256,23 @@ class ICMPSocket:
         if not self._sock:
             raise SocketUnavailableError
 
-        payload = request.payload or \
-            random_byte_message(request.payload_size)
-
-        packet = self._create_packet(
-            id=request.id,
-            sequence=request.sequence,
-            payload=payload)
-
         try:
+            sock_destination = socket.getaddrinfo(
+                host=request.destination,
+                port=None,
+                family=self._sock.family,
+                type=self._sock.type)[0][4]
+
+            packet = self._create_packet(
+                id=request.id,
+                sequence=request.sequence,
+                payload=request.payload)
+
             self._set_ttl(request.ttl)
             self._set_traffic_class(request.traffic_class)
 
             request._time = time()
-            self._sock.sendto(packet, (request.destination, 0))
+            self._sock.sendto(packet, sock_destination)
 
             # On Linux, the ICMP request identifier is replaced by the
             # kernel with a random port number when a datagram socket is
