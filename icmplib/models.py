@@ -27,6 +27,7 @@
 '''
 
 from .exceptions import *
+from .utils import random_byte_message
 
 
 class ICMPRequest:
@@ -121,10 +122,10 @@ class ICMPRequest:
     def payload(self):
         '''
         The payload content in bytes.
-        Return `None` if the payload is random.
+        Return a random payload if not defined.
 
         '''
-        return self._payload
+        return self._payload or random_byte_message(self._payload_size)
 
     @property
     def payload_size(self):
