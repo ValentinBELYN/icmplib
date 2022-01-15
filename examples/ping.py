@@ -6,7 +6,7 @@
 
         https://github.com/ValentinBELYN/icmplib
 
-    :copyright: Copyright 2017-2021 Valentin BELYN.
+    :copyright: Copyright 2017-2022 Valentin BELYN.
     :license: GNU LGPLv3, see the LICENSE for details.
 
     ~~~~~~~

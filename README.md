@@ -632,7 +632,7 @@ icmplib is completely free and open source. It has been fully developed on my fr
 
 ## License
 
-Copyright 2017-2021 Valentin BELYN.
+Copyright 2017-2022 Valentin BELYN.
 
 Code released under the GNU LGPLv3 license. See the [LICENSE] for details.
 
