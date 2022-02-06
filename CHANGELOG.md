@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v3.0.3](https://github.com/ValentinBELYN/icmplib/releases/tag/v3.0.3) - 2022-02-06
+- Add the `sock` property to the `ICMPSocket` class.
+
 ## [v3.0.2](https://github.com/ValentinBELYN/icmplib/releases/tag/v3.0.2) - 2021-10-31
 - Add support for IPv6 addresses with zone index.
 - The `payload` property of an `ICMPRequest` now returns a random value if the payload is not defined instead of `None`.
