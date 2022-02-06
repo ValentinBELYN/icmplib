@@ -357,6 +357,23 @@ class ICMPSocket:
             self._sock = None
 
     @property
+    def sock(self):
+        '''
+        Return the underlying socket (`socket.socket` object) or `None`
+        if the socket is closed.
+
+        This property should only be used if the feature you want is not
+        yet implemented. Some changes made to this socket may cause
+        unexpected behavior or be incompatible with later versions of
+        the library.
+
+        Prefer to use the other methods and properties defined within
+        this class if possible.
+
+        '''
+        return self._sock
+
+    @property
     def blocking(self):
         '''
         Indicate whether the socket is in blocking mode.

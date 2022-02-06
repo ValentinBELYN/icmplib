@@ -229,6 +229,16 @@ ICMPv4Socket(address=None, privileged=True)
 
 #### Properties only
 
+- `sock`
+
+  Return the underlying socket or `None` if the socket is closed.
+
+  This property should only be used if the feature you want is not yet implemented. Some changes made to this socket may cause unexpected behavior or be incompatible with later versions of the library.
+
+  Prefer to use the other methods and properties defined within this class if possible.
+
+  - Type: `socket.socket` or `None`
+
 - `address`
 
   The IP address from which the socket listens and sends packets. Return `None` if the socket listens on all interfaces.
