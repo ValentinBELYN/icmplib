@@ -219,6 +219,11 @@ class ICMPSocket:
         if len(packet) < self._ICMP_PAYLOAD_OFFSET:
             return None
 
+        if type == 0:
+            ttl, = unpack('B', packet[8:9])
+        else:
+            ttl = None
+
         id, sequence = unpack('!2H', packet[
             self._ICMP_ID_OFFSET:
             self._ICMP_PAYLOAD_OFFSET])
@@ -231,7 +236,8 @@ class ICMPSocket:
             type=type,
             code=code,
             bytes_received=bytes_received,
-            time=current_time)
+            time=current_time,
+            ttl=ttl)
 
     def send(self, request):
         '''

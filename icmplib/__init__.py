@@ -40,5 +40,5 @@ __author__    = 'Valentin BELYN'
 __copyright__ = 'Copyright 2017-2022 Valentin BELYN'
 __license__   = 'GNU Lesser General Public License v3.0'
 
-__version__   = '3.0.3'
-__build__     = '220206'
+__version__   = '3.0.3-cesbit0'
+__build__     = '220623'

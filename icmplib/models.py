@@ -195,12 +195,16 @@ class ICMPReply:
     :type time: float
     :param time: The timestamp of the ICMP reply.
 
+    :type ttl: int/None
+    :param time: The time-to-live (TTL) for the ICMP reply. Can be None when
+        TTL is not applicable for the ICMP message.
+
     '''
     __slots__ = '_source', '_family', '_id', '_sequence', '_type', \
-                '_code', '_bytes_received', '_time'
+                '_code', '_bytes_received', '_time', '_ttl'
 
     def __init__(self, source, family, id, sequence, type, code,
-            bytes_received, time):
+            bytes_received, time, ttl):
 
         self._source = source
         self._family = family
@@ -210,6 +214,7 @@ class ICMPReply:
         self._code = code
         self._bytes_received = bytes_received
         self._time = time
+        self._ttl = ttl
 
     def __repr__(self):
         return f'<ICMPReply [{self._source}]>'
@@ -303,6 +308,13 @@ class ICMPReply:
         '''
         return self._time
 
+    @property
+    def ttl(self):
+        '''
+        The time-to-live (TTL) of the ICMP reply or None if not applicable.
+
+        '''
+        return self._ttl
 
 class Host:
     '''
@@ -321,12 +333,13 @@ class Host:
     :param rtts: The list of round-trip times expressed in milliseconds.
 
     '''
-    __slots__ = '_address', '_packets_sent', '_rtts'
+    __slots__ = '_address', '_packets_sent', '_rtts', '_ttls'
 
-    def __init__(self, address, packets_sent, rtts):
+    def __init__(self, address, packets_sent, rtts, ttls):
         self._address = address
         self._packets_sent = packets_sent
         self._rtts = rtts
+        self._ttls = ttls
 
     def __repr__(self):
         return f'<Host [{self._address}]>'
@@ -338,7 +351,9 @@ class Host:
                f'  Packet loss:      {self.packet_loss * 100}%\n' \
                f'  Round-trip times: {self.min_rtt} ms / ' \
                f'{self.avg_rtt} ms / {self.max_rtt} ms\n' \
-               f'  Jitter:           {self.jitter} ms\n' + '-' * 60
+               f'  Jitter:           {self.jitter} ms\n' \
+               f'  Time-to-lives:    {self.min_ttl} / {self.max_ttl}\n' +\
+               '-' * 60
 
     @property
     def address(self):
@@ -446,6 +461,28 @@ class Host:
 
         '''
         return len(self._rtts) > 0
+
+    @property
+    def min_ttl(self):
+        '''
+        The minimun time-to-live (TTL) value.
+
+        '''
+        if not self._ttls:
+            return 0
+
+        return min(self._ttls)
+
+    @property
+    def max_ttl(self):
+        '''
+        The minimun time-to-live (TTL) value.
+
+        '''
+        if not self._ttls:
+            return 0
+
+        return max(self._ttls)
 
 
 class Hop(Host):
