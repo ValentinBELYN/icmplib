@@ -36,7 +36,7 @@ from .utils import *
 
 
 def ping(address, count=4, interval=1, timeout=2, id=None, source=None,
-        family=None, privileged=True, **kwargs):
+         family=None, privileged=True, **kwargs):
     '''
     Send ICMP Echo Request packets to a network host.
 
@@ -137,6 +137,7 @@ def ping(address, count=4, interval=1, timeout=2, id=None, source=None,
     id = id or unique_identifier()
     packets_sent = 0
     rtts = []
+    ttls = []
 
     with _Socket(source, privileged) as sock:
         for sequence in range(count):
@@ -159,14 +160,17 @@ def ping(address, count=4, interval=1, timeout=2, id=None, source=None,
                 rtt = (reply.time - request.time) * 1000
                 rtts.append(rtt)
 
+                ttl = reply.ttl
+                ttls.append(0 if ttl is None else ttl)
+
             except ICMPLibError:
                 pass
 
-    return Host(address, packets_sent, rtts)
+    return Host(address, packets_sent, rtts, ttls)
 
 
 async def async_ping(address, count=4, interval=1, timeout=2, id=None,
-        source=None, family=None, privileged=True, **kwargs):
+                     source=None, family=None, privileged=True, **kwargs):
     '''
     Send ICMP Echo Request packets to a network host.
 
@@ -270,6 +274,7 @@ async def async_ping(address, count=4, interval=1, timeout=2, id=None,
     id = id or unique_identifier()
     packets_sent = 0
     rtts = []
+    ttls = []
 
     with AsyncSocket(_Socket(source, privileged)) as sock:
         for sequence in range(count):
@@ -292,7 +297,10 @@ async def async_ping(address, count=4, interval=1, timeout=2, id=None,
                 rtt = (reply.time - request.time) * 1000
                 rtts.append(rtt)
 
+                ttl = reply.ttl
+                ttls.append(0 if ttl is None else ttl)
+
             except ICMPLibError:
                 pass
 
-    return Host(address, packets_sent, rtts)
+    return Host(address, packets_sent, rtts, ttls)
