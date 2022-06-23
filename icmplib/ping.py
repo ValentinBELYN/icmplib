@@ -36,7 +36,7 @@ from .utils import *
 
 
 def ping(address, count=4, interval=1, timeout=2, id=None, source=None,
-        family=None, privileged=True, **kwargs):
+         family=None, privileged=True, **kwargs):
     '''
     Send ICMP Echo Request packets to a network host.
 
@@ -170,7 +170,7 @@ def ping(address, count=4, interval=1, timeout=2, id=None, source=None,
 
 
 async def async_ping(address, count=4, interval=1, timeout=2, id=None,
-        source=None, family=None, privileged=True, **kwargs):
+                     source=None, family=None, privileged=True, **kwargs):
     '''
     Send ICMP Echo Request packets to a network host.
 

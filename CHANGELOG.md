@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v3.0.3-cesbit0](https://github.com/ValentinBELYN/icmplib/releases/tag/v3.0.3) - 2022-06-23
+## [v3.0.3-cesbit0](https://github.com/cesbit/icmplib/tags/v3.0.3-cesbit0) - 2022-06-23
 - Add `min_ttl` and `max_ttl` to the `Host` class and `ttl` to the `ICMPReply` class.
 
 ## [v3.0.3](https://github.com/ValentinBELYN/icmplib/releases/tag/v3.0.3) - 2022-02-06

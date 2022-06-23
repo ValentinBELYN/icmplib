@@ -220,6 +220,8 @@ class ICMPSocket:
             return None
 
         if type == 0:
+            # TODO: Type 0 is the ICMP Reply message for IPv4. To support IPv6,
+            #       the library probably needs to read Type 129.
             ttl, = unpack('B', packet[8:9])
         else:
             ttl = None
