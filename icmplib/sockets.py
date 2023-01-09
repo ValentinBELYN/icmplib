@@ -28,13 +28,24 @@
 
 import socket, asyncio
 from struct import pack, unpack
-from time import time
+from time import time, perf_counter
 
 from .models import ICMPReply
 from .exceptions import *
 from .utils import PLATFORM_LINUX, PLATFORM_MACOS, PLATFORM_WINDOWS
 
 
+'''
+If OS Windows, then we use time.perf_counter(). Else - time.time()
+
+'''
+if PLATFORM_WINDOWS:
+    get_time = perf_counter
+else:
+    get_time = time
+
+    
+    
 class ICMPSocket:
     '''
     Base class for ICMP sockets.
@@ -271,7 +282,7 @@ class ICMPSocket:
             self._set_ttl(request.ttl)
             self._set_traffic_class(request.traffic_class)
 
-            request._time = time()
+            request._time = get_time()
             self._sock.sendto(packet, sock_destination)
 
             # On Linux, the ICMP request identifier is replaced by the
@@ -318,12 +329,12 @@ class ICMPSocket:
             raise SocketUnavailableError
 
         self._sock.settimeout(timeout)
-        time_limit = time() + timeout
+        time_limit = get_time() + timeout
 
         try:
             while True:
                 response = self._sock.recvfrom(1024)
-                current_time = time()
+                current_time = get_time()
 
                 packet = response[0]
                 source = response[1][0]
@@ -737,7 +748,7 @@ class AsyncSocket:
             raise SocketUnavailableError
 
         loop = asyncio.get_running_loop()
-        time_limit = time() + timeout
+        time_limit = get_time() + timeout
         remaining_time = timeout
 
         try:
@@ -746,7 +757,7 @@ class AsyncSocket:
                     loop.sock_recv(self._icmp_sock._sock, 1024),
                     remaining_time)
 
-                current_time = time()
+                current_time = get_time()
 
                 if current_time > time_limit:
                     raise asyncio.TimeoutError
