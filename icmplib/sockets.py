@@ -35,6 +35,28 @@ from .exceptions import *
 from .utils import PLATFORM_LINUX, PLATFORM_MACOS, PLATFORM_WINDOWS
 
 
+socket.IP_MTU_DISCOVER = 10
+socket.IPV6_MTU_DISCOVER = 23
+
+# IP_MTU_DISCOVER values
+socket.IP_PMTUDISC_DONT  = 0  # Never send DF frames
+socket.IP_PMTUDISC_WANT  = 1  # Use per route hints
+socket.IP_PMTUDISC_DO    = 2  # Always DF
+socket.IP_PMTUDISC_PROBE = 3 # Ignore dst pmtu
+
+# IPV6_MTU_DISCOVER values
+socket.IPV6_PMTUDISC_DONT  = 0
+socket.IPV6_PMTUDISC_WANT  = 1
+socket.IPV6_PMTUDISC_DO    = 2
+socket.IPV6_PMTUDISC_PROBE = 3
+
+PMTUDISC_VAL = {
+        'dont' : [socket.IP_PMTUDISC_DONT,  socket.IPV6_PMTUDISC_DONT],
+        'want' : [socket.IP_PMTUDISC_WANT,  socket.IPV6_PMTUDISC_WANT],
+        'do'   : [socket.IP_PMTUDISC_DO,    socket.IPV6_PMTUDISC_DO],
+        'probe': [socket.IP_PMTUDISC_PROBE, socket.IPV6_PMTUDISC_PROBE]
+}
+
 class ICMPSocket:
     '''
     Base class for ICMP sockets.
@@ -142,6 +164,15 @@ class ICMPSocket:
         Set the DS Field (formerly TOS) or the Traffic Class field of
         every IP packet originating from this socket. Must be
         overridden.
+
+        '''
+        raise NotImplementedError
+
+    def _set_pmtudisc_opt(self, pmtudisc_opt):
+        '''
+        Set the PMTU Discovery strategy. In IPv4, this is the DF flag.
+        In IPv6, this is a socket option.
+        Must be overridden.
 
         '''
         raise NotImplementedError
@@ -270,6 +301,7 @@ class ICMPSocket:
 
             self._set_ttl(request.ttl)
             self._set_traffic_class(request.traffic_class)
+            self._set_pmtudisc_opt(request.pmtudisc_opt)
 
             request._time = time()
             self._sock.sendto(packet, sock_destination)
@@ -516,6 +548,20 @@ class ICMPv4Socket(ICMPSocket):
             socket.IP_TOS,
             traffic_class)
 
+    def _set_pmtudisc_opt(self, pmtudisc_opt):
+        '''
+        Set the DF flag in the IPv4 header of every packet originating
+        from this socket.
+
+        '''
+        if not PLATFORM_LINUX:
+            raise NotImplementedError
+
+        self._sock.setsockopt(
+            socket.IPPROTO_IP,
+            socket.IP_MTU_DISCOVER,
+            PMTUDISC_VAL[pmtudisc_opt][0])
+
     @property
     def broadcast(self):
         '''
@@ -653,6 +699,25 @@ class ICMPv6Socket(ICMPSocket):
             socket.IPPROTO_IPV6,
             socket.IPV6_TCLASS,
             traffic_class)
+
+    def _set_pmtudisc_opt(self, pmtudisc_opt):
+        '''
+        Set the DONTFRAG socket option for every packet originating
+        from this socket.
+
+        '''
+        if not PLATFORM_LINUX:
+            raise NotImplementedError
+
+        self._sock.setsockopt(
+            socket.IPPROTO_IPV6,
+            socket.IPV6_MTU_DISCOVER,
+            PMTUDISC_VAL[pmtudisc_opt][1])
+
+        self._sock.setsockopt(
+            socket.IPPROTO_IPV6,
+            socket.IPV6_DONTFRAG,
+            1 if pmtudisc_opt in ['do', 'want', 'probe'] else 0)
 
 
 class AsyncSocket:

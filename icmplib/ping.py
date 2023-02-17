@@ -101,6 +101,13 @@ def ping(address, count=4, interval=1, timeout=2, id=None, source=None,
         Intermediate routers must be able to support this feature.
         Only available on Unix systems. Ignored on Windows.
 
+    :type pmtudisc_opt: str, optional
+    :param pmtudisc_opt: The Path MTU discovery strategy.
+        Options are:
+        do   - prohibit fragmentation, even local one,
+        want - do PMTU discovery and fragment locally when packet size is large), or
+        dont - do not set DF flag.
+
     :rtype: Host
     :returns: A `Host` object containing statistics about the desired
         destination.
@@ -232,6 +239,13 @@ async def async_ping(address, count=4, interval=1, timeout=2, id=None,
         (Best-effort delivery).
         Intermediate routers must be able to support this feature.
         Only available on Unix systems. Ignored on Windows.
+
+    :type pmtudisc_opt: str, optional
+    :param pmtudisc_opt: The Path MTU discovery strategy.
+        Options are:
+        do   - prohibit fragmentation, even local one,
+        want - do PMTU discovery and fragment locally when packet size is large), or
+        dont - do not set DF flag.
 
     :rtype: Host
     :returns: A `Host` object containing statistics about the desired

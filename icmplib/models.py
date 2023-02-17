@@ -70,12 +70,20 @@ class ICMPRequest:
         Intermediate routers must be able to support this feature.
         Only available on Unix systems. Ignored on Windows.
 
+    :type pmtudisc_opt: str, optional
+    :param pmtudisc_opt: The Path MTU Discovery strategy.
+        Options are:
+        do   - prohibit fragmentation, even local one,
+        want - do PMTU discovery and fragment locally when packet size is large), or
+        dont - do not set DF flag.
+
     '''
     __slots__ = '_destination', '_id', '_sequence', '_payload', \
-                '_payload_size', '_ttl', '_traffic_class', '_time'
+                '_payload_size', '_ttl', '_traffic_class', '_time', \
+                '_pmtudisc_opt'
 
     def __init__(self, destination, id, sequence, payload=None,
-            payload_size=56, ttl=64, traffic_class=0):
+            payload_size=56, ttl=64, traffic_class=0, pmtudisc_opt='do'):
 
         if payload:
             payload_size = len(payload)
@@ -88,6 +96,7 @@ class ICMPRequest:
         self._ttl = ttl
         self._traffic_class = traffic_class
         self._time = 0
+        self._pmtudisc_opt = pmtudisc_opt
 
     def __repr__(self):
         return f'<ICMPRequest [{self._destination}]>'
@@ -161,6 +170,19 @@ class ICMPRequest:
 
         '''
         return self._time
+
+    @property
+    def pmtudisc_opt(self):
+        '''
+        The Path MTU Discovery strategy.
+
+        Options are:
+        do   - default; prohibit fragmentation, even local one,
+        want - do PMTU discovery and fragment locally when packet size is large), or
+        dont - do not set DF flag.
+
+        '''
+        return self._pmtudisc_opt
 
 
 class ICMPReply:
