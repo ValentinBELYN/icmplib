@@ -137,10 +137,11 @@ def ping(address, count=4, interval=1, timeout=2, id=None, source=None,
     id = id or unique_identifier()
     packets_sent = 0
     rtts = []
+    last = count - 1
 
     with _Socket(source, privileged) as sock:
         for sequence in range(count):
-            if sequence > 0:
+            if 0 < sequence < last:
                 sleep(interval)
 
             request = ICMPRequest(
@@ -270,10 +271,11 @@ async def async_ping(address, count=4, interval=1, timeout=2, id=None,
     id = id or unique_identifier()
     packets_sent = 0
     rtts = []
+    last = count - 1
 
     with AsyncSocket(_Socket(source, privileged)) as sock:
         for sequence in range(count):
-            if sequence > 0:
+            if 0 < sequence < last:
                 await asyncio.sleep(interval)
 
             request = ICMPRequest(
