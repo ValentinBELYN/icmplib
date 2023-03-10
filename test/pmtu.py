@@ -31,8 +31,18 @@ def findmtu(host, verbose=False, debug=False):
     if verbose:
         print(f"\nhost: {host}")
 
+    result = ping(host)
+    if not result.is_alive:
+        return 0
+
+    timeout = 1.5 * result.max_rtt / 1E3
+    interval = 0.5 * result.max_rtt / 1E3
+    if verbose:
+        print(result)
+        print(f'PMTU discovery timeout: {timeout}, interval: {interval}')
+
+    test_size = 1700
     while upper - lower > 1:
-        test_size = lower + int((upper - lower) / 2)
         test_MTU = test_size + SIZE_ICMP_HDR + size_ip_hdr
         if verbose:
             if debug:
@@ -47,8 +57,8 @@ def findmtu(host, verbose=False, debug=False):
         result = ping(
             host,
             count=2,
-            interval=0.5,
-            timeout=1,
+            interval=interval,
+            timeout=timeout,
             payload_size=test_size,
             pmtudisc_opt="do",
         )
@@ -61,6 +71,8 @@ def findmtu(host, verbose=False, debug=False):
             upper = test_size
             if verbose:
                 print("❌")
+
+        test_size = lower + int((upper - lower) / 2)
 
     return MTU
 
