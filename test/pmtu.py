@@ -1,3 +1,4 @@
+import argparse
 import ipaddress
 from icmplib import ping
 
@@ -64,8 +65,15 @@ def findmtu(host, verbose=False, debug=False):
     return MTU
 
 
-hosts = ["10.0.0.1", "fc00::1", "10.1.0.0", "fc00:1::2", "10.1.0.1", "fc00:1::1"]
+parser = argparse.ArgumentParser()
+parser.add_argument("-v", "--verbose", help="verbose output", action="store_true")
+parser.add_argument("-d", "--debug", help="debug output", action="store_true")
+parser.add_argument("hosts", help="one or more hosts to test", nargs='+')
+args = parser.parse_args()
 
-for host in hosts:
-    mtu = findmtu(host, verbose=False, debug=False)
-    print(f"host: {host} MTU: {mtu}")
+for host in args.hosts:
+    mtu = findmtu(host, verbose=args.verbose, debug=args.debug)
+    if mtu:
+        print(f"host: {host} MTU: {mtu}")
+    else:
+        print("{host} is unreachable")
