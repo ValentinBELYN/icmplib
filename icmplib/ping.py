@@ -30,8 +30,8 @@ import asyncio
 from time import sleep
 
 from .sockets import ICMPv4Socket, ICMPv6Socket, AsyncSocket
-from .models import ICMPRequest, Host
-from .exceptions import ICMPLibError
+from .models import ICMPRequest, Host, NonResolveableHost
+from .exceptions import ICMPLibError, NameLookupError
 from .utils import *
 
 
@@ -101,7 +101,7 @@ def ping(address, count=4, interval=1, timeout=2, id=None, source=None,
         Intermediate routers must be able to support this feature.
         Only available on Unix systems. Ignored on Windows.
 
-    :rtype: Host
+    :rtype: Host, NonResolveableHost
     :returns: A `Host` object containing statistics about the desired
         destination.
 
@@ -166,7 +166,8 @@ def ping(address, count=4, interval=1, timeout=2, id=None, source=None,
 
 
 async def async_ping(address, count=4, interval=1, timeout=2, id=None,
-        source=None, family=None, privileged=True, **kwargs):
+        source=None, family=None, privileged=True, catch_name_lookup_error=False,
+        **kwargs):
     '''
     Send ICMP Echo Request packets to a network host.
 
@@ -214,6 +215,10 @@ async def async_ping(address, count=4, interval=1, timeout=2, id=None,
         Default to True.
         Only available on Unix systems. Ignored on Windows.
 
+    :type catch_name_lookup_error: bool
+    :param catch_name_lookup_error: If NameLookupError should be
+        caught or not. The default is False
+
     Advanced (**kwags):
 
     :type payload: bytes, optional
@@ -238,7 +243,8 @@ async def async_ping(address, count=4, interval=1, timeout=2, id=None,
         destination.
 
     :raises NameLookupError: If you pass a hostname or FQDN in
-        parameters and it does not exist or cannot be resolved.
+        parameters and it does not exist or cannot be resolved
+        and catch_name_lookup_error is False.
     :raises SocketPermissionError: If the privileges are insufficient to
         create the socket.
     :raises SocketAddressError: If the source address cannot be assigned
@@ -256,11 +262,17 @@ async def async_ping(address, count=4, interval=1, timeout=2, id=None,
         >>> host.is_alive
         True
 
-    See the `Host` class for details.
+    See the `Host` & the `NonResolveableHost` classes for details.
 
     '''
     if is_hostname(address):
-        address = (await async_resolve(address, family))[0]
+        try:
+            address = (await async_resolve(address, family))[0]
+        except NameLookupError:
+            if not catch_name_lookup_error:
+                raise
+            else:
+                return NonResolveableHost(address, 0, [])
 
     if is_ipv6_address(address):
         _Socket = ICMPv6Socket

@@ -448,6 +448,24 @@ class Host:
         return len(self._rtts) > 0
 
 
+class NonResolveableHost(Host):
+    '''
+    A class that represents a host that has has a non-resolable
+    name. The address property is not accessible as part of this class.
+    '''
+
+    @property
+    def address(self):
+        raise NameLookupError(self._address)
+
+    def is_alive(self):
+        return False
+
+    @property
+    def packet_loss(self):
+        return 1
+
+
 class Hop(Host):
     '''
     A class that represents a hop. It extends the `Host` class and adds
