@@ -33,6 +33,7 @@ from .ping import async_ping
 
 async def async_multiping(addresses, count=2, interval=0.5, timeout=2,
         concurrent_tasks=50, source=None, family=None, privileged=True,
+        catch_name_lookup_error=False,
         **kwargs):
     '''
     Send ICMP Echo Request packets to several network hosts.
@@ -83,6 +84,10 @@ async def async_multiping(addresses, count=2, interval=0.5, timeout=2,
         Default to True.
         Only available on Unix systems. Ignored on Windows.
 
+    :type catch_name_lookup_error: bool
+    :param catch_name_lookup_error: If NameLookupError should be
+        caught or not. The default is False
+
     Advanced (**kwags):
 
     :type payload: bytes, optional
@@ -131,7 +136,8 @@ async def async_multiping(addresses, count=2, interval=0.5, timeout=2,
         10.0.0.5 is down!
         ::1 is up!
 
-    See the `Host` class for details.
+    See the `Host` & the `NonResolvableHost` classes for details.
+
 
     '''
     loop = asyncio.get_running_loop()
@@ -153,6 +159,7 @@ async def async_multiping(addresses, count=2, interval=0.5, timeout=2,
                 source=source,
                 family=family,
                 privileged=privileged,
+                catch_name_lookup_error=catch_name_lookup_error,
                 **kwargs))
 
         tasks.append(task)
@@ -165,6 +172,7 @@ async def async_multiping(addresses, count=2, interval=0.5, timeout=2,
 
 def multiping(addresses, count=2, interval=0.5, timeout=2,
         concurrent_tasks=50, source=None, family=None, privileged=True,
+        catch_name_lookup_error=False,
         **kwargs):
     '''
     Send ICMP Echo Request packets to several network hosts.
@@ -212,6 +220,10 @@ def multiping(addresses, count=2, interval=0.5, timeout=2,
         root privileges and let the kernel handle ICMP headers.
         Default to True.
         Only available on Unix systems. Ignored on Windows.
+
+    :type catch_name_lookup_error: bool
+    :param catch_name_lookup_error: If NameLookupError should be
+        caught or not. The default is False
 
     Advanced (**kwags):
 
@@ -261,7 +273,7 @@ def multiping(addresses, count=2, interval=0.5, timeout=2,
         127.0.0.1 is up!
         ::1 is up!
 
-    See the `Host` class for details.
+    See the `Host` & the `NonResolvableHost` classes for details.
 
     '''
     return asyncio.run(
@@ -274,4 +286,5 @@ def multiping(addresses, count=2, interval=0.5, timeout=2,
             source=source,
             family=family,
             privileged=privileged,
+            catch_name_lookup_error=catch_name_lookup_error,
             **kwargs))

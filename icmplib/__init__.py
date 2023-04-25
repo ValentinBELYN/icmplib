@@ -27,7 +27,7 @@
 '''
 
 from .sockets import ICMPv4Socket, ICMPv6Socket, AsyncSocket
-from .models import ICMPRequest, ICMPReply, Host, Hop
+from .models import ICMPRequest, ICMPReply, Host, Hop, NonResolvableHost
 from .ping import ping, async_ping
 from .multiping import multiping, async_multiping
 from .traceroute import traceroute
