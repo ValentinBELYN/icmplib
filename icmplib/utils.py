@@ -2,11 +2,11 @@
     icmplib
     ~~~~~~~
 
-    The power to forge ICMP packets and do ping and traceroute.
+    Easily forge ICMP packets and make your own ping and traceroute.
 
         https://github.com/ValentinBELYN/icmplib
 
-    :copyright: Copyright 2017-2022 Valentin BELYN.
+    :copyright: Copyright 2017-2023 Valentin BELYN.
     :license: GNU LGPLv3, see the LICENSE for details.
 
     ~~~~~~~
@@ -72,6 +72,14 @@ def unique_identifier():
         _current_id &= 0xffff
 
         return _current_id
+
+
+def round_power_of_2(value):
+    '''
+    Given a positive number, find the next highest power of two.
+
+    '''
+    return 1 << (value - 1).bit_length()
 
 
 def resolve(name, family=None):
