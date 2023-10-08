@@ -74,14 +74,6 @@ def unique_identifier():
         return _current_id
 
 
-def round_power_of_2(value):
-    '''
-    Given a positive number, find the next highest power of two.
-
-    '''
-    return 1 << (value - 1).bit_length()
-
-
 def resolve(name, family=None):
     '''
     Resolve a hostname or FQDN to an IP address. Depending on the name
