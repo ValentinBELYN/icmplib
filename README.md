@@ -51,9 +51,6 @@ Use the built-in functions or build your own, you have the choice!
   $ pip3 install icmplib
   ```
 
-  *Since icmplib 3, Python 3.7 or later is required to use the library.*<br>
-  *If you are using Python 3.6 and you cannot update it, you can still install icmplib 2.*
-
 - **Import basic functions**
 
   ```python
