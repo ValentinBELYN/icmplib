@@ -31,7 +31,7 @@ Use the built-in functions or build your own, you have the choice!
 ## Features
 
 - :deciduous_tree: **Ready-to-use:** icmplib offers ready-to-use functions such as the most popular ones: `ping`, `multiping` and `traceroute`. An extensive documentation also helps you get started.
-- :gem: **Modern:** This library uses the latest mechanisms offered by Python 3.6/3.7+ and is fully object-oriented.
+- :gem: **Modern:** This library uses the latest mechanisms offered by Python 3.7+ and is fully object-oriented.
 - :rocket: **Fast:** Each class and function has been designed and optimized to deliver the best performance. Some functions are also asynchronous like the `async_ping` and `async_multiping` functions. You can ping the world in seconds!
 - :zap: **Powerful:** Use the library without root privileges, set the traffic class of ICMP packets, customize their payload, send broadcast requests and more!
 - :nut_and_bolt: **Evolutive:** Easily build your own classes and functions with `ICMPv4` and `ICMPv6` sockets.
@@ -50,9 +50,6 @@ Use the built-in functions or build your own, you have the choice!
   ```shell
   $ pip3 install icmplib
   ```
-
-  *Since icmplib 3, Python 3.7 or later is required to use the library.*<br>
-  *If you are using Python 3.6 and you cannot update it, you can still install icmplib 2.*
 
 - **Import basic functions**
 
@@ -632,7 +629,7 @@ icmplib is completely free and open source. It has been fully developed on my fr
 
 ## License
 
-Copyright 2017-2022 Valentin BELYN.
+Copyright 2017-2023 Valentin BELYN.
 
 Code released under the GNU LGPLv3 license. See the [LICENSE] for details.
 

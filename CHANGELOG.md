@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v3.0.4](https://github.com/ValentinBELYN/icmplib/releases/tag/v3.0.4) - 2023-10-10
+- Fix licensing inconsistencies.
+- Add support for the latest versions of Python.
+- Remove mentions of Python 3.6.
+
 ## [v3.0.3](https://github.com/ValentinBELYN/icmplib/releases/tag/v3.0.3) - 2022-02-06
 - Add the `sock` property to the `ICMPSocket` class.
 

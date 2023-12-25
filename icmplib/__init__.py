@@ -2,11 +2,11 @@
     icmplib
     ~~~~~~~
 
-    The power to forge ICMP packets and do ping and traceroute.
+    Easily forge ICMP packets and make your own ping and traceroute.
 
         https://github.com/ValentinBELYN/icmplib
 
-    :copyright: Copyright 2017-2022 Valentin BELYN.
+    :copyright: Copyright 2017-2023 Valentin BELYN.
     :license: GNU LGPLv3, see the LICENSE for details.
 
     ~~~~~~~
@@ -37,8 +37,8 @@ from .utils import PID, resolve, async_resolve
 
 
 __author__    = 'Valentin BELYN'
-__copyright__ = 'Copyright 2017-2022 Valentin BELYN'
+__copyright__ = 'Copyright 2017-2023 Valentin BELYN'
 __license__   = 'GNU Lesser General Public License v3.0'
 
-__version__   = '3.0.3'
-__build__     = '220206'
+__version__   = '3.0.4'
+__build__     = '231010'
