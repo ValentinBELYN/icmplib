@@ -233,7 +233,7 @@ class ICMPSocket:
             bytes_received=bytes_received,
             time=current_time)
 
-    def send(self, request):
+    def send(self, request, use_getaddrinfo=False):
         '''
         Send an ICMP request message over the network to a remote host.
 
@@ -246,6 +246,10 @@ class ICMPSocket:
             identifier defined in the request will be replaced by the
             kernel.
 
+        :type use_getaddrinfo: bool, optional
+        :param use_getaddrinfo: whether to use `socket.getaddrinfo` to
+            resolve request's destination. Default to False.
+
         :raises SocketBroadcastError: If a broadcast address is used and
             the corresponding option is not enabled on the socket
             (ICMPv4 only).
@@ -257,11 +261,13 @@ class ICMPSocket:
             raise SocketUnavailableError
 
         try:
-            sock_destination = socket.getaddrinfo(
-                host=request.destination,
-                port=None,
-                family=self._sock.family,
-                type=self._sock.type)[0][4]
+            sock_destination = (request.destination, 0)
+            if use_getaddrinfo:
+                sock_destination = socket.getaddrinfo(
+                    host=request.destination,
+                    port=None,
+                    family=self._sock.family,
+                    type=self._sock.type)[0][4]
 
             packet = self._create_packet(
                 id=request.id,
